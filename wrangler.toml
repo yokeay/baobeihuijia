@@ -1,0 +1,27 @@
+name = "baobeihuijia"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = ".vercel/output/static"
+
+# D1 Database - created via `wrangler d1 create baobeihuijia-db`
+[[d1_databases]]
+binding = "DB"
+database_name = "baobeihuijia-db"
+database_id = ""
+
+# KV Namespace - created via `wrangler kv:namespace create baobeihuijia-kv`
+[[kv_namespaces]]
+binding = "KV"
+id = ""
+
+# R2 Bucket - created via `wrangler r2 bucket create baobeihuijia-uploads`
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "baobeihuijia-uploads"
+
+[vars]
+PLATFORM = "cloudflare"
+
+[env.production.vars]
+ADMIN_USERNAME = "admin"
+JWT_SECRET = ""
+EXTERNAL_API_TOKEN = ""
