@@ -8,6 +8,7 @@ export const cases = pgTable("cases", {
   lostDate: text("lost_date").notNull(),
   lostProvince: text("lost_province"),
   lostCity: text("lost_city"),
+  lostDistrict: text("lost_district"),
   lostAddress: text("lost_address"),
   height: integer("height"),
   feature: text("feature"),

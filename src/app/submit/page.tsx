@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
-import { PROVINCES, GENDERS } from "@/lib/constants";
+import { GENDERS } from "@/lib/constants";
+import { RegionCascader } from "@/components/shared/RegionCascader";
 
 export default function SubmitPage() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function SubmitPage() {
     lostDate: "",
     lostProvince: "",
     lostCity: "",
+    lostDistrict: "",
     lostAddress: "",
     height: "",
     feature: "",
@@ -97,15 +99,18 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">走失省份</label>
-                <select className={fieldClass} value={form.lostProvince} onChange={(e) => updateField("lostProvince", e.target.value)}>
-                  <option value="">请选择</option>
-                  {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+                <label className="block text-sm font-medium text-gray-700 mb-1">走失地点</label>
+                <RegionCascader
+                  province={form.lostProvince}
+                  city={form.lostCity}
+                  district={form.lostDistrict}
+                  onProvinceChange={(v) => updateField("lostProvince", v)}
+                  onCityChange={(v) => updateField("lostCity", v)}
+                  onDistrictChange={(v) => updateField("lostDistrict", v)}
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Input label="走失城市" name="lostCity" value={form.lostCity} onChange={(e) => updateField("lostCity", e.target.value)} placeholder="城市" />
+              <div>
                 <Input label="身高 (cm)" name="height" type="number" value={form.height} onChange={(e) => updateField("height", e.target.value)} placeholder="如 120" />
               </div>
 

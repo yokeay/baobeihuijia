@@ -66,6 +66,7 @@ export async function syncFromApi(): Promise<{ added: number; skipped: number; e
       const addrParts = d.lostAddress ? d.lostAddress.split(",") : [];
       const lostProvince = addrParts[0]?.trim() || null;
       const lostCity = addrParts[1]?.trim() || null;
+      const lostDistrict = addrParts[2]?.trim() || null;
 
       await db.insert(schema.cases).values({
         id: uuidv4(),
@@ -75,6 +76,7 @@ export async function syncFromApi(): Promise<{ added: number; skipped: number; e
         lostDate: d.lostDay || null,
         lostProvince,
         lostCity,
+        lostDistrict,
         lostAddress: d.lostAddress || null,
         height: d.lostHeight || null,
         feature: d.feature || null,
@@ -82,7 +84,7 @@ export async function syncFromApi(): Promise<{ added: number; skipped: number; e
         source: "api",
         sourceUrl,
         sourceId,
-        status: "pending",
+        status: "approved",
         submitterName: d.followUp || null,
       });
       added++;

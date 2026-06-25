@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const province = searchParams.get("province");
+  const city = searchParams.get("city");
+  const district = searchParams.get("district");
   const gender = searchParams.get("gender");
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
 
@@ -13,6 +15,12 @@ export async function GET(request: Request) {
 
   if (province) {
     conditions.push(eq(schema.cases.lostProvince, province));
+  }
+  if (city) {
+    conditions.push(eq(schema.cases.lostCity, city));
+  }
+  if (district) {
+    conditions.push(eq(schema.cases.lostDistrict, district));
   }
   if (gender) {
     conditions.push(eq(schema.cases.gender, gender));
@@ -50,6 +58,7 @@ export async function POST(request: Request) {
     lostDate,
     lostProvince: body.lostProvince || null,
     lostCity: body.lostCity || null,
+    lostDistrict: body.lostDistrict || null,
     lostAddress: body.lostAddress || null,
     height: body.height || null,
     feature: body.feature || null,

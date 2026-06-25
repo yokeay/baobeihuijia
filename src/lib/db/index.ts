@@ -45,6 +45,7 @@ export async function initDb() {
         lost_date TEXT NOT NULL,
         lost_province TEXT,
         lost_city TEXT,
+        lost_district TEXT,
         lost_address TEXT,
         height INTEGER,
         feature TEXT,
