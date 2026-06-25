@@ -1,6 +1,6 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, timestamp } from "drizzle-orm/pg-core";
 
-export const cases = sqliteTable("cases", {
+export const cases = pgTable("cases", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   gender: text("gender"),
@@ -20,26 +20,26 @@ export const cases = sqliteTable("cases", {
   submitterContact: text("submitter_contact"),
   reviewedBy: text("reviewed_by"),
   reviewedAt: text("reviewed_at"),
-  createdAt: text("created_at").notNull().default("datetime('now')"),
-  updatedAt: text("updated_at").notNull().default("datetime('now')"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const comments = sqliteTable("comments", {
+export const comments = pgTable("comments", {
   id: text("id").primaryKey(),
   caseId: text("case_id").notNull().references(() => cases.id),
   authorName: text("author_name").notNull(),
   content: text("content").notNull(),
-  createdAt: text("created_at").notNull().default("datetime('now')"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const admins = sqliteTable("admins", {
+export const admins = pgTable("admins", {
   id: text("id").primaryKey(),
   username: text("username").unique().notNull(),
   passwordHash: text("password_hash").notNull(),
-  createdAt: text("created_at").notNull().default("datetime('now')"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const settings = sqliteTable("settings", {
+export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
   value: text("value"),
 });

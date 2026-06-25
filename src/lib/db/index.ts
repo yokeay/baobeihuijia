@@ -18,6 +18,9 @@ export async function getDb(): Promise<DbClient> {
   if (platform === "vercel") {
     const { getDb: getPgDb } = await import("./adapter-pg");
     platformDb = await getPgDb();
+  } else if (platform === "docker") {
+    const { getDb: getLocalPgDb } = await import("./adapter-local-pg");
+    platformDb = getLocalPgDb();
   } else {
     const { getDb: getSqliteDb } = await import("./adapter-sqlite");
     platformDb = getSqliteDb();
@@ -30,19 +33,10 @@ export async function initDb() {
   const platform = getPlatform();
 
   if (platform === "docker") {
-    const Database = (await import("better-sqlite3")).default;
-    const path = await import("path");
-    const fs = await import("fs");
+    const { getPool } = await import("./adapter-local-pg");
+    const pool = getPool();
 
-    const dataDir = path.join(process.cwd(), "data");
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-
-    const dbPath = path.join(dataDir, "baobeihuijia.db");
-    const sqlite = new Database(dbPath);
-    sqlite.pragma("journal_mode = WAL");
-    sqlite.pragma("foreign_keys = ON");
-
-    sqlite.exec(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS cases (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -63,21 +57,21 @@ export async function initDb() {
         submitter_contact TEXT,
         reviewed_by TEXT,
         reviewed_at TEXT,
-        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
       );
       CREATE TABLE IF NOT EXISTS comments (
         id TEXT PRIMARY KEY,
         case_id TEXT NOT NULL REFERENCES cases(id),
         author_name TEXT NOT NULL,
         content TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        created_at TIMESTAMP NOT NULL DEFAULT now()
       );
       CREATE TABLE IF NOT EXISTS admins (
         id TEXT PRIMARY KEY,
         username TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        created_at TIMESTAMP NOT NULL DEFAULT now()
       );
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
@@ -92,16 +86,16 @@ export async function initDb() {
     const { v4: uuidv4 } = await import("uuid");
     const hash = await bcrypt.hash(adminPass, 10);
 
-    const existing = sqlite
-      .prepare("SELECT id FROM admins WHERE username = ?")
-      .get(adminUser);
-    if (!existing) {
-      sqlite
-        .prepare("INSERT INTO admins (id, username, password_hash) VALUES (?, ?, ?)")
-        .run(uuidv4(), adminUser, hash);
+    const { rows } = await pool.query(
+      "SELECT id FROM admins WHERE username = $1",
+      [adminUser]
+    );
+    if (rows.length === 0) {
+      await pool.query(
+        "INSERT INTO admins (id, username, password_hash) VALUES ($1, $2, $3)",
+        [uuidv4(), adminUser, hash]
+      );
     }
-
-    sqlite.close();
   }
   // For Cloudflare D1, migrations are applied via wrangler CLI
   // For Vercel/Neon, migrations are applied via drizzle-kit push
