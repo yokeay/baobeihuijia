@@ -21,6 +21,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+@keyframes odometerIn {
+  from {
+    transform: translateY(80%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-odometer-in {
+  animation: odometerIn 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Admin dark mode */
 .dark {
   --bg-primary: #0a0a0a;

@@ -83,7 +83,7 @@ export default function SubmitPage() {
               提交失踪信息
             </h1>
             <p className="text-[14px] text-[#1c1c1e]/40 dark:text-white/30 mb-8">
-              请尽可能详细地填写信息，有助于找到孩子
+              请尽可能详细地填写信息，有助于找到失踪人员
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-8">

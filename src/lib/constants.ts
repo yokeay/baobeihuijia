@@ -1,5 +1,5 @@
 export const SITE_NAME = "我好想你";
-export const SITE_DESCRIPTION = "全球失踪儿童信息聚合公益平台 - 助力每一个家庭团圆";
+export const SITE_DESCRIPTION = "全球失踪人口信息聚合公益平台 - 助力每一个家庭团圆";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const API_SOURCE_NAME = "小维API - 我好想你";
