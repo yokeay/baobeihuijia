@@ -21,7 +21,6 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-5 text-[13px] font-medium">
             <Link href="/" className="text-[#1c1c1e]/70 dark:text-white/70 hover:text-[#1c1c1e] dark:hover:text-white transition-colors">首页</Link>
             <Link href="/submit" className="text-[#1c1c1e]/70 dark:text-white/70 hover:text-[#1c1c1e] dark:hover:text-white transition-colors">提交信息</Link>
-            <Link href="/admin/login" className="text-[#1c1c1e]/30 dark:text-white/30 hover:text-[#1c1c1e]/50 dark:hover:text-white/50 transition-colors text-[12px]">管理</Link>
           </nav>
 
           <button
@@ -42,7 +41,6 @@ export function Header() {
           <div className="md:hidden pb-4 border-t border-black/5 dark:border-white/5 pt-3 space-y-1">
             <Link href="/" className="block px-3 py-2 text-[13px] rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-[#1c1c1e] dark:text-[#e8e8e8]" onClick={() => setMenuOpen(false)}>首页</Link>
             <Link href="/submit" className="block px-3 py-2 text-[13px] rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-[#1c1c1e] dark:text-[#e8e8e8]" onClick={() => setMenuOpen(false)}>提交信息</Link>
-            <Link href="/admin/login" className="block px-3 py-2 text-[12px] rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-[#1c1c1e]/40 dark:text-white/40" onClick={() => setMenuOpen(false)}>管理后台</Link>
           </div>
         )}
       </Container>
