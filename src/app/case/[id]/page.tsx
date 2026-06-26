@@ -62,7 +62,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           <div className="max-w-2xl mx-auto">
             {/* Photos */}
             {photos.length > 0 && (
-              <div className="grid grid-cols-2 gap-2 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-6">
                 {photos.map((url: string, i: number) => (
                   <img
                     key={i}
@@ -88,13 +88,13 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               {caseData.lostAddress && (
                 <div className="mt-3 text-sm">
                   <span className="text-gray-400">走失地址：</span>
-                  <span>{caseData.lostAddress}</span>
+                  <span className="break-words">{caseData.lostAddress}</span>
                 </div>
               )}
               {caseData.feature && (
                 <div className="mt-3 text-sm">
                   <span className="text-gray-400">体貌特征：</span>
-                  <span>{caseData.feature}</span>
+                  <span className="break-words">{caseData.feature}</span>
                 </div>
               )}
               {caseData.sourceUrl && (

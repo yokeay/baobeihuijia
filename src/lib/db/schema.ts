@@ -36,7 +36,10 @@ export const comments = pgTable("comments", {
 export const admins = pgTable("admins", {
   id: text("id").primaryKey(),
   username: text("username").unique().notNull(),
-  passwordHash: text("password_hash").notNull(),
+  passwordHash: text("password_hash"),
+  githubId: text("github_id").unique(),
+  githubUsername: text("github_username"),
+  avatarUrl: text("avatar_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

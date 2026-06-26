@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   }
 
   const count = Math.min(parseInt(searchParams.get("count") || "30"), 100);
-  const delay = Math.max(parseInt(searchParams.get("delay") || "2000"), 1000);
+  const delay = Math.max(parseInt(searchParams.get("delay") || "2000"), 100);
 
   const stats = await crawlFromApi({ maxRequests: count, delayMs: delay });
   return Response.json(stats);

@@ -39,7 +39,7 @@ export default function HomePage() {
       <main className="flex-1 py-6">
         <Container>
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">宝贝回家</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">我好想你</h1>
             <p className="text-sm text-gray-500">助力每一个家庭团圆</p>
           </div>
           <CaseFilter

@@ -93,7 +93,7 @@ export default function SubmitPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Input label="出生日期" name="birthDate" type="date" value={form.birthDate} onChange={(e) => updateField("birthDate", e.target.value)} />
                 <Input label="走失日期 *" name="lostDate" type="date" value={form.lostDate} onChange={(e) => updateField("lostDate", e.target.value)} />
               </div>
@@ -125,7 +125,7 @@ export default function SubmitPage() {
               <hr className="border-gray-100" />
               <p className="text-xs text-gray-400">您的联系方式不会公开，仅用于审核沟通</p>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Input label="您的姓名" name="submitterName" value={form.submitterName} onChange={(e) => updateField("submitterName", e.target.value)} placeholder="选填" />
                 <Input label="联系方式" name="submitterContact" value={form.submitterContact} onChange={(e) => updateField("submitterContact", e.target.value)} placeholder="手机/微信/邮箱" />
               </div>

@@ -12,8 +12,8 @@ export function Header() {
       <Container>
         <div className="flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
-            <span className="text-2xl">🧡</span>
-            <span className="hidden sm:inline">宝贝回家</span>
+            <svg className="w-6 h-6" viewBox="0 0 100 100"><path d="M50 80 C25 55, 10 45, 10 30 C10 18, 20 10, 32 10 C40 10, 48 15, 50 22 C52 15, 60 10, 68 10 C80 10, 90 18, 90 30 C90 45, 75 55, 50 80Z" fill="#e60012"/></svg>
+            <span className="hidden sm:inline">我好想你</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">

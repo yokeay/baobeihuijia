@@ -71,7 +71,10 @@ export async function initDb() {
       CREATE TABLE IF NOT EXISTS admins (
         id TEXT PRIMARY KEY,
         username TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
+        password_hash TEXT,
+        github_id TEXT UNIQUE,
+        github_username TEXT,
+        avatar_url TEXT,
         created_at TIMESTAMP NOT NULL DEFAULT now()
       );
       CREATE TABLE IF NOT EXISTS settings (
@@ -80,23 +83,8 @@ export async function initDb() {
       );
     `);
 
-    // Create default admin if not exists
-    const adminUser = process.env.ADMIN_USERNAME || "admin";
-    const adminPass = process.env.ADMIN_PASSWORD || "admin123";
-    const bcrypt = await import("bcryptjs");
-    const { v4: uuidv4 } = await import("uuid");
-    const hash = await bcrypt.hash(adminPass, 10);
-
-    const { rows } = await pool.query(
-      "SELECT id FROM admins WHERE username = $1",
-      [adminUser]
-    );
-    if (rows.length === 0) {
-      await pool.query(
-        "INSERT INTO admins (id, username, password_hash) VALUES ($1, $2, $3)",
-        [uuidv4(), adminUser, hash]
-      );
-    }
+    // GitHub OAuth is now the only login method.
+    // The first admin is auto-created on first GitHub login via the callback route.
   }
   // For Cloudflare D1, migrations are applied via wrangler CLI
   // For Vercel/Neon, migrations are applied via drizzle-kit push

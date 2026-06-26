@@ -76,13 +76,13 @@ export function ReviewQueue({ cases: items, onReview, loading }: ReviewQueueProp
                     <div className="flex gap-1 justify-end">
                       <button
                         onClick={() => onReview(item.id, "approved")}
-                        className="px-2 py-1 text-xs bg-green-500 text-white rounded-md hover:bg-green-600"
+                        className="px-3 py-2 text-sm bg-green-500 text-white rounded-md hover:bg-green-600"
                       >
                         通过
                       </button>
                       <button
                         onClick={() => onReview(item.id, "rejected")}
-                        className="px-2 py-1 text-xs bg-red-500 text-white rounded-md hover:bg-red-600"
+                        className="px-3 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600"
                       >
                         拒绝
                       </button>
