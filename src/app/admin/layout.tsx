@@ -51,7 +51,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
+    <div className="h-screen overflow-hidden flex bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
       {/* Sidebar */}
       <aside className="w-56 border-r border-gray-100 dark:border-[#1f1f1f] flex flex-col flex-shrink-0 bg-gray-50/50 dark:bg-[#0d0d0d]">
         {/* Brand */}
@@ -131,7 +131,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 p-6">{children}</main>
+      <main className="flex-1 min-w-0 p-6 overflow-y-auto">{children}</main>
     </div>
   );
 }

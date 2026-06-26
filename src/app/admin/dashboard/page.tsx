@@ -21,23 +21,24 @@ interface CaseItem {
 
 export default function AdminDashboardPage() {
   const { t } = useAdmin();
-  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
+  const [stats, setStats] = useState({ total: 0, byStatus: { pending: 0, approved: 0, rejected: 0 }, bySource: { api: 0, user_submit: 0, crawl: 0 } });
   const [pendingCases, setPendingCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/cases");
-      if (res.status === 401) return;
-      const data: CaseItem[] = await res.json();
-      setStats({
-        total: data.length,
-        pending: data.filter((c) => c.status === "pending").length,
-        approved: data.filter((c) => c.status === "approved").length,
-        rejected: data.filter((c) => c.status === "rejected").length,
-      });
-      setPendingCases(data.filter((c) => c.status === "pending"));
+      const [statsRes, pendingRes] = await Promise.all([
+        fetch("/api/admin/stats"),
+        fetch("/api/admin/cases?status=pending&limit=10"),
+      ]);
+      if (statsRes.ok) {
+        setStats(await statsRes.json());
+      }
+      if (pendingRes.ok) {
+        const data = await pendingRes.json();
+        setPendingCases(data.items);
+      }
     } catch {
       showToast(t.dashboard.loadFailed, "error");
     } finally {
@@ -80,9 +81,9 @@ export default function AdminDashboardPage() {
 
   const statCards = [
     { label: t.dashboard.totalCases, value: stats.total },
-    { label: t.dashboard.pendingReview, value: stats.pending },
-    { label: t.dashboard.approved, value: stats.approved },
-    { label: t.dashboard.rejected, value: stats.rejected },
+    { label: t.dashboard.pendingReview, value: stats.byStatus.pending },
+    { label: t.dashboard.approved, value: stats.byStatus.approved },
+    { label: t.dashboard.rejected, value: stats.byStatus.rejected },
   ];
 
   return (
@@ -104,7 +105,7 @@ export default function AdminDashboardPage() {
             key={i}
             className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] p-4"
           >
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 tabular-nums">{s.value}</p>
+            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 tabular-nums">{s.value.toLocaleString()}</p>
             <p className="text-[11px] text-gray-500 dark:text-gray-500 mt-0.5 font-medium">{s.label}</p>
           </div>
         ))}
@@ -114,7 +115,7 @@ export default function AdminDashboardPage() {
       <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 dark:border-[#1f1f1f]">
           <h3 className="text-[13px] font-medium text-gray-900 dark:text-gray-100">
-            {t.dashboard.pendingCases} ({pendingCases.length})
+            {t.dashboard.pendingCases} ({stats.byStatus.pending})
           </h3>
           <Link href="/admin/review" className="text-[12px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
             {t.dashboard.viewAll}

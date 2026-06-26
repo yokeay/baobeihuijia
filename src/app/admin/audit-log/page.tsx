@@ -42,6 +42,7 @@ export default function AdminAuditLogPage() {
     approve: t.auditLog.actionApprove,
     reject: t.auditLog.actionReject,
     sync: t.auditLog.actionSync,
+    edit: t.auditLog.actionEdit,
   };
 
   const targetLabels: Record<string, string> = {
