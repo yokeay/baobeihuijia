@@ -1,5 +1,5 @@
 import { getDb, schema } from "@/lib/db";
-import { eq, and, like, or, desc, SQL } from "drizzle-orm";
+import { eq, and, like, or, desc, sql, SQL } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 export async function GET(request: Request) {
@@ -8,32 +8,42 @@ export async function GET(request: Request) {
   const city = searchParams.get("city");
   const district = searchParams.get("district");
   const gender = searchParams.get("gender");
-  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
+  const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
+  const limit = Math.min(parseInt(searchParams.get("limit") || "30"), 100);
+  const offset = (page - 1) * limit;
 
   const db = await getDb();
   const conditions: SQL[] = [eq(schema.cases.status, "approved")];
 
-  if (province) {
-    conditions.push(eq(schema.cases.lostProvince, province));
-  }
-  if (city) {
-    conditions.push(eq(schema.cases.lostCity, city));
-  }
-  if (district) {
-    conditions.push(eq(schema.cases.lostDistrict, district));
-  }
-  if (gender) {
-    conditions.push(eq(schema.cases.gender, gender));
-  }
+  if (province) conditions.push(eq(schema.cases.lostProvince, province));
+  if (city) conditions.push(eq(schema.cases.lostCity, city));
+  if (district) conditions.push(eq(schema.cases.lostDistrict, district));
+  if (gender) conditions.push(eq(schema.cases.gender, gender));
 
-  const rows = await db
+  const where = and(...conditions);
+
+  const [countRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(schema.cases)
+    .where(where);
+
+  const total = countRow?.count ?? 0;
+
+  const items = await db
     .select()
     .from(schema.cases)
-    .where(and(...conditions))
+    .where(where)
     .orderBy(desc(schema.cases.createdAt))
-    .limit(limit);
+    .limit(limit)
+    .offset(offset);
 
-  return Response.json(rows);
+  return Response.json({
+    items,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  });
 }
 
 export async function POST(request: Request) {

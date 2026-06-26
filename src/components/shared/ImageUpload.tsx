@@ -47,12 +47,12 @@ export function ImageUpload({ photos, onPhotosChange, max = 9 }: ImageUploadProp
     <div>
       <div className="flex flex-wrap gap-2 mb-2">
         {photos.map((url, i) => (
-          <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
+          <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5">
             <img src={url} alt="" className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => removePhoto(i)}
-              className="absolute top-0 right-0 w-5 h-5 bg-black/50 text-white text-xs flex items-center justify-center"
+              className="absolute top-1 right-1 w-5 h-5 bg-black/40 hover:bg-black/60 dark:bg-white/20 dark:hover:bg-white/30 text-white text-[11px] flex items-center justify-center rounded-full backdrop-blur-sm transition-colors"
             >
               ✕
             </button>
@@ -63,7 +63,7 @@ export function ImageUpload({ photos, onPhotosChange, max = 9 }: ImageUploadProp
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors text-2xl"
+            className="w-20 h-20 rounded-xl border-2 border-dashed border-black/10 dark:border-white/10 flex items-center justify-center text-[#1c1c1e]/20 dark:text-white/15 hover:border-[#c5705a]/40 hover:text-[#c5705a] transition-all duration-200 text-2xl"
           >
             {uploading ? "..." : "+"}
           </button>
@@ -77,7 +77,7 @@ export function ImageUpload({ photos, onPhotosChange, max = 9 }: ImageUploadProp
         onChange={handleFiles}
         className="hidden"
       />
-      <p className="text-xs text-gray-400">支持jpg/png，最多{max}张</p>
+      <p className="text-[12px] text-[#1c1c1e]/25 dark:text-white/15">支持jpg/png，最多{max}张</p>
     </div>
   );
 }

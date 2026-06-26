@@ -13,6 +13,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const [caseData, setCaseData] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activePhoto, setActivePhoto] = useState(0);
 
   async function fetchCase() {
     const res = await fetch(`/api/cases/${id}`);
@@ -36,7 +37,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <div className="flex flex-col min-h-full">
         <Header />
-        <main className="flex-1 py-10"><Container><p className="text-center text-gray-400">加载中...</p></Container></main>
+        <main className="flex-1 py-20"><Container><p className="text-center text-[14px] text-[#1c1c1e]/30">加载中...</p></Container></main>
         <Footer />
       </div>
     );
@@ -46,7 +47,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <div className="flex flex-col min-h-full">
         <Header />
-        <main className="flex-1 py-10"><Container><p className="text-center text-gray-400">案件不存在</p></Container></main>
+        <main className="flex-1 py-20"><Container><p className="text-center text-[14px] text-[#1c1c1e]/30">案件不存在</p></Container></main>
         <Footer />
       </div>
     );
@@ -57,65 +58,103 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="flex flex-col min-h-full">
       <Header />
-      <main className="flex-1 py-6">
+      <main className="flex-1 py-8">
         <Container>
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             {/* Photos */}
             {photos.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-6">
-                {photos.map((url: string, i: number) => (
+              <div className="mb-8">
+                <div className="rounded-2xl overflow-hidden bg-black/5 dark:bg-white/5">
                   <img
-                    key={i}
-                    src={url}
+                    src={photos[activePhoto]}
                     alt={caseData.name}
-                    className="w-full aspect-square object-cover rounded-xl"
+                    className="w-full aspect-[4/3] md:aspect-[16/9] object-contain"
                   />
-                ))}
+                </div>
+                {photos.length > 1 && (
+                  <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                    {photos.map((url: string, i: number) => (
+                      <button
+                        key={i}
+                        onClick={() => setActivePhoto(i)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                          i === activePhoto
+                            ? "border-[#c5705a] opacity-100"
+                            : "border-transparent opacity-50 hover:opacity-80"
+                        }`}
+                      >
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Info */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-              <h1 className="text-xl font-bold mb-4">{caseData.name}</h1>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <InfoItem label="性别" value={caseData.gender} />
-                <InfoItem label="身高" value={caseData.height ? `${caseData.height}cm` : null} />
-                <InfoItem label="出生日期" value={caseData.birthDate} />
-                <InfoItem label="走失日期" value={caseData.lostDate} />
-                <InfoItem label="走失省份" value={caseData.lostProvince} />
-                <InfoItem label="走失城市" value={caseData.lostCity} />
+            {/* Two-column info */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              {/* Left: Basic info */}
+              <div className="md:col-span-1">
+                <h1 className="text-[24px] font-bold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-2">
+                  {caseData.name}
+                </h1>
+                <p className="text-[13px] text-[#1c1c1e]/30 dark:text-white/20 mb-6">
+                  走失于 {caseData.lostDate || "未知"}
+                </p>
+
+                <div className="space-y-3 text-[14px]">
+                  <InfoRow label="性别" value={caseData.gender} />
+                  <InfoRow label="身高" value={caseData.height ? `${caseData.height}cm` : null} />
+                  <InfoRow label="出生日期" value={caseData.birthDate} />
+                </div>
               </div>
-              {caseData.lostAddress && (
-                <div className="mt-3 text-sm">
-                  <span className="text-gray-400">走失地址：</span>
-                  <span className="break-words">{caseData.lostAddress}</span>
+
+              {/* Right: Location + details */}
+              <div className="md:col-span-2 space-y-5">
+                <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-[#1a1a1a] p-5">
+                  <h3 className="text-[12px] font-medium text-[#1c1c1e]/30 dark:text-white/20 mb-3 uppercase tracking-wide">
+                    走失信息
+                  </h3>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-[14px]">
+                    <InfoItem label="省份" value={caseData.lostProvince} />
+                    <InfoItem label="城市" value={caseData.lostCity} />
+                    <InfoItem label="区县" value={caseData.lostDistrict} />
+                    <InfoItem label="走失日期" value={caseData.lostDate} />
+                  </div>
+                  {caseData.lostAddress && (
+                    <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5">
+                      <span className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20">详细地址</span>
+                      <p className="text-[14px] mt-0.5 text-[#1c1c1e]/70 dark:text-white/60">{caseData.lostAddress}</p>
+                    </div>
+                  )}
+                  {caseData.feature && (
+                    <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5">
+                      <span className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20">体貌特征</span>
+                      <p className="text-[14px] mt-0.5 text-[#1c1c1e]/70 dark:text-white/60">{caseData.feature}</p>
+                    </div>
+                  )}
                 </div>
-              )}
-              {caseData.feature && (
-                <div className="mt-3 text-sm">
-                  <span className="text-gray-400">体貌特征：</span>
-                  <span className="break-words">{caseData.feature}</span>
-                </div>
-              )}
-              {caseData.sourceUrl && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
+
+                {caseData.sourceUrl && (
                   <a
                     href={caseData.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline"
+                    className="inline-flex items-center gap-1 text-[13px] text-[#c5705a] hover:text-[#b05a45] transition-colors"
                   >
-                    查看原始来源 →
+                    查看原始来源 <span className="text-[11px]">→</span>
                   </a>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Comments */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="font-semibold text-lg mb-4">评论</h2>
+            <div className="mt-10 pt-8 border-t border-black/5 dark:border-white/5">
+              <h2 className="text-[16px] font-semibold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-5">
+                评论
+              </h2>
               <CommentForm caseId={id} onCommentAdded={fetchComments} />
-              <div className="mt-6">
+              <div className="mt-5">
                 <CommentList comments={comments} />
               </div>
             </div>
@@ -131,8 +170,17 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
 function InfoItem({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <span className="text-gray-400">{label}：</span>
-      <span>{value || "未知"}</span>
+      <span className="text-[#1c1c1e]/30 dark:text-white/20 text-[12px]">{label}</span>
+      <p className="text-[14px] mt-0.5">{value || "—"}</p>
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string | null }) {
+  return (
+    <div className="flex justify-between items-center py-2 border-b border-black/5 dark:border-white/5">
+      <span className="text-[#1c1c1e]/40 dark:text-white/30">{label}</span>
+      <span className="font-medium">{value || "—"}</span>
     </div>
   );
 }

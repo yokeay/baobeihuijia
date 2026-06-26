@@ -7,17 +7,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary: "bg-primary text-white hover:bg-primary-dark",
-  secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200",
-  outline: "border border-gray-300 text-gray-700 hover:bg-gray-50",
-  ghost: "text-gray-600 hover:bg-gray-100",
+  primary: "bg-[#c5705a] text-white hover:bg-[#b05a45] shadow-sm",
+  secondary: "bg-black/5 dark:bg-white/10 text-[#1c1c1e]/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/20",
+  outline: "border border-black/10 dark:border-white/10 text-[#1c1c1e]/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5",
+  ghost: "text-[#1c1c1e]/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5",
   danger: "bg-red-500 text-white hover:bg-red-600",
 };
 
 const sizes = {
-  sm: "px-3 py-1.5 text-sm rounded-md",
-  md: "px-4 py-2 text-sm rounded-lg",
-  lg: "px-6 py-3 text-base rounded-lg",
+  sm: "px-3 py-1.5 text-[12px] rounded-lg",
+  md: "px-4 py-2 text-[13px] rounded-xl",
+  lg: "px-6 py-3 text-[14px] rounded-xl",
 };
 
 export function Button({
@@ -29,7 +29,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:pointer-events-none cursor-pointer",
+        "inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/30 disabled:opacity-40 disabled:pointer-events-none cursor-pointer",
         variants[variant],
         sizes[size],
         className

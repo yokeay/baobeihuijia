@@ -20,7 +20,8 @@ interface RegionCascaderProps {
 const d = chinaAreaData as Record<string, Record<string, string>>;
 
 const selectClass =
-  "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:bg-gray-50 disabled:text-gray-400";
+  "w-full px-3 py-2 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 disabled:opacity-30 disabled:pointer-events-none transition-all duration-200";
+const labelClass = "block text-[12px] font-medium text-[#1c1c1e]/40 dark:text-white/30 mb-1";
 
 export function RegionCascader({
   province,
@@ -98,17 +99,13 @@ export function RegionCascader({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          国家
-        </label>
+        <label className={labelClass}>国家</label>
         <select className={selectClass} value="中国" disabled>
           <option>中国</option>
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          省份 *
-        </label>
+        <label className={labelClass}>省份</label>
         <select
           className={selectClass}
           value={provinceCode}
@@ -123,9 +120,7 @@ export function RegionCascader({
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          城市
-        </label>
+        <label className={labelClass}>城市</label>
         <select
           className={selectClass}
           value={cityCode}
@@ -141,9 +136,7 @@ export function RegionCascader({
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          区县
-        </label>
+        <label className={labelClass}>区县</label>
         <select
           className={selectClass}
           value={districtCode}

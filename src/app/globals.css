@@ -3,20 +3,22 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-primary: #f97316;
-  --color-primary-light: #fb923c;
-  --color-primary-dark: #ea580c;
-  --color-accent: #f59e0b;
-  --color-warm-bg: #fef7ed;
+  --color-primary: #c5705a;
+  --color-primary-light: #d48a74;
+  --color-primary-dark: #b05a45;
+  --color-accent: #d4a574;
+  --color-warm-bg: #faf7f5;
   --color-card: #ffffff;
-  --color-muted: #6b7280;
-  --font-sans: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --color-muted: #8b8b8b;
+  --font-sans: "SF Pro Display", "SF Pro Text", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 body {
   font-family: var(--font-sans);
-  background: #f9fafb;
-  color: #111827;
+  background: #fafaf9;
+  color: #1c1c1e;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Admin dark mode */
