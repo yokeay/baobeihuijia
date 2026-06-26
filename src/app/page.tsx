@@ -83,7 +83,7 @@ export default function HomePage() {
         {/* Hero */}
         <section className="py-16 md:py-24 text-center">
           <Container>
-            <h1 className="text-[28px] md:text-[40px] font-bold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] leading-tight">
+            <h1 className="text-[28px] md:text-[40px] font-bold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] leading-relaxed">
               让失散的家人，被世界发现<br />用每一次传播，缩短回家的距离
             </h1>
             <p className="mt-4 text-[15px] text-[#1c1c1e]/40 dark:text-white/30 max-w-md mx-auto leading-relaxed">
