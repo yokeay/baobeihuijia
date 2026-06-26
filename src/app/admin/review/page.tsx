@@ -32,10 +32,10 @@ export default function AdminReviewPage() {
   const fetchCases = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/cases");
+      const res = await fetch("/api/admin/cases?status=pending&limit=200");
       if (res.ok) {
         const data = await res.json();
-        setCases(data.filter((c: CaseItem) => c.status === "pending"));
+        setCases(data.items);
       }
     } catch {
       showToast(t.review.loadFailed, "error");
