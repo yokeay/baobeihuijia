@@ -8,6 +8,7 @@ export async function GET(request: Request) {
   const city = searchParams.get("city");
   const district = searchParams.get("district");
   const gender = searchParams.get("gender");
+  const search = searchParams.get("search");
   const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
   const limit = Math.min(parseInt(searchParams.get("limit") || "30"), 100);
   const offset = (page - 1) * limit;
@@ -19,6 +20,7 @@ export async function GET(request: Request) {
   if (city) conditions.push(eq(schema.cases.lostCity, city));
   if (district) conditions.push(eq(schema.cases.lostDistrict, district));
   if (gender) conditions.push(eq(schema.cases.gender, gender));
+  if (search) conditions.push(like(schema.cases.name, `%${search}%`));
 
   const where = and(...conditions);
 

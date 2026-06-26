@@ -31,6 +31,7 @@ export default function HomePage() {
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
   const [gender, setGender] = useState("");
+  const [search, setSearch] = useState("");
 
   const fetchCases = useCallback(async (p: number, reset: boolean) => {
     if (reset) {
@@ -46,6 +47,7 @@ export default function HomePage() {
     if (city) params.set("city", city);
     if (district) params.set("district", district);
     if (gender) params.set("gender", gender);
+    if (search) params.set("search", search);
 
     try {
       const res = await fetch(`/api/cases?${params}`);
@@ -63,7 +65,7 @@ export default function HomePage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [province, city, district, gender]);
+  }, [province, city, district, gender, search]);
 
   useEffect(() => {
     setPage(1);
@@ -114,10 +116,12 @@ export default function HomePage() {
             city={city}
             district={district}
             gender={gender}
+            search={search}
             onProvinceChange={setProvince}
             onCityChange={setCity}
             onDistrictChange={setDistrict}
             onGenderChange={setGender}
+            onSearchChange={setSearch}
           />
           <CaseGrid
             items={cases}
