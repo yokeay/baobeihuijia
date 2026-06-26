@@ -105,6 +105,16 @@ export async function GET(request: Request) {
     .set({ githubUsername, avatarUrl })
     .where(eq(schema.admins.id, admin.id));
 
+  // Audit log for login
+  await db.insert(schema.auditLogs).values({
+    id: uuidv4(),
+    adminId: admin.id,
+    adminUsername: admin.username,
+    action: "login",
+    targetType: "system",
+    detail: JSON.stringify({ githubUsername, ip: request.headers.get("x-forwarded-for") || "" }),
+  });
+
   const token = await signToken({
     id: admin.id,
     username: admin.username,

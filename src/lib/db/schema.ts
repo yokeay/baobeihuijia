@@ -43,6 +43,17 @@ export const admins = pgTable("admins", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const auditLogs = pgTable("audit_logs", {
+  id: text("id").primaryKey(),
+  adminId: text("admin_id").notNull(),
+  adminUsername: text("admin_username").notNull(),
+  action: text("action").notNull(), // 'approve' | 'reject' | 'sync' | 'login' | 'logout'
+  targetType: text("target_type"), // 'case' | 'system'
+  targetId: text("target_id"),
+  detail: text("detail"), // extra context
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
   value: text("value"),

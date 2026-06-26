@@ -77,6 +77,16 @@ export async function initDb() {
         avatar_url TEXT,
         created_at TIMESTAMP NOT NULL DEFAULT now()
       );
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id TEXT PRIMARY KEY,
+        admin_id TEXT NOT NULL,
+        admin_username TEXT NOT NULL,
+        action TEXT NOT NULL,
+        target_type TEXT,
+        target_id TEXT,
+        detail TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT now()
+      );
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
         value TEXT

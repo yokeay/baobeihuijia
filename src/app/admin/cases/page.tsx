@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useAdmin } from "../context";
 
 interface CaseItem {
   id: string;
@@ -17,30 +18,28 @@ interface CaseItem {
   submitterName: string | null;
 }
 
-const statusLabels: Record<string, string> = {
-  pending: "待审核",
-  approved: "已通过",
-  rejected: "已拒绝",
-};
-
-const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-700",
-  approved: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-700",
-};
-
-const sourceLabels: Record<string, string> = {
-  api: "API同步",
-  user_submit: "用户提交",
-  crawl: "爬取",
-};
+const statusKeys = ["pending", "approved", "rejected"] as const;
+const sourceKeys = ["api", "user_submit"] as const;
 
 export default function AdminCasesPage() {
+  const { t } = useAdmin();
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [sourceFilter, setSourceFilter] = useState<"all" | "api" | "user_submit">("all");
   const [search, setSearch] = useState("");
+
+  const statusLabels: Record<string, string> = {
+    pending: t.cases.statusPending,
+    approved: t.cases.statusApproved,
+    rejected: t.cases.statusRejected,
+  };
+
+  const sourceLabels: Record<string, string> = {
+    api: t.cases.sourceApi,
+    user_submit: t.cases.sourceUser,
+    crawl: t.cases.sourceCrawl,
+  };
 
   const fetchCases = useCallback(async () => {
     setLoading(true);
@@ -77,41 +76,41 @@ export default function AdminCasesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold">案件管理</h2>
-        <span className="text-sm text-gray-400">
-          显示 {filtered.length} / {cases.length} 条
+        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">{t.cases.title}</h2>
+        <span className="text-[12px] text-gray-400 dark:text-gray-500">
+          {t.cases.showing.replace("{filtered}", String(filtered.length)).replace("{total}", String(cases.length))}
         </span>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
-          {(["all", "pending", "approved", "rejected"] as const).map((f) => (
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="flex rounded-md border border-gray-200 dark:border-[#1f1f1f] overflow-hidden text-[12px]">
+          {(["all", ...statusKeys] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 ${
+              className={`px-3 py-1.5 transition-colors ${
                 filter === f
-                  ? "bg-primary text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium"
+                  : "text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414]"
               }`}
             >
-              {f === "all" ? "全部" : statusLabels[f]}
+              {f === "all" ? t.cases.all : statusLabels[f]}
             </button>
           ))}
         </div>
-        <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
-          {(["all", "api", "user_submit"] as const).map((f) => (
+        <div className="flex rounded-md border border-gray-200 dark:border-[#1f1f1f] overflow-hidden text-[12px]">
+          {(["all", ...sourceKeys] as const).map((f) => (
             <button
               key={f}
               onClick={() => setSourceFilter(f)}
-              className={`px-3 py-1.5 ${
+              className={`px-3 py-1.5 transition-colors ${
                 sourceFilter === f
-                  ? "bg-primary text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium"
+                  : "text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414]"
               }`}
             >
-              {f === "all" ? "全部来源" : sourceLabels[f]}
+              {f === "all" ? t.cases.allSources : sourceLabels[f]}
             </button>
           ))}
         </div>
@@ -119,56 +118,54 @@ export default function AdminCasesPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="搜索姓名、地点..."
-          className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg flex-1 min-w-[160px] max-w-xs"
+          placeholder={t.cases.searchPlaceholder}
+          className="px-3 py-1.5 text-[12px] border border-gray-200 dark:border-[#1f1f1f] rounded-md bg-white dark:bg-[#0d0d0d] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 flex-1 min-w-[160px] max-w-xs outline-none focus:border-gray-400 dark:focus:border-gray-600"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] overflow-hidden">
         {loading ? (
-          <p className="text-gray-400 text-sm py-12 text-center">加载中...</p>
+          <p className="text-[13px] text-gray-400 py-12 text-center">{t.cases.loading}</p>
         ) : filtered.length === 0 ? (
-          <p className="text-gray-400 text-sm py-12 text-center">暂无数据</p>
+          <p className="text-[13px] text-gray-400 py-12 text-center">{t.cases.noData}</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">姓名</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">走失地点</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">走失日期</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">来源</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">状态</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">操作</th>
+                <tr className="border-b border-gray-100 dark:border-[#1f1f1f]">
+                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.name}</th>
+                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.lostLocation}</th>
+                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.lostDate}</th>
+                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.source}</th>
+                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.status}</th>
+                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.actions}</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((item) => (
-                  <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                    <td className="py-3 px-4 font-medium">{item.name}</td>
-                    <td className="py-3 px-4 text-gray-500">
+                  <tr key={item.id} className="border-b border-gray-50 dark:border-[#1a1a1a] hover:bg-gray-50/50 dark:hover:bg-[#141414]">
+                    <td className="py-2.5 px-4 font-medium">{item.name}</td>
+                    <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500">
                       {[item.lostProvince, item.lostCity].filter(Boolean).join(" ") || "-"}
                     </td>
-                    <td className="py-3 px-4 text-gray-500">{item.lostDate || "-"}</td>
-                    <td className="py-3 px-4">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
+                    <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500">{item.lostDate || "-"}</td>
+                    <td className="py-2.5 px-4">
+                      <span className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
                         {sourceLabels[item.source] || item.source}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || ""}`}
-                      >
+                    <td className="py-2.5 px-4">
+                      <span className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
                         {statusLabels[item.status] || item.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-2.5 px-4">
                       <Link
                         href={`/case/${item.id}`}
-                        className="text-xs text-primary hover:underline"
+                        className="text-[12px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       >
-                        查看详情
+                        {t.cases.viewDetail}
                       </Link>
                     </td>
                   </tr>
