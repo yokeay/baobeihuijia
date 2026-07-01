@@ -1,3 +1,7 @@
+"use client";
+
+import { usePublicLang } from "@/lib/i18n/public-context";
+
 interface Comment {
   id: string;
   authorName: string;
@@ -6,8 +10,10 @@ interface Comment {
 }
 
 export function CommentList({ comments }: { comments: Comment[] }) {
+  const { t } = usePublicLang();
+
   if (comments.length === 0) {
-    return <p className="text-[13px] text-[#1c1c1e]/25 dark:text-white/15 text-center py-10">暂无评论，来说两句吧</p>;
+    return <p className="text-[13px] text-[#1c1c1e]/25 dark:text-white/15 text-center py-10">{t.comment.noComments}</p>;
   }
 
   return (

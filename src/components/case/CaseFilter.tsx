@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GENDERS } from "@/lib/constants";
 import { RegionCascader } from "@/components/shared/RegionCascader";
+import { usePublicLang } from "@/lib/i18n/public-context";
 
 interface CaseFilterProps {
   province: string;
@@ -19,11 +20,6 @@ interface CaseFilterProps {
 
 type Mode = "search" | "filter";
 
-const segments: { key: Mode; label: string; icon: string }[] = [
-  { key: "search", label: "搜索人名", icon: "🔍" },
-  { key: "filter", label: "地区筛选", icon: "📍" },
-];
-
 const slideCurve = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 export function CaseFilter({
@@ -38,9 +34,15 @@ export function CaseFilter({
   onGenderChange,
   onSearchChange,
 }: CaseFilterProps) {
+  const { t } = usePublicLang();
   const [mode, setMode] = useState<Mode>("search");
   const [localSearch, setLocalSearch] = useState(search);
   const hasFilter = province || city || district || gender;
+
+  const segments: { key: Mode; label: string; icon: string }[] = [
+    { key: "search", label: t.filter.searchTab, icon: "🔍" },
+    { key: "filter", label: t.filter.regionTab, icon: "📍" },
+  ];
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -85,14 +87,14 @@ export function CaseFilter({
                 type="text"
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                placeholder="输入姓名搜索..."
+                placeholder={t.filter.searchPlaceholder}
                 className="flex-1 h-10 px-4 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200"
               />
               <button
                 type="submit"
                 className="h-10 px-5 text-[13px] font-medium text-white bg-[#c5705a] hover:bg-[#b05a45] rounded-xl transition-colors duration-200"
               >
-                搜索
+                {t.filter.searchButton}
               </button>
               {search && (
                 <button
@@ -103,7 +105,7 @@ export function CaseFilter({
                   }}
                   className="h-10 px-3.5 text-[12px] text-[#1c1c1e]/40 dark:text-white/30 hover:text-[#1c1c1e]/60 dark:hover:text-white/50 transition-colors"
                 >
-                  清除
+                  {t.filter.clearButton}
                 </button>
               )}
             </form>
@@ -111,7 +113,7 @@ export function CaseFilter({
 
           {/* Panel B: Filters */}
           <div className="w-full flex-shrink-0">
-            <div className="flex flex-wrap items-start gap-2">
+            <div className="flex items-start gap-2">
               <div className="flex-1 min-w-0">
                 <RegionCascader
                   province={province}
@@ -120,20 +122,26 @@ export function CaseFilter({
                   onProvinceChange={onProvinceChange}
                   onCityChange={onCityChange}
                   onDistrictChange={onDistrictChange}
+                  rightSlot={
+                    <div>
+                      <label className="block text-[12px] font-medium text-[#1c1c1e]/40 dark:text-white/30 mb-1">
+                        {t.filter.genderLabel}
+                      </label>
+                      <select
+                        value={gender}
+                        onChange={(e) => onGenderChange(e.target.value)}
+                        className="h-10 px-3.5 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e]/60 dark:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200 appearance-none w-full"
+                      >
+                        {GENDERS.map((g) => (
+                          <option key={g.value} value={g.value}>
+                            {g.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  }
                 />
               </div>
-
-              <select
-                value={gender}
-                onChange={(e) => onGenderChange(e.target.value)}
-                className="h-10 px-3.5 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e]/60 dark:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200"
-              >
-                {GENDERS.map((g) => (
-                  <option key={g.value} value={g.value}>
-                    {g.label}
-                  </option>
-                ))}
-              </select>
 
               {hasFilter && (
                 <button
@@ -143,9 +151,9 @@ export function CaseFilter({
                     onDistrictChange("");
                     onGenderChange("");
                   }}
-                  className="h-10 px-3.5 text-[12px] text-[#1c1c1e]/40 dark:text-white/30 hover:text-[#1c1c1e]/60 dark:hover:text-white/50 transition-colors"
+                  className="h-10 px-3.5 text-[12px] text-[#1c1c1e]/40 dark:text-white/30 hover:text-[#1c1c1e]/60 dark:hover:text-white/50 transition-colors mt-[18px]"
                 >
-                  清除
+                  {t.filter.clearButton}
                 </button>
               )}
             </div>

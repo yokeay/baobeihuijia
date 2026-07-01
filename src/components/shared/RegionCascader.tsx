@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import chinaAreaData from "china-area-data";
+import { usePublicLang } from "@/lib/i18n/public-context";
 
 interface Option {
   code: string;
@@ -15,6 +16,7 @@ interface RegionCascaderProps {
   onProvinceChange: (name: string) => void;
   onCityChange: (name: string) => void;
   onDistrictChange: (name: string) => void;
+  rightSlot?: React.ReactNode;
 }
 
 const d = chinaAreaData as Record<string, Record<string, string>>;
@@ -30,7 +32,9 @@ export function RegionCascader({
   onProvinceChange,
   onCityChange,
   onDistrictChange,
+  rightSlot,
 }: RegionCascaderProps) {
+  const { t } = usePublicLang();
   const provinces: Option[] = useMemo(() => {
     return Object.entries(d["86"]).map(([code, name]) => ({ code, name }));
   }, []);
@@ -96,16 +100,19 @@ export function RegionCascader({
     onDistrictChange(name);
   }
 
+  const gridClass = rightSlot
+    ? "grid grid-cols-1 sm:grid-cols-4 gap-2"
+    : "grid grid-cols-1 sm:grid-cols-3 gap-2";
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+    <div className={gridClass}>
       <div>
-        <label className={labelClass}>省份</label>
+        <label className={labelClass}>{t.filter.provinceLabel}</label>
         <select
           className={selectClass}
           value={provinceCode}
           onChange={(e) => handleProvinceChange(e.target.value)}
         >
-          <option value="">请选择省份</option>
+          <option value="">{t.filter.selectProvince}</option>
           {provinces.map(({ code, name }) => (
             <option key={code} value={code}>
               {name}
@@ -114,14 +121,14 @@ export function RegionCascader({
         </select>
       </div>
       <div>
-        <label className={labelClass}>城市</label>
+        <label className={labelClass}>{t.filter.cityLabel}</label>
         <select
           className={selectClass}
           value={cityCode}
           onChange={(e) => handleCityChange(e.target.value)}
           disabled={!provinceCode || cities.length === 0}
         >
-          <option value="">请选择城市</option>
+          <option value="">{t.filter.selectCity}</option>
           {cities.map(({ code, name }) => (
             <option key={code} value={code}>
               {name}
@@ -130,15 +137,15 @@ export function RegionCascader({
         </select>
       </div>
       <div>
-        <label className={labelClass}>区县</label>
+        <label className={labelClass}>{t.filter.districtLabel}</label>
         <select
           className={selectClass}
           value={districtCode}
           onChange={(e) => handleDistrictChange(e.target.value)}
           disabled={!cityCode || districts.length === 0}
-          title={districts.length === 0 && cityCode ? "该城市暂无区县数据" : undefined}
+          title={districts.length === 0 && cityCode ? t.filter.noDistrict : undefined}
         >
-          <option value="">请选择区县</option>
+          <option value="">{t.filter.selectDistrict}</option>
           {districts.map(({ code, name }) => (
             <option key={code} value={code}>
               {name}
@@ -146,6 +153,7 @@ export function RegionCascader({
           ))}
         </select>
       </div>
+      {rightSlot}
     </div>
   );
 }

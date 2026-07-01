@@ -1,5 +1,5 @@
 import { getDb, schema } from "@/lib/db";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 import { getAdminFromCookies } from "@/lib/auth";
 
 export async function GET() {
@@ -36,9 +36,21 @@ export async function GET() {
     }
   }
 
+  const [cluePendingRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(schema.clues)
+    .where(eq(schema.clues.status, "pending"));
+
+  const [clueRejectedRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(schema.clues)
+    .where(eq(schema.clues.status, "rejected"));
+
   return Response.json({
     total: totalRow?.count ?? 0,
     byStatus,
     bySource,
+    cluePending: cluePendingRow?.count ?? 0,
+    clueRejected: clueRejectedRow?.count ?? 0,
   });
 }

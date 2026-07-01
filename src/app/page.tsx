@@ -8,6 +8,7 @@ import { CaseGrid } from "@/components/case/CaseGrid";
 import { CaseFilter } from "@/components/case/CaseFilter";
 import { LiveTotal } from "@/components/ui/Odometer";
 import { ToastContainer } from "@/components/ui/Toast";
+import { usePublicLang } from "@/lib/i18n/public-context";
 
 interface CaseItem {
   id: string;
@@ -21,6 +22,7 @@ interface CaseItem {
 }
 
 export default function HomePage() {
+  const { t, countryCode } = usePublicLang();
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -43,6 +45,7 @@ export default function HomePage() {
     const params = new URLSearchParams();
     params.set("page", String(p));
     params.set("limit", "24");
+    params.set("countryCode", countryCode);
     if (province) params.set("province", province);
     if (city) params.set("city", city);
     if (district) params.set("district", district);
@@ -65,7 +68,17 @@ export default function HomePage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [province, city, district, gender, search]);
+  }, [province, city, district, gender, search, countryCode]);
+
+  // Reset when country changes
+  useEffect(() => {
+    setPage(1);
+    setProvince("");
+    setCity("");
+    setDistrict("");
+    setGender("");
+    setSearch("");
+  }, [countryCode]);
 
   useEffect(() => {
     setPage(1);
@@ -86,24 +99,24 @@ export default function HomePage() {
         <section className="py-16 md:py-24 text-center">
           <Container>
             <h1 className="text-[28px] md:text-[40px] font-bold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] leading-relaxed">
-              让失散的家人，被世界发现<br />用每一次传播，缩短回家的距离
+              {t.hero.line1}<br />{t.hero.line2}
             </h1>
             <p className="mt-4 text-[15px] text-[#1c1c1e]/40 dark:text-white/30 max-w-md mx-auto leading-relaxed">
-              全球失踪人口信息聚合公益平台，聚合公开数据，助力家庭团圆
+              {t.hero.subtitle}
             </p>
             <div className="flex items-center justify-center gap-8 mt-10">
               <div>
                 <div className="text-[32px] font-semibold tracking-tight text-[#c5705a]">
                   <LiveTotal initialTotal={total} />
                 </div>
-                <div className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20 mt-0.5">累计收录</div>
+                <div className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20 mt-0.5">{t.hero.totalLabel}</div>
               </div>
               <div className="w-px h-10 bg-black/10 dark:bg-white/10" />
               <div>
                 <div className="text-[32px] font-semibold tracking-tight text-[#c5705a]">
-                  公益
+                  {t.hero.freeLabel}
                 </div>
-                <div className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20 mt-0.5">永久免费</div>
+                <div className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20 mt-0.5">{t.hero.freeSubLabel}</div>
               </div>
             </div>
           </Container>

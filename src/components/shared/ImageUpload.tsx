@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { showToast } from "@/components/ui/Toast";
+import { uploadToDooong } from "@/lib/upload-doooong";
 
 interface ImageUploadProps {
   photos: string[];
@@ -23,13 +24,8 @@ export function ImageUpload({ photos, onPhotosChange, max = 9 }: ImageUploadProp
     setUploading(true);
     try {
       for (const file of files) {
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await res.json();
-        if (data.url) {
-          onPhotosChange([...photos, data.url]);
-        }
+        const url = await uploadToDooong(file);
+        onPhotosChange([...photos, url]);
       }
     } catch {
       showToast("上传失败，请重试", "error");

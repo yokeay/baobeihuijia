@@ -7,13 +7,18 @@ import { Container } from "@/components/layout/Container";
 import { CommentList } from "@/components/comment/CommentList";
 import { CommentForm } from "@/components/comment/CommentForm";
 import { ToastContainer } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
+import { usePublicLang } from "@/lib/i18n/public-context";
 
 export default function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const { t } = usePublicLang();
   const [caseData, setCaseData] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
+  const [clues, setClues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activePhoto, setActivePhoto] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   async function fetchCase() {
     const res = await fetch(`/api/cases/${id}`);
@@ -28,16 +33,23 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     setComments(data);
   }
 
+  async function fetchClues() {
+    const res = await fetch(`/api/cases/${id}/clues`);
+    const data = await res.json();
+    setClues(data.items || []);
+  }
+
   useEffect(() => {
     fetchCase();
     fetchComments();
+    fetchClues();
   }, [id]);
 
   if (loading) {
     return (
       <div className="flex flex-col min-h-full">
         <Header />
-        <main className="flex-1 py-20"><Container><p className="text-center text-[14px] text-[#1c1c1e]/30">加载中...</p></Container></main>
+        <main className="flex-1 py-20"><Container><p className="text-center text-[14px] text-[#1c1c1e]/30">{t.case.loading}</p></Container></main>
         <Footer />
       </div>
     );
@@ -47,7 +59,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <div className="flex flex-col min-h-full">
         <Header />
-        <main className="flex-1 py-20"><Container><p className="text-center text-[14px] text-[#1c1c1e]/30">案件不存在</p></Container></main>
+        <main className="flex-1 py-20"><Container><p className="text-center text-[14px] text-[#1c1c1e]/30">{t.case.notFound}</p></Container></main>
         <Footer />
       </div>
     );
@@ -59,6 +71,23 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     <div className="flex flex-col min-h-full">
       <Header />
       <main className="flex-1 py-8">
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              name: caseData.name,
+              description: `${caseData.name}${caseData.gender ? `，${caseData.gender}` : ""}${caseData.height ? `，身高${caseData.height}cm` : ""}${caseData.lostDate ? `，于${caseData.lostDate}走失` : ""}${caseData.feature ? `。体貌特征：${caseData.feature}` : ""}`,
+              image: photos[0] || undefined,
+              gender: caseData.gender || undefined,
+              height: caseData.height ? `${caseData.height / 100} m` : undefined,
+              birthDate: caseData.birthDate || undefined,
+              url: `https://wohaoxiangni.com/case/${caseData.id}`,
+            }),
+          }}
+        />
         <Container>
           <div className="max-w-4xl mx-auto">
             {/* Photos */}
@@ -68,7 +97,8 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                   <img
                     src={photos[activePhoto]}
                     alt={caseData.name}
-                    className="w-full aspect-[4/3] md:aspect-[16/9] object-contain"
+                    className="w-full aspect-[4/3] md:aspect-[16/9] object-contain cursor-zoom-in"
+                    onClick={() => setLightboxOpen(true)}
                   />
                 </div>
                 {photos.length > 1 && (
@@ -99,13 +129,13 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                   {caseData.name}
                 </h1>
                 <p className="text-[13px] text-[#1c1c1e]/30 dark:text-white/20 mb-6">
-                  走失于 {caseData.lostDate || "未知"}
+                  {t.case.lostDate}{caseData.lostDate || t.case.unknown}
                 </p>
 
                 <div className="space-y-3 text-[14px]">
-                  <InfoRow label="性别" value={caseData.gender} />
-                  <InfoRow label="身高" value={caseData.height ? `${caseData.height}cm` : null} />
-                  <InfoRow label="出生日期" value={caseData.birthDate} />
+                  <InfoRow label={t.case.gender} value={caseData.gender} />
+                  <InfoRow label={t.case.height} value={caseData.height ? `${caseData.height}${t.case.cm}` : null} />
+                  <InfoRow label={t.case.birthDate} value={caseData.birthDate} />
                 </div>
               </div>
 
@@ -113,23 +143,23 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               <div className="md:col-span-2 space-y-5">
                 <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-[#1a1a1a] p-5">
                   <h3 className="text-[12px] font-medium text-[#1c1c1e]/30 dark:text-white/20 mb-3 uppercase tracking-wide">
-                    走失信息
+                    {t.case.lostInfo}
                   </h3>
                   <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-[14px]">
-                    <InfoItem label="省份" value={caseData.lostProvince} />
-                    <InfoItem label="城市" value={caseData.lostCity} />
-                    <InfoItem label="区县" value={caseData.lostDistrict} />
-                    <InfoItem label="走失日期" value={caseData.lostDate} />
+                    <InfoItem label={t.case.province} value={caseData.lostProvince} />
+                    <InfoItem label={t.case.city} value={caseData.lostCity} />
+                    <InfoItem label={t.case.district} value={caseData.lostDistrict} />
+                    <InfoItem label={t.case.lostDate} value={caseData.lostDate} />
                   </div>
                   {caseData.lostAddress && (
                     <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5">
-                      <span className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20">详细地址</span>
+                      <span className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20">{t.case.detailAddress}</span>
                       <p className="text-[14px] mt-0.5 text-[#1c1c1e]/70 dark:text-white/60">{caseData.lostAddress}</p>
                     </div>
                   )}
                   {caseData.feature && (
                     <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5">
-                      <span className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20">体貌特征</span>
+                      <span className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20">{t.case.feature}</span>
                       <p className="text-[14px] mt-0.5 text-[#1c1c1e]/70 dark:text-white/60">{caseData.feature}</p>
                     </div>
                   )}
@@ -142,16 +172,63 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[13px] text-[#c5705a] hover:text-[#b05a45] transition-colors"
                   >
-                    查看原始来源 <span className="text-[11px]">→</span>
+                    {t.case.viewSource} <span className="text-[11px]">→</span>
                   </a>
                 )}
               </div>
             </div>
 
+            {/* Clue Timeline */}
+            {clues.length > 0 && (
+              <div className="mt-10 pt-8 border-t border-black/5 dark:border-white/5">
+                <h2 className="text-[16px] font-semibold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-5">
+                  {t.case.timelineTitle}
+                </h2>
+                <div className="relative pl-6">
+                  {/* Vertical line */}
+                  <div className="absolute left-[7px] top-2 bottom-2 w-px bg-black/[0.06] dark:bg-white/[0.08]" />
+                  <div className="space-y-6">
+                    {clues.map((clue: any) => {
+                      const cluePhotos: string[] = (() => {
+                        try { return JSON.parse(clue.photoUrls || "[]"); } catch { return []; }
+                      })();
+                      return (
+                        <div key={clue.id} className="relative">
+                          {/* Dot */}
+                          <div className="absolute left-[-18px] top-1.5 w-[15px] h-[15px] rounded-full bg-[#c5705a]/15 dark:bg-[#c5705a]/20 border-2 border-[#c5705a] flex items-center justify-center">
+                            <div className="w-[5px] h-[5px] rounded-full bg-[#c5705a]" />
+                          </div>
+                          <div className="rounded-xl border border-black/5 dark:border-white/5 bg-white dark:bg-[#1a1a1a] p-4">
+                            <p className="text-[14px] text-[#1c1c1e]/80 dark:text-white/70 leading-relaxed">
+                              {clue.content}
+                            </p>
+                            {cluePhotos.length > 0 && (
+                              <div className="flex gap-2 mt-3 flex-wrap">
+                                {cluePhotos.map((url: string, i: number) => (
+                                  <img key={i} src={url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+                                ))}
+                              </div>
+                            )}
+                            <div className="mt-3 text-[11px] text-[#1c1c1e]/25 dark:text-white/15">
+                              {new Date(clue.createdAt).toLocaleDateString("zh-CN", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Comments */}
             <div className="mt-10 pt-8 border-t border-black/5 dark:border-white/5">
               <h2 className="text-[16px] font-semibold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-5">
-                评论
+                {t.case.comments}
               </h2>
               <CommentForm caseId={id} onCommentAdded={fetchComments} />
               <div className="mt-5">
@@ -162,6 +239,17 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
         </Container>
       </main>
       <Footer />
+      <Modal
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        className="max-w-[90vw] max-h-[90vh] p-2 bg-transparent shadow-none"
+      >
+        <img
+          src={photos[activePhoto]}
+          alt={caseData.name}
+          className="max-w-full max-h-[85vh] object-contain rounded-lg"
+        />
+      </Modal>
       <ToastContainer />
     </div>
   );

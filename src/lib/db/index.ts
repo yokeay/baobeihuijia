@@ -87,10 +87,27 @@ export async function initDb() {
         detail TEXT,
         created_at TIMESTAMP NOT NULL DEFAULT now()
       );
+      CREATE TABLE IF NOT EXISTS clues (
+        id TEXT PRIMARY KEY,
+        case_id TEXT NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        photo_urls TEXT DEFAULT '[]',
+        submitter_name TEXT,
+        submitter_contact TEXT,
+        status TEXT DEFAULT 'pending',
+        reviewed_by TEXT,
+        reviewed_at TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_clues_case_id ON clues(case_id);
+      CREATE INDEX IF NOT EXISTS idx_clues_status ON clues(status);
+
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
         value TEXT
       );
+
     `);
 
     // GitHub OAuth is now the only login method.

@@ -54,6 +54,20 @@ export const auditLogs = pgTable("audit_logs", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const clues = pgTable("clues", {
+  id: text("id").primaryKey(),
+  caseId: text("case_id").notNull().references(() => cases.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  photoUrls: text("photo_urls").default("[]"),
+  submitterName: text("submitter_name"),
+  submitterContact: text("submitter_contact"),
+  status: text("status").default("pending"), // 'pending' | 'approved' | 'rejected'
+  reviewedBy: text("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
   value: text("value"),
