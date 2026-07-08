@@ -9,10 +9,18 @@ import { CommentForm } from "@/components/comment/CommentForm";
 import { ToastContainer } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 import { usePublicLang } from "@/lib/i18n/public-context";
+import { useUser } from "@/lib/UserContext";
+import { ContactInfoSheet } from "@/components/auth/ContactInfoSheet";
 
 export default function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { t } = usePublicLang();
+  const { token, requireAuth } = useUser();
+  const [following, setFollowing] = useState(false);
+  const [contactSheetOpen, setContactSheetOpen] = useState(false);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [questionForm, setQuestionForm] = useState("");
+  const [qSubmitting, setQSubmitting] = useState(false);
   const [caseData, setCaseData] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [clues, setClues] = useState<any[]>([]);
@@ -39,10 +47,31 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     setClues(data.items || []);
   }
 
+  async function fetchQuestions() {
+    const res = await fetch(`/api/cases/${id}/questions`);
+    const data = await res.json();
+    setQuestions(data.items || []);
+  }
+
+  async function recordView() {
+    fetch(`/api/cases/${id}/view`, { method: 'POST' }).catch(() => {});
+  }
+
+  async function fetchFollowStatus() {
+    const t = localStorage.getItem('bbhj_token');
+    if (!t) return;
+    const res = await fetch(`/api/cases/${id}/follow`, { headers: { Authorization: `Bearer ${t}` } });
+    const data = await res.json();
+    setFollowing(data.following ?? false);
+  }
+
   useEffect(() => {
     fetchCase();
     fetchComments();
     fetchClues();
+    fetchQuestions();
+    fetchFollowStatus();
+    recordView();
   }, [id]);
 
   if (loading) {
@@ -178,6 +207,37 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             </div>
 
+            {/* 关注 & 统计区块 */}
+            <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl" style={{background:"var(--bg-muted)"}}>
+              <div className="flex gap-4 text-sm" style={{color:"var(--text-tertiary)"}}>
+                {(caseData.viewCount ?? 0) > 0 && <span>👁 {caseData.viewCount} 浏览</span>}
+                {(caseData.followCount ?? 0) > 0 && <span>🕯 {caseData.followCount} 守候</span>}
+              </div>
+              <div className="ml-auto flex gap-2">
+                <button
+                  onClick={async () => {
+                    requireAuth(async () => {
+                      const t = localStorage.getItem("bbhj_token");
+                      const res = await fetch(`/api/cases/${id}/follow`, {
+                        method: "POST", headers: { Authorization: `Bearer ${t}` },
+                      });
+                      const data = await res.json();
+                      setFollowing(data.following ?? false);
+                      if (data.following) setContactSheetOpen(true);
+                    });
+                  }}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+                  style={{
+                    background: following ? "#D4821A" : "#F5F4F0",
+                    color: following ? "white" : "var(--text-primary)",
+                    border: "1px solid var(--border-default)",
+                  }}
+                >
+                  {following ? "✓ 守候中" : "守候 TA"}
+                </button>
+              </div>
+            </div>
+
             {/* Clue Timeline */}
             {clues.length > 0 && (
               <div className="mt-10 pt-8 border-t border-black/5 dark:border-white/5">
@@ -232,6 +292,50 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               </h2>
               <CommentForm caseId={id} onCommentAdded={fetchComments} />
               <div className="mt-5">
+                {/* 疑问区块 */}
+                <div className="mb-8">
+                  <h2 className="text-[16px] font-semibold mb-4" style={{color:"var(--text-primary)"}}>我有疑问</h2>
+                  <div className="flex gap-2 mb-4">
+                    <textarea
+                      rows={2}
+                      placeholder="对这条信息有什么疑问？（500字以内）"
+                      value={questionForm}
+                      onChange={(e) => setQuestionForm(e.target.value)}
+                      className="flex-1 px-3 py-2 rounded-xl text-sm outline-none resize-none"
+                      style={{background:"var(--bg-muted)",border:"1px solid var(--border-default)",color:"var(--text-primary)"}}
+                    />
+                    <button
+                      disabled={!questionForm.trim() || qSubmitting}
+                      onClick={() => {
+                        requireAuth(async () => {
+                          const t = localStorage.getItem("bbhj_token");
+                          setQSubmitting(true);
+                          await fetch(`/api/cases/${id}/questions`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+                            body: JSON.stringify({ content: questionForm }),
+                          });
+                          setQuestionForm("");
+                          setQSubmitting(false);
+                        });
+                      }}
+                      className="px-4 py-2 rounded-xl text-sm font-semibold text-white self-end"
+                      style={{background: questionForm.trim() ? "#D4821A" : "#E5E7EB", color: questionForm.trim() ? "white" : "#9CA3AF"}}
+                    >
+                      {qSubmitting ? "提交中" : "提交"}
+                    </button>
+                  </div>
+                  {questions.length > 0 && (
+                    <div className="space-y-3">
+                      {questions.map((q: any) => (
+                        <div key={q.id} className="p-3 rounded-xl" style={{background:"var(--bg-muted)"}}>
+                          <p className="text-sm" style={{color:"var(--text-primary)"}}>{q.content}</p>
+                          <p className="text-xs mt-1" style={{color:"var(--text-tertiary)"}}>{q.submitterName ?? "匿名用户"}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <CommentList comments={comments} />
               </div>
             </div>

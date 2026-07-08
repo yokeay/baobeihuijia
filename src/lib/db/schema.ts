@@ -72,3 +72,48 @@ export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
   value: text("value"),
 });
+
+// ─── v2.0 新增 ─────────────────────────────────────────────────────────────
+
+export const users = pgTable("users", {
+  id:               text("id").primaryKey(),
+  phone:            text("phone").unique().notNull(),
+  countryCode:      text("country_code").notNull().default("+86"),
+  username:         text("username").notNull(),
+  avatarSeed:       text("avatar_seed").notNull(),
+  region:           text("region").default("unknown"),
+  contactWechat:    text("contact_wechat"),
+  contactQq:        text("contact_qq"),
+  contactDouyin:    text("contact_douyin"),
+  contactBilibili:  text("contact_bilibili"),
+  contactX:         text("contact_x"),
+  contactInstagram: text("contact_instagram"),
+  contactFacebook:  text("contact_facebook"),
+  contactEmail:     text("contact_email"),
+  createdAt:        timestamp("created_at").notNull().defaultNow(),
+  lastActiveAt:     timestamp("last_active_at").notNull().defaultNow(),
+});
+
+export const follows = pgTable("follows", {
+  id:        text("id").primaryKey(),
+  userId:    text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  caseId:    text("case_id").notNull().references(() => cases.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const caseViews = pgTable("case_views", {
+  id:          text("id").primaryKey(),
+  caseId:      text("case_id").notNull().references(() => cases.id, { onDelete: "cascade" }),
+  fingerprint: text("fingerprint").notNull(),
+  createdAt:   timestamp("created_at").notNull().defaultNow(),
+});
+
+export const questions = pgTable("questions", {
+  id:            text("id").primaryKey(),
+  caseId:        text("case_id").notNull().references(() => cases.id, { onDelete: "cascade" }),
+  userId:        text("user_id").references(() => users.id),
+  content:       text("content").notNull(),
+  submitterName: text("submitter_name"),
+  status:        text("status").default("pending"),
+  createdAt:     timestamp("created_at").notNull().defaultNow(),
+});
