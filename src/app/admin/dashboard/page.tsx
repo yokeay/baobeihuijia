@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAdmin } from "../context";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
 import { LineChart } from "@/components/ui/LineChart";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 
 export default function AdminDashboardPage() {
   const { t } = useAdmin();
@@ -40,18 +41,6 @@ export default function AdminDashboardPage() {
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchTrends(); }, [fetchTrends]);
 
-  async function handleSync() {
-    try {
-      showToast(t.dashboard.syncInProgress, "info");
-      const res = await fetch("/api/sync", { method: "POST" });
-      const data = await res.json();
-      showToast(t.dashboard.syncSuccess.replace("{added}", data.added).replace("{skipped}", data.skipped), "success");
-      fetchStats();
-    } catch {
-      showToast(t.dashboard.syncFailed, "error");
-    }
-  }
-
   const statCards = [
     { label: t.dashboard.totalCases, value: stats.total },
     { label: t.dashboard.pendingReview, value: stats.byStatus.pending },
@@ -69,12 +58,7 @@ export default function AdminDashboardPage() {
     <div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">{t.dashboard.title}</h2>
-        <button
-          onClick={handleSync}
-          className="px-3.5 py-1.5 text-[12px] rounded-md bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors font-medium"
-        >
-          {t.dashboard.syncButton}
-        </button>
+        <RefreshButton onClick={() => { fetchStats(); fetchTrends(); }} />
       </div>
 
       {/* Stat cards */}
@@ -110,16 +94,17 @@ export default function AdminDashboardPage() {
         </ChartCard>
       </div>
 
-      {/* Bottom row: Clue trend */}
-      <ChartCard
-        title="线索提交趋势"
-        range={clueRange}
-        onRangeChange={(v) => { setClueRange(v); }}
-        loading={trendsLoading}
-        className="mb-4"
-      >
-        {trends && <LineChart data={trends.clues || []} color="#3b82f6" height={150} />}
-      </ChartCard>
+      {/* Bottom row: Clue trend - same width as top charts */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <ChartCard
+          title="线索提交趋势"
+          range={clueRange}
+          onRangeChange={(v) => { setClueRange(v); }}
+          loading={trendsLoading}
+        >
+          {trends && <LineChart data={trends.clues || []} color="#3b82f6" height={150} />}
+        </ChartCard>
+      </div>
 
       <ToastContainer />
     </div>

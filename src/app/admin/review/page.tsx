@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAdmin } from "../context";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import Drawer from "@/components/ui/Drawer";
 
 interface CaseItem {
@@ -181,6 +182,7 @@ export default function AdminReviewPage() {
         <span className="text-[12px] text-gray-400 dark:text-gray-500">
           {t.review.count.replace("{count}", String(tab === "cases" ? caseTotal : clueTotal))}
         </span>
+        <RefreshButton onClick={() => tab === "cases" ? fetchCases() : fetchClues()} />
       </div>
 
       {/* Search */}

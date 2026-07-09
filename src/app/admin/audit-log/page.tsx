@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAdmin } from "../context";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 
 interface AuditLogItem {
   id: string;
@@ -69,12 +70,7 @@ export default function AdminAuditLogPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">{t.auditLog.title}</h2>
-        <button
-          onClick={fetchLogs}
-          className="text-[12px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-        >
-          Refresh
-        </button>
+        <RefreshButton onClick={fetchLogs} />
       </div>
 
       <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] overflow-hidden">

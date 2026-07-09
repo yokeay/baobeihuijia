@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Drawer from "@/components/ui/Drawer";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 
 const ACTION_LABELS: Record<string, string> = {
   login: "登录",
@@ -81,7 +82,8 @@ export default function UserLogsPage() {
     <div>
       <h1 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-4">用户日志</h1>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-4">
+        <RefreshButton onClick={() => fetchLogs(page)} />
         <select value={action} onChange={e => setAction(e.target.value)} className={selectClass}>
           <option value="">全部操作</option>
           {Object.entries(ACTION_LABELS).map(([k, v]) => (

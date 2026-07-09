@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAdmin } from "../context";
 import Drawer from "@/components/ui/Drawer";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 
 interface CaseItem {
   id: string;
@@ -195,6 +196,7 @@ export default function AdminCasesPage() {
         <span className="text-[12px] text-gray-400 dark:text-gray-500">
           {t.cases.showing.replace("{filtered}", String(filtered.length)).replace("{total}", String(total))}
         </span>
+        <RefreshButton onClick={() => fetchCases(page)} />
       </div>
 
       {/* Filters */}

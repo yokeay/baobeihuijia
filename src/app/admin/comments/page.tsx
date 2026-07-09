@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Drawer from "@/components/ui/Drawer";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 
 const th = "text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500";
 const td = "py-2.5 px-4 text-gray-900 dark:text-gray-100";
@@ -44,7 +45,8 @@ export default function CommentsPage() {
   return (
     <div>
       <h1 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-4">评论管理</h1>
-      <div className="flex gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-4">
+        <RefreshButton onClick={() => fetchData(page)} />
         <select value={filter} onChange={e => setFilter(e.target.value)} className={selectClass}>
           <option value="">全部</option>
           <option value="pending">待审核</option>
