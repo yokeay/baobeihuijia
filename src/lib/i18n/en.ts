@@ -47,6 +47,8 @@ const en: Translations = {
   },
   review: {
     title: "Review Queue",
+    caseTab: "Case Review",
+    cluesTab: "Clue Review",
     count: "{count} pending",
     loading: "Loading...",
     empty: "No pending cases",
@@ -74,7 +76,6 @@ const en: Translations = {
     rejectedToast: "Rejected",
     operationFailed: "Operation failed",
     loadFailed: "Failed to load",
-    cluesTab: "Clue Review",
     clueAssociateCase: "Associated Case",
     clueContent: "Clue Content",
     cluePhotos: "Clue Photos",

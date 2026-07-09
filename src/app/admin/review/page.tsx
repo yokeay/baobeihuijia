@@ -164,7 +164,7 @@ export default function AdminReviewPage() {
                   : "text-gray-500 dark:text-gray-500"
               }`}
             >
-              {t.review.title}
+              {t.review.caseTab}
             </button>
             <button
               onClick={() => setTab("clues")}

@@ -45,6 +45,8 @@ const zh = {
   },
   review: {
     title: "审核队列",
+    caseTab: "案件审核",
+    cluesTab: "线索审核",
     count: "共 {count} 条待审核",
     loading: "加载中...",
     empty: "暂无待审核案件",
@@ -72,7 +74,6 @@ const zh = {
     rejectedToast: "已拒绝",
     operationFailed: "操作失败",
     loadFailed: "加载失败",
-    cluesTab: "线索审核",
     clueAssociateCase: "关联案例",
     clueContent: "线索内容",
     cluePhotos: "线索图片",
