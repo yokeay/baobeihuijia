@@ -7,7 +7,6 @@ import { Container } from "@/components/layout/Container";
 import { CommentList } from "@/components/comment/CommentList";
 import { CommentForm } from "@/components/comment/CommentForm";
 import { ToastContainer } from "@/components/ui/Toast";
-import { Modal } from "@/components/ui/Modal";
 import { usePublicLang } from "@/lib/i18n/public-context";
 import { useUser } from "@/lib/UserContext";
 import { ContactInfoSheet } from "@/components/auth/ContactInfoSheet";
@@ -15,7 +14,7 @@ import { ContactInfoSheet } from "@/components/auth/ContactInfoSheet";
 export default function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { t } = usePublicLang();
-  const { token, requireAuth, setAuthOpen, setPendingAction } = useUser();
+  const { token, setAuthOpen, setPendingAction } = useUser();
   const [following, setFollowing] = useState(false);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -30,23 +29,42 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const [clueForm, setClueForm] = useState("");
   const [clueSubmitting, setClueSubmitting] = useState(false);
 
+  async function handleQuestionSubmit() {
+    if (!questionForm.trim() || qSubmitting) return;
+    if (!token) {
+      setPendingAction(() => handleQuestionSubmit());
+      setAuthOpen(true);
+      return;
+    }
+    setQSubmitting(true);
+    await fetch(`/api/cases/${id}/questions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ content: questionForm }),
+    });
+    setQuestionForm("");
+    setQSubmitting(false);
+    fetchQuestions();
+  }
   async function submitClue() {
     if (!clueForm.trim()) return;
-    requireAuth(async () => {
-      const tk = localStorage.getItem("bbhj_token") || "";
-      setClueSubmitting(true);
-      try {
-        await fetch(`/api/cases/${id}/clues`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${tk}` },
-          body: JSON.stringify({ content: clueForm }),
-        });
-        setClueForm("");
-        fetchClues();
-      } finally {
-        setClueSubmitting(false);
-      }
-    });
+    if (!token) {
+      setPendingAction(() => submitClue());
+      setAuthOpen(true);
+      return;
+    }
+    setClueSubmitting(true);
+    try {
+      await fetch(`/api/cases/${id}/clues`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ content: clueForm }),
+      });
+      setClueForm("");
+      fetchClues();
+    } finally {
+      setClueSubmitting(false);
+    }
   }
 
 
@@ -80,11 +98,25 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   async function fetchFollowStatus() {
-    const t = localStorage.getItem('bbhj_token');
-    if (!t) return;
-    const res = await fetch(`/api/cases/${id}/follow`, { headers: { Authorization: `Bearer ${t}` } });
+    if (!token) return;
+    const res = await fetch(`/api/cases/${id}/follow`, { headers: { Authorization: `Bearer ${token}` } });
     const data = await res.json();
     setFollowing(data.following ?? false);
+  }
+
+  async function handleFollow() {
+    if (!token) {
+      setPendingAction(() => handleFollow());
+      setAuthOpen(true);
+      return;
+    }
+    const res = await fetch(`/api/cases/${id}/follow`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setFollowing(data.following ?? false);
+    if (data.following) setContactSheetOpen(true);
   }
 
   useEffect(() => {
@@ -94,7 +126,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     fetchQuestions();
     fetchFollowStatus();
     recordView();
-  }, [id]);
+  }, [id, token]);
 
   const duration = (() => {
     if (!caseData?.lostDate) return '';
@@ -194,25 +226,11 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                 {/* 操作按钮区 - 统一在右侧底部 */}
                 <div className="flex flex-wrap gap-3 mt-auto pt-4">
                   <button
-                    onClick={() => {
-                      const t = localStorage.getItem('bbhj_token');
-                      if (t) {
-                        fetch('/api/cases/' + id + '/follow', { method: 'POST', headers: { Authorization: 'Bearer ' + t } })
-                          .then(r => r.json()).then(d => { setFollowing(d.following ?? false); if (d.following) setContactSheetOpen(true); });
-                      } else {
-                        setPendingAction(() => () => {
-                          const tk = localStorage.getItem('bbhj_token');
-                          if (!tk) return;
-                          fetch('/api/cases/' + id + '/follow', { method: 'POST', headers: { Authorization: 'Bearer ' + tk } })
-                            .then(r => r.json()).then(d => { setFollowing(d.following ?? false); if (d.following) setContactSheetOpen(true); });
-                        });
-                        setAuthOpen(true);
-                      }
-                    }}
-                    className="px-6 py-3 rounded-xl text-sm font-semibold transition-all"
+                    onClick={handleFollow}
+                    className="px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer"
                     style={{background: following ? '#D4821A' : 'var(--bg-muted)', color: following ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-default)'}}
                   >
-                    {following ? '✓ 守候中' : '守候 TA'}
+                    {following ? '✓ 守候中（点击取消）' : '守候 TA'}
                   </button>
                   {caseData.sourceUrl && (
                     <a href={caseData.sourceUrl} target="_blank" rel="noreferrer"
@@ -259,21 +277,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                   style={{background:'var(--bg-muted)',border:'1px solid var(--border-default)',color:'var(--text-primary)'}}
                 />
                 <button disabled={!questionForm.trim() || qSubmitting}
-                  onClick={() => {
-                    const t = localStorage.getItem('bbhj_token');
-                    const submit = (tk: string) => {
-                      setQSubmitting(true);
-                      fetch('/api/cases/' + id + '/questions', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tk },
-                        body: JSON.stringify({ content: questionForm }),
-                      }).then(() => { setQuestionForm(''); setQSubmitting(false); fetchQuestions(); });
-                    };
-                    if (t) { submit(t); } else {
-                      setPendingAction(() => () => { const tk = localStorage.getItem('bbhj_token'); if (tk) submit(tk); });
-                      setAuthOpen(true);
-                    }
-                  }}
+                  onClick={handleQuestionSubmit}
                   className="px-4 py-2 rounded-xl text-sm font-semibold self-end"
                   style={{background: questionForm.trim() ? '#D4821A' : '#E5E7EB', color: questionForm.trim() ? 'white' : '#9CA3AF'}}>
                   {qSubmitting ? '提交中' : '提交'}

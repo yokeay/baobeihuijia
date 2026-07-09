@@ -56,7 +56,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (t) {
       onSuccess();
     } else {
-      setPendingAction(() => () => onSuccess());
+      setPendingAction(() => onSuccess);
       setAuthOpen(true);
     }
   }, []);
