@@ -23,6 +23,8 @@ export const cases = pgTable("cases", {
   reviewedAt: text("reviewed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  viewCount: integer("view_count").notNull().default(0),
+  followCount: integer("follow_count").notNull().default(0),
 });
 
 export const comments = pgTable("comments", {
