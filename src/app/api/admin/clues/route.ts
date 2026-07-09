@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const status = searchParams.get("status") || "pending";
+  const status = searchParams.get("status") || "";
   const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
   const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
   const offset = (page - 1) * limit;
@@ -17,15 +17,15 @@ export async function GET(request: Request) {
 
   const db = await getDb();
 
-  const whereClause = search
-    ? and(
-        eq(schema.clues.status, status),
-        or(
-          ilike(schema.clues.content, `%${search}%`),
-          ilike(schema.clues.submitterName, `%${search}%`)
-        )
-      )
-    : eq(schema.clues.status, status);
+  const conditions: any[] = [];
+  if (status) conditions.push(eq(schema.clues.status, status));
+  if (search) conditions.push(or(
+    ilike(schema.clues.content, `%${search}%`),
+    ilike(schema.clues.submitterName, `%${search}%`)
+  ));
+  const whereClause = conditions.length > 0
+    ? (conditions.length === 1 ? conditions[0] : and(...conditions))
+    : undefined;
 
   const [countRow] = await db
     .select({ count: sql<number>`count(*)::int` })

@@ -43,13 +43,36 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const navItems = [
-    { href: "/admin/dashboard", label: t.sidebar.dashboard, icon: DashboardIcon },
-    { href: "/admin/review", label: t.sidebar.review, icon: ClipboardIcon },
-    { href: "/admin/cases", label: t.sidebar.cases, icon: FolderIcon },
-    { href: "/admin/users", label: "用户管理", icon: LogIcon },
-    { href: "/admin/user-logs", label: "用户日志", icon: LogIcon },
-    { href: "/admin/audit-log", label: t.sidebar.auditLog, icon: LogIcon },
+  const navSections = [
+    {
+      label: "系统管理",
+      items: [
+        { href: "/admin/dashboard", label: t.sidebar.dashboard, icon: DashboardIcon },
+        { href: "/admin/audit-log", label: t.sidebar.auditLog, icon: LogIcon },
+      ],
+    },
+    {
+      label: "寻人管理",
+      items: [
+        { href: "/admin/review", label: t.sidebar.review, icon: ClipboardIcon },
+        { href: "/admin/cases", label: t.sidebar.cases, icon: FolderIcon },
+      ],
+    },
+    {
+      label: "内容管理",
+      items: [
+        { href: "/admin/comments", label: "评论管理", icon: ClipboardIcon },
+        { href: "/admin/questions", label: "疑问管理", icon: ClipboardIcon },
+        { href: "/admin/clues", label: "线索管理", icon: ClipboardIcon },
+      ],
+    },
+    {
+      label: "用户管理",
+      items: [
+        { href: "/admin/users", label: "用户管理", icon: LogIcon },
+        { href: "/admin/user-logs", label: "用户日志", icon: LogIcon },
+      ],
+    },
   ];
 
   return (
@@ -64,24 +87,33 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-3 space-y-0.5">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] transition-colors ${
-                  isActive
-                    ? "bg-gray-100 dark:bg-[#1f1f1f] text-gray-900 dark:text-gray-100 font-medium"
-                    : "text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300"
-                }`}
-              >
-                <item.icon size={17} />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-3 py-3 space-y-4 overflow-y-auto">
+          {navSections.map((section) => (
+            <div key={section.label}>
+              <div className="px-3 py-1 text-[11px] font-medium text-gray-400 dark:text-gray-600 uppercase tracking-wide">
+                {section.label}
+              </div>
+              <div className="space-y-0.5 mt-1">
+                {section.items.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] transition-colors ${
+                        isActive
+                          ? "bg-gray-100 dark:bg-[#1f1f1f] text-gray-900 dark:text-gray-100 font-medium"
+                          : "text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300"
+                      }`}
+                    >
+                      <item.icon size={17} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Bottom controls */}

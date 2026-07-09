@@ -1,5 +1,5 @@
 import { getDb, schema } from "@/lib/db";
-import { eq, desc } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 export async function GET(
@@ -11,7 +11,7 @@ export async function GET(
   const rows = await db
     .select()
     .from(schema.comments)
-    .where(eq(schema.comments.caseId, id))
+    .where(and(eq(schema.comments.caseId, id), eq(schema.comments.status, "approved")))
     .orderBy(desc(schema.comments.createdAt))
     .limit(50);
 
@@ -40,6 +40,7 @@ export async function POST(
     caseId: id,
     authorName: authorName.trim(),
     content: content.trim(),
+    status: "pending",
   });
 
   return Response.json({ id: commentId }, { status: 201 });

@@ -33,6 +33,9 @@ export const comments = pgTable("comments", {
   caseId: text("case_id").notNull().references(() => cases.id),
   authorName: text("author_name").notNull(),
   content: text("content").notNull(),
+  status: text("status").default("pending"),
+  reviewedBy: text("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
