@@ -196,30 +196,22 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                 {/* 字段信息 */}
                 <dl className="grid grid-cols-2 gap-x-6 gap-y-3 mb-6 text-sm">
                   {caseData.gender && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>性别</dt><dd style={{color:'var(--text-primary)'}}>{caseData.gender === 'male' ? '男' : caseData.gender === 'female' ? '女' : caseData.gender}</dd></>}
-                  {caseData.age && <><dt>失踪时年龄</dt><dd>{caseData.age} 岁</dd></> }
+                  {caseData.birthDate && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>出生日期</dt><dd style={{color:'var(--text-primary)'}}>{caseData.birthDate?.slice?.(0,10)}</dd></>}
                   {caseData.lostDate && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>失踪时间</dt><dd style={{color:'var(--text-primary)'}}>{caseData.lostDate?.slice?.(0,10)}（{duration}）</dd></>}
                 </dl>
 
                 {/* 更多字段 */}
                 <dl className="grid grid-cols-2 gap-x-6 gap-y-3 mb-6 text-sm">
-                  {caseData.lostAddress && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>失踪地址</dt><dd style={{color:'var(--text-primary)'}}>{caseData.lostAddress}</dd></>}
-                  {caseData.lostProvince && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>失踪省份</dt><dd style={{color:'var(--text-primary)'}}>{caseData.lostProvince} {caseData.lostCity}</dd></>}
                   {caseData.height && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>身高</dt><dd style={{color:'var(--text-primary)'}}>{caseData.height} cm</dd></>}
-                  {caseData.weight && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>体重</dt><dd style={{color:'var(--text-primary)'}}>{caseData.weight} kg</dd></>}
-                  {caseData.contactName && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>联系人</dt><dd style={{color:'var(--text-primary)'}}>{caseData.contactName}</dd></>}
-                  {caseData.phoneNum && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>联系电话</dt><dd style={{color:'var(--text-primary)'}}>{caseData.phoneNum}</dd></>}
-                  {caseData.caseSource && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>数据来源</dt><dd style={{color:'var(--text-primary)'}}>{caseData.caseSource}</dd></>}
+                  {caseData.lostAddress && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>失踪地址</dt><dd style={{color:'var(--text-primary)'}}>{caseData.lostAddress}</dd></>}
+                  {caseData.lostProvince && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>失踪地区</dt><dd style={{color:'var(--text-primary)'}}>{[caseData.lostProvince, caseData.lostCity, caseData.lostDistrict].filter(Boolean).join(' ')}</dd></>}
+                  {caseData.submitterName && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>信息提供者</dt><dd style={{color:'var(--text-primary)'}}>{caseData.submitterName}</dd></>}
+                  {caseData.source && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>数据来源</dt><dd style={{color:'var(--text-primary)'}}>{caseData.source === 'api' ? '宝贝回家API' : caseData.source}</dd></>}
                 </dl>
-                {caseData.description && (
+                {caseData.feature && (
                   <div className="mb-6 p-4 rounded-xl text-sm leading-relaxed" style={{background:'var(--bg-muted)',color:'var(--text-primary)'}}>
-                    <p className="font-medium mb-1" style={{color:'var(--text-secondary)'}}>详细描述</p>
-                    <p>{caseData.description}</p>
-                  </div>
-                )}
-                {caseData.bodyMark && (
-                  <div className="mb-6 p-4 rounded-xl text-sm" style={{background:'var(--bg-muted)',color:'var(--text-primary)'}}>
-                    <p className="font-medium mb-1" style={{color:'var(--text-secondary)'}}>体貌特征</p>
-                    <p>{caseData.bodyMark}</p>
+                    <p className="font-medium mb-1" style={{color:'var(--text-secondary)'}}>体貌特征与描述</p>
+                    <p className="whitespace-pre-wrap">{caseData.feature}</p>
                   </div>
                 )}
 
