@@ -25,6 +25,7 @@ export const cases = pgTable("cases", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   viewCount: integer("view_count").notNull().default(0),
   followCount: integer("follow_count").notNull().default(0),
+  missingCountry: text("missing_country"),
 });
 
 export const comments = pgTable("comments", {

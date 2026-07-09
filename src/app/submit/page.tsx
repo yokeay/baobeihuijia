@@ -352,8 +352,7 @@ export default function SubmitPage() {
                       placeholder={t.submit.clueSearchPlaceholder}
                       onKeyDown={(e) => e.key === "Enter" && handleClueSearch()}
                     />
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
+                    <div>
                         <label className="block text-[13px] font-medium text-[#1c1c1e]/60 dark:text-white/50 mb-1.5">{t.filter.provinceLabel}</label>
                         <RegionCascader
                           province={clueProvince}
@@ -363,7 +362,6 @@ export default function SubmitPage() {
                           onCityChange={(v) => handleFilterChange(clueProvince, v)}
                           onDistrictChange={() => {}}
                         />
-                      </div>
                     </div>
                     <Button onClick={handleClueSearch} disabled={searching || !searchQuery.trim()} className="w-full">
                       {searching ? "搜索中..." : t.filter.searchButton}

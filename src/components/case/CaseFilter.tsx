@@ -72,7 +72,7 @@ export function CaseFilter({
       </div>
 
       {/* Sliding Panels */}
-      <div className="overflow-hidden">
+      <div className="overflow-x-hidden">
         <div
           className="flex transition-transform duration-500"
           style={{

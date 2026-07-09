@@ -39,7 +39,12 @@ export function CaseCard({ item }: { item: any }) {
   const duration = getLostDuration(item.lostDate);
   const ageText = getEstimatedAge(item.age, item.lostDate);
   const isFound = item.status === "found";
-  const location = [item.lostProvince, item.lostCity].filter(Boolean).join(" ");
+  const isOverseas = item.missingCountry && item.missingCountry !== "CN";
+  const location = (() => {
+    if (isOverseas) return "Unknown Address";
+    const loc = [item.lostProvince, item.lostCity].filter(Boolean).join(" ");
+    return loc || "未知身份";
+  })();
 
   return (
     <Link href={`/case/${item.id}`} className="block group">
@@ -69,9 +74,7 @@ export function CaseCard({ item }: { item: any }) {
           {ageText && (
             <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-secondary)" }}>{ageText}</p>
           )}
-          {location && (
-            <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-tertiary)" }}>{location}</p>
-          )}
+          <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-tertiary)" }}>{location}</p>
           <div className="flex items-center gap-3 mt-2">
             {(item.viewCount ?? 0) > 0 && (
               <span className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>👁 {item.viewCount}</span>
