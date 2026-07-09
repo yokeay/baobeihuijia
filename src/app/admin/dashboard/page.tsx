@@ -67,7 +67,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-3">
         <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">{t.dashboard.title}</h2>
         <button
           onClick={handleSync}
@@ -78,7 +78,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-4 gap-3 mb-3">
         {statCards.map((s, i) => (
           <div key={i} className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] p-4">
             <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 tabular-nums">{s.value.toLocaleString()}</p>
@@ -88,7 +88,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Charts: top row (2 charts), bottom row (1 chart) */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-3">
         {/* Follow trend */}
         <ChartCard
           title="关注趋势"
@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
           onRangeChange={(v) => { setFollowRange(v); }}
           loading={trendsLoading}
         >
-          {trends && <LineChart data={trends.follows || []} color="#ec4899" height={200} />}
+          {trends && <LineChart data={trends.follows || []} color="#ec4899" height={150} />}
         </ChartCard>
 
         {/* Case submission trend */}
@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
           onRangeChange={(v) => { setCaseRange(v); }}
           loading={trendsLoading}
         >
-          {trends && <LineChart data={trends.cases || []} color="#D4821A" height={200} />}
+          {trends && <LineChart data={trends.cases || []} color="#D4821A" height={150} />}
         </ChartCard>
       </div>
 
@@ -118,7 +118,7 @@ export default function AdminDashboardPage() {
         loading={trendsLoading}
         className="mb-4"
       >
-        {trends && <LineChart data={trends.clues || []} color="#3b82f6" height={200} />}
+        {trends && <LineChart data={trends.clues || []} color="#3b82f6" height={150} />}
       </ChartCard>
 
       <ToastContainer />
@@ -149,7 +149,7 @@ function ChartCard({
 
   return (
     <div className={`rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] overflow-hidden ${className}`}>
-      <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-[#1f1f1f]">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-[#1f1f1f]">
         <h3 className="text-[13px] font-medium text-gray-900 dark:text-gray-100">{title}</h3>
         <div className="flex rounded-lg bg-gray-100 dark:bg-[#1a1a1a] p-0.5">
           {rangeTabs.map((tab) => (
@@ -169,7 +169,7 @@ function ChartCard({
       </div>
       <div className="p-4">
         {loading ? (
-          <div className="flex items-center justify-center" style={{ height: 200 }}>
+          <div className="flex items-center justify-center" style={{ height: 150 }}>
             <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" />
           </div>
         ) : (
