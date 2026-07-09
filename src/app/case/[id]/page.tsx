@@ -32,14 +32,19 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   async function handleQuestionSubmit() {
     if (!questionForm.trim() || qSubmitting) return;
     if (!token) {
-      setPendingAction(() => handleQuestionSubmit());
+      setPendingAction(() => doSubmitQuestion());
       setAuthOpen(true);
       return;
     }
+    doSubmitQuestion();
+  }
+
+  async function doSubmitQuestion() {
+    const tk = token || localStorage.getItem("bbhj_token") || "";
     setQSubmitting(true);
     await fetch(`/api/cases/${id}/questions`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${tk}` },
       body: JSON.stringify({ content: questionForm }),
     });
     setQuestionForm("");
@@ -49,15 +54,19 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   async function submitClue() {
     if (!clueForm.trim()) return;
     if (!token) {
-      setPendingAction(() => submitClue());
+      setPendingAction(() => doSubmitClue());
       setAuthOpen(true);
       return;
     }
+    doSubmitClue();
+  }
+  async function doSubmitClue() {
+    const tk = token || localStorage.getItem("bbhj_token") || "";
     setClueSubmitting(true);
     try {
       await fetch(`/api/cases/${id}/clues`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${tk}` },
         body: JSON.stringify({ content: clueForm }),
       });
       setClueForm("");
@@ -106,13 +115,18 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
 
   async function handleFollow() {
     if (!token) {
-      setPendingAction(() => handleFollow());
+      setPendingAction(() => doFollow());
       setAuthOpen(true);
       return;
     }
+    doFollow();
+  }
+
+  async function doFollow() {
+    const tk = token || localStorage.getItem("bbhj_token") || "";
     const res = await fetch(`/api/cases/${id}/follow`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${tk}` },
     });
     const data = await res.json();
     setFollowing(data.following ?? false);

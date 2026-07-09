@@ -5,12 +5,10 @@ import { useState, useRef, useEffect } from "react";
 import { Container } from "./Container";
 import { usePublicLang } from "@/lib/i18n/public-context";
 import { useUser } from "@/lib/UserContext";
-import { ContactInfoSheet } from "@/components/auth/ContactInfoSheet";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [contactSheetOpen, setContactSheetOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { t } = usePublicLang();
   const { user, token, setAuthOpen, logout } = useUser();
@@ -86,12 +84,13 @@ export function Header() {
               {/* User dropdown menu */}
               {user && userMenuOpen && (
                 <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
-                  <button
-                    onClick={() => { setUserMenuOpen(false); setContactSheetOpen(true); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-[#1c1c1e] hover:bg-gray-50 transition-colors"
+                  <Link
+                    href="/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="w-full text-left px-4 py-2.5 text-sm text-[#1c1c1e] hover:bg-gray-50 transition-colors block no-underline"
                   >
                     完善联系方式
-                  </button>
+                  </Link>
                   <button
                     onClick={() => { setUserMenuOpen(false); logout(); }}
                     className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
@@ -132,8 +131,6 @@ export function Header() {
           50% { opacity: 1; transform: scale(1.3); }
         }
       `}</style>
-
-      <ContactInfoSheet open={contactSheetOpen} onClose={() => setContactSheetOpen(false)} />
     </header>
   );
 }
