@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Drawer from "@/components/ui/Drawer";
 
 const th = "text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500";
 const td = "py-2.5 px-4 text-gray-900 dark:text-gray-100";
@@ -13,6 +14,8 @@ export default function CommentsPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState("pending");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerCase, setDrawerCase] = useState<any>(null);
 
   const fetchData = useCallback(async (p: number) => {
     setLoading(true);
@@ -58,6 +61,7 @@ export default function CommentsPage() {
               <thead>
                 <tr className="border-b border-gray-100 dark:border-[#1f1f1f]">
                   <th className={th}>昵称</th>
+                  <th className={th}>关联案例</th>
                   <th className={th}>评论内容</th>
                   <th className={th}>状态</th>
                   <th className={th}>时间</th>
@@ -68,7 +72,15 @@ export default function CommentsPage() {
                 {items.map((c: any) => (
                   <tr key={c.id} className={trClass}>
                     <td className={td}>{c.authorName}</td>
-                    <td className={td} style={{ maxWidth: 300 }}><div className="truncate">{c.content}</div></td>
+                    <td className={td}>
+                      {c.caseName ? (
+                        <button onClick={() => { setDrawerCase(c.caseData); setDrawerOpen(true); }}
+                          className="text-blue-600 dark:text-blue-400 hover:underline text-left">
+                          {c.caseName}
+                        </button>
+                      ) : "-"}
+                    </td>
+                    <td className={td} style={{ maxWidth: 250 }}><div className="truncate">{c.content}</div></td>
                     <td className={td}>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         c.status === "approved" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
@@ -94,7 +106,7 @@ export default function CommentsPage() {
                   </tr>
                 ))}
                 {items.length === 0 && (
-                  <tr><td colSpan={5} className="text-center py-8 text-gray-400 dark:text-gray-600">暂无评论</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-gray-400 dark:text-gray-600">暂无评论</td></tr>
                 )}
               </tbody>
             </table>
@@ -111,6 +123,38 @@ export default function CommentsPage() {
           )}
         </>
       )}
+
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="案例详情">
+        {drawerCase && <CaseDetail data={drawerCase} />}
+      </Drawer>
+    </div>
+  );
+}
+
+function CaseDetail({ data }: { data: any }) {
+  const photos: string[] = (() => { try { return JSON.parse(data.photoUrls || "[]"); } catch { return []; } })();
+  return (
+    <div className="space-y-4 text-[13px]">
+      {photos.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {photos.map((url: string, i: number) => (
+            <img key={i} src={url} alt="" className="w-24 h-24 rounded-lg object-cover flex-shrink-0" />
+          ))}
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        <div><span className="text-gray-400 text-[11px]">姓名</span><p className="text-gray-900 dark:text-gray-100">{data.name}</p></div>
+        <div><span className="text-gray-400 text-[11px]">性别</span><p className="text-gray-900 dark:text-gray-100">{data.gender || "-"}</p></div>
+        <div><span className="text-gray-400 text-[11px]">出生日期</span><p className="text-gray-900 dark:text-gray-100">{data.birthDate || "-"}</p></div>
+        <div><span className="text-gray-400 text-[11px]">失踪日期</span><p className="text-gray-900 dark:text-gray-100">{data.lostDate || "-"}</p></div>
+        <div><span className="text-gray-400 text-[11px]">身高</span><p className="text-gray-900 dark:text-gray-100">{data.height ? `${data.height}cm` : "-"}</p></div>
+        <div><span className="text-gray-400 text-[11px]">地区</span><p className="text-gray-900 dark:text-gray-100">{[data.lostProvince, data.lostCity, data.lostDistrict].filter(Boolean).join(" ") || "-"}</p></div>
+      </div>
+      {data.lostAddress && <div><p className="text-[11px] text-gray-400 mb-1">失踪地址</p><p className="text-gray-700 dark:text-gray-300">{data.lostAddress}</p></div>}
+      {data.feature && <div><p className="text-[11px] text-gray-400 mb-1">体貌特征</p><p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{data.feature}</p></div>}
+      <div className="text-[11px] text-gray-400 pt-3 border-t border-gray-100 dark:border-[#1f1f1f]">
+        <p>ID: {data.id}</p>
+      </div>
     </div>
   );
 }

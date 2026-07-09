@@ -42,23 +42,24 @@ export async function GET(request: Request) {
     .limit(limit)
     .offset(offset);
 
-  // Fetch associated case names, optionally filtered by search
+  // Fetch associated case names
   const caseIds = [...new Set(items.map((c: any) => c.caseId as string))];
-  const caseMap = new Map<string, string>();
+  const caseMap = new Map<string, any>();
   if (caseIds.length > 0) {
     const cases = await db
-      .select({ id: schema.cases.id, name: schema.cases.name })
+      .select()
       .from(schema.cases)
       .where(sql`${schema.cases.id} = ANY(ARRAY[${sql.join(caseIds.map(id => sql`${id}`), sql`, `)}])`);
     for (const c of cases) {
-      caseMap.set(c.id, c.name);
+      caseMap.set(c.id, c);
     }
   }
 
   // If searching, also match against case names — filter results
   let enriched = items.map((clue: any) => ({
     ...clue,
-    caseName: caseMap.get(clue.caseId) || "(已删除)",
+    caseName: caseMap.get(clue.caseId)?.name || "(已删除)",
+    caseData: caseMap.get(clue.caseId) || null,
   }));
 
   if (search) {

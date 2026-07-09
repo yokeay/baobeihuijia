@@ -26,5 +26,19 @@ export async function GET(request: Request) {
     .orderBy(desc(schema.userActivities.createdAt))
     .limit(limit).offset(offset);
 
-  return Response.json({ items, total, page, totalPages: Math.ceil(total / limit) });
+  // Enrich follow/unfollow actions with case data
+  const caseIds = [...new Set(items.filter((a: any) => a.targetId && ["follow","unfollow"].includes(a.action)).map((a: any) => a.targetId as string))];
+  const caseMap = new Map<string, any>();
+  if (caseIds.length > 0) {
+    const cases = await db.select().from(schema.cases)
+      .where(sql`${schema.cases.id} = ANY(ARRAY[${sql.join(caseIds.map(id => sql`${id}`), sql`, `)}])`);
+    for (const c of cases) caseMap.set(c.id, c);
+  }
+
+  const enriched = items.map((item: any) => ({
+    ...item,
+    caseData: caseMap.get(item.targetId) || null,
+  }));
+
+  return Response.json({ items: enriched, total, page, totalPages: Math.ceil(total / limit) });
 }

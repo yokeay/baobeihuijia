@@ -19,7 +19,22 @@ export async function GET(request: Request) {
   const items = await db.select().from(schema.questions)
     .where(where).orderBy(desc(schema.questions.createdAt)).limit(limit).offset(offset);
 
-  return Response.json({ items, total, page, totalPages: Math.ceil(total / limit) });
+  // Enrich with case names
+  const caseIds = [...new Set(items.map((q: any) => q.caseId as string))];
+  const caseMap = new Map<string, any>();
+  if (caseIds.length > 0) {
+    const cases = await db.select().from(schema.cases)
+      .where(sql`${schema.cases.id} = ANY(ARRAY[${sql.join(caseIds.map(id => sql`${id}`), sql`, `)}])`);
+    for (const c of cases) caseMap.set(c.id, c);
+  }
+
+  const enriched = items.map((item: any) => ({
+    ...item,
+    caseName: caseMap.get(item.caseId)?.name || "(已删除)",
+    caseData: caseMap.get(item.caseId) || null,
+  }));
+
+  return Response.json({ items: enriched, total, page, totalPages: Math.ceil(total / limit) });
 }
 
 export async function PATCH(request: Request) {
