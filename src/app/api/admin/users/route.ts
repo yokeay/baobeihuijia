@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     .limit(limit).offset(offset);
 
   return Response.json({
-    items: users.map(u => ({
+    items: users.map((u: any) => ({
       id: u.id,
       phone: u.phone,
       username: u.username,
