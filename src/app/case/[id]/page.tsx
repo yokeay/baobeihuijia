@@ -15,7 +15,7 @@ import { ContactInfoSheet } from "@/components/auth/ContactInfoSheet";
 export default function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { t } = usePublicLang();
-  const { token, requireAuth } = useUser();
+  const { token, requireAuth, setAuthOpen, setPendingAction } = useUser();
   const [following, setFollowing] = useState(false);
   const [contactSheetOpen, setContactSheetOpen] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -27,6 +27,28 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true);
   const [activePhoto, setActivePhoto] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [clueForm, setClueForm] = useState("");
+  const [clueSubmitting, setClueSubmitting] = useState(false);
+
+  async function submitClue() {
+    if (!clueForm.trim()) return;
+    requireAuth(async () => {
+      const tk = localStorage.getItem("bbhj_token") || "";
+      setClueSubmitting(true);
+      try {
+        await fetch(`/api/cases/${id}/clues`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${tk}` },
+          body: JSON.stringify({ content: clueForm }),
+        });
+        setClueForm("");
+        fetchClues();
+      } finally {
+        setClueSubmitting(false);
+      }
+    });
+  }
+
 
   async function fetchCase() {
     const res = await fetch(`/api/cases/${id}`);
@@ -74,305 +96,215 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     recordView();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col min-h-full">
-        <Header />
-        <main className="flex-1 py-20"><Container><p className="text-center text-[14px] text-[#1c1c1e]/30">{t.case.loading}</p></Container></main>
-        <Footer />
-      </div>
-    );
-  }
+  const duration = (() => {
+    if (!caseData?.lostDate) return '';
+    const d = new Date(caseData.lostDate);
+    const now = new Date();
+    const years = now.getFullYear() - d.getFullYear();
+    const months = now.getMonth() - d.getMonth() + years * 12;
+    if (months >= 12) return `约${Math.floor(months/12)}年`;
+    if (months > 0) return `约${months}个月`;
+    return '不足一个月';
+  })();
 
-  if (!caseData) {
-    return (
-      <div className="flex flex-col min-h-full">
-        <Header />
-        <main className="flex-1 py-20"><Container><p className="text-center text-[14px] text-[#1c1c1e]/30">{t.case.notFound}</p></Container></main>
-        <Footer />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex flex-col min-h-full"><Header /><main className="flex-1 py-20"><Container><p className="text-center text-sm text-gray-400">加载中…</p></Container></main><Footer /></div>
+  );
 
-  const photos: string[] = JSON.parse(caseData.photoUrls || "[]");
+  if (!caseData) return (
+    <div className="flex flex-col min-h-full"><Header /><main className="flex-1 py-20"><Container><p className="text-center text-sm text-gray-400">未找到该案件</p></Container></main><Footer /></div>
+  );
+
+  const photos: string[] = (() => { try { const a = JSON.parse(caseData.photoUrls || "[]"); return Array.isArray(a) ? a : []; } catch { return []; } })();
 
   return (
     <div className="flex flex-col min-h-full">
       <Header />
       <main className="flex-1 py-8">
-        {/* Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Person",
-              name: caseData.name,
-              description: `${caseData.name}${caseData.gender ? `，${caseData.gender}` : ""}${caseData.height ? `，身高${caseData.height}cm` : ""}${caseData.lostDate ? `，于${caseData.lostDate}走失` : ""}${caseData.feature ? `。体貌特征：${caseData.feature}` : ""}`,
-              image: photos[0] || undefined,
-              gender: caseData.gender || undefined,
-              height: caseData.height ? `${caseData.height / 100} m` : undefined,
-              birthDate: caseData.birthDate || undefined,
-              url: `https://wohaoxiangni.com/case/${caseData.id}`,
-            }),
-          }}
-        />
         <Container>
-          <div className="max-w-4xl mx-auto">
-            {/* Photos */}
-            {photos.length > 0 && (
-              <div className="mb-8">
-                <div className="rounded-2xl overflow-hidden bg-black/5 dark:bg-white/5">
+          <div className="max-w-5xl mx-auto">
+
+            {/* 上：详情区 - 左图右信息 */}
+            <div className="flex flex-col md:flex-row gap-8 mb-10">
+
+              {/* 左：照片 */}
+              <div className="md:w-72 flex-shrink-0">
+                <div className="w-full rounded-2xl overflow-hidden bg-gray-100 shadow-md" style={{aspectRatio:'3/4'}}>
                   <img
-                    src={photos[activePhoto]}
+                    src={photos[0] || '/placeholder.svg'}
                     alt={caseData.name}
-                    className="w-full aspect-[4/3] md:aspect-[16/9] object-contain cursor-zoom-in"
-                    onClick={() => setLightboxOpen(true)}
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 {photos.length > 1 && (
-                  <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
-                    {photos.map((url: string, i: number) => (
-                      <button
-                        key={i}
-                        onClick={() => setActivePhoto(i)}
-                        className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                          i === activePhoto
-                            ? "border-[#c5705a] opacity-100"
-                            : "border-transparent opacity-50 hover:opacity-80"
-                        }`}
-                      >
-                        <img src={url} alt="" className="w-full h-full object-cover" />
-                      </button>
+                  <div className="flex gap-2 mt-2">
+                    {photos.slice(1,4).map((p,i) => (
+                      <img key={i} src={p} className="w-16 h-20 object-cover rounded-lg opacity-80 hover:opacity-100 transition-opacity" />
                     ))}
                   </div>
                 )}
               </div>
-            )}
 
-            {/* Two-column info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-              {/* Left: Basic info */}
-              <div className="md:col-span-1">
-                <h1 className="text-[24px] font-bold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-2">
-                  {caseData.name}
-                </h1>
-                <p className="text-[13px] text-[#1c1c1e]/30 dark:text-white/20 mb-6">
-                  {t.case.lostDate}{caseData.lostDate || t.case.unknown}
-                </p>
+              {/* 右：信息 + 操作按钮 */}
+              <div className="flex-1 flex flex-col">
 
-                <div className="space-y-3 text-[14px]">
-                  <InfoRow label={t.case.gender} value={caseData.gender} />
-                  <InfoRow label={t.case.height} value={caseData.height ? `${caseData.height}${t.case.cm}` : null} />
-                  <InfoRow label={t.case.birthDate} value={caseData.birthDate} />
+                {/* 姓名 + 状态 */}
+                <div className="flex items-center gap-3 mb-4">
+                  <h1 className="text-2xl font-bold" style={{color:'var(--text-primary)'}}>{caseData.name}</h1>
+                  {caseData.status === 'found' && <span className="px-2 py-1 rounded-full text-xs font-semibold text-white bg-green-600">❤️ 已团聚</span>}
+                  {caseData.status !== 'found' && <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{background:'var(--accent-light)',color:'var(--accent)'}}>寻找中</span>}
+                </div>
+
+                {/* 统计：浏览 + 守候 */}
+                <div className="flex gap-4 mb-5 text-sm" style={{color:'var(--text-tertiary)'}}>
+                  {(caseData.viewCount ?? 0) > 0 && <span>👁 {caseData.viewCount} 浏览</span>}
+                  {(caseData.followCount ?? 0) > 0 && <span>🕯 {caseData.followCount} 人守候</span>}
+                </div>
+
+                {/* 字段信息 */}
+                <dl className="grid grid-cols-2 gap-x-6 gap-y-3 mb-6 text-sm">
+                  {caseData.gender && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>性别</dt><dd style={{color:'var(--text-primary)'}}>{caseData.gender === 'male' ? '男' : caseData.gender === 'female' ? '女' : caseData.gender}</dd></>}
+                  {caseData.age && <><dt>失踪时年龄</dt><dd>{caseData.age} 岁</dd></> }
+                  {caseData.lostDate && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>失踪时间</dt><dd style={{color:'var(--text-primary)'}}>{caseData.lostDate?.slice?.(0,10)}（{duration}）</dd></>}
+                </dl>
+
+                {/* 更多字段 */}
+                <dl className="grid grid-cols-2 gap-x-6 gap-y-3 mb-6 text-sm">
+                  {caseData.lostAddress && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>失踪地址</dt><dd style={{color:'var(--text-primary)'}}>{caseData.lostAddress}</dd></>}
+                  {caseData.lostProvince && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>失踪省份</dt><dd style={{color:'var(--text-primary)'}}>{caseData.lostProvince} {caseData.lostCity}</dd></>}
+                  {caseData.height && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>身高</dt><dd style={{color:'var(--text-primary)'}}>{caseData.height} cm</dd></>}
+                  {caseData.weight && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>体重</dt><dd style={{color:'var(--text-primary)'}}>{caseData.weight} kg</dd></>}
+                  {caseData.contactName && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>联系人</dt><dd style={{color:'var(--text-primary)'}}>{caseData.contactName}</dd></>}
+                  {caseData.phoneNum && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>联系电话</dt><dd style={{color:'var(--text-primary)'}}>{caseData.phoneNum}</dd></>}
+                  {caseData.caseSource && <><dt className="font-medium" style={{color:'var(--text-secondary)'}}>数据来源</dt><dd style={{color:'var(--text-primary)'}}>{caseData.caseSource}</dd></>}
+                </dl>
+                {caseData.description && (
+                  <div className="mb-6 p-4 rounded-xl text-sm leading-relaxed" style={{background:'var(--bg-muted)',color:'var(--text-primary)'}}>
+                    <p className="font-medium mb-1" style={{color:'var(--text-secondary)'}}>详细描述</p>
+                    <p>{caseData.description}</p>
+                  </div>
+                )}
+                {caseData.bodyMark && (
+                  <div className="mb-6 p-4 rounded-xl text-sm" style={{background:'var(--bg-muted)',color:'var(--text-primary)'}}>
+                    <p className="font-medium mb-1" style={{color:'var(--text-secondary)'}}>体貌特征</p>
+                    <p>{caseData.bodyMark}</p>
+                  </div>
+                )}
+
+                {/* 操作按钮区 - 统一在右侧底部 */}
+                <div className="flex flex-wrap gap-3 mt-auto pt-4">
+                  <button
+                    onClick={() => {
+                      const t = localStorage.getItem('bbhj_token');
+                      if (t) {
+                        fetch('/api/cases/' + id + '/follow', { method: 'POST', headers: { Authorization: 'Bearer ' + t } })
+                          .then(r => r.json()).then(d => { setFollowing(d.following ?? false); if (d.following) setContactSheetOpen(true); });
+                      } else {
+                        setPendingAction(() => () => {
+                          const tk = localStorage.getItem('bbhj_token');
+                          if (!tk) return;
+                          fetch('/api/cases/' + id + '/follow', { method: 'POST', headers: { Authorization: 'Bearer ' + tk } })
+                            .then(r => r.json()).then(d => { setFollowing(d.following ?? false); if (d.following) setContactSheetOpen(true); });
+                        });
+                        setAuthOpen(true);
+                      }
+                    }}
+                    className="px-6 py-3 rounded-xl text-sm font-semibold transition-all"
+                    style={{background: following ? '#D4821A' : 'var(--bg-muted)', color: following ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-default)'}}
+                  >
+                    {following ? '✓ 守候中' : '守候 TA'}
+                  </button>
+                  {caseData.sourceUrl && (
+                    <a href={caseData.sourceUrl} target="_blank" rel="noreferrer"
+                      className="px-6 py-3 rounded-xl text-sm font-semibold"
+                      style={{background:'var(--bg-muted)',color:'var(--text-primary)',border:'1px solid var(--border-default)'}}>
+                      查看来源 ↗
+                    </a>
+                  )}
+                </div>
+
+              </div>{/* 右侧信息结束 */}
+            </div>{/* 左右布局结束 */}
+
+
+            {/* 下：线索区 */}
+            {clues.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-base font-semibold mb-4" style={{color:'var(--text-primary)'}}>目击线索</h2>
+                <div className="space-y-3">
+                  {clues.map((c: any) => (
+                    <div key={c.id} className="p-4 rounded-2xl" style={{background:'var(--bg-muted)'}}>
+                      <p className="text-sm" style={{color:'var(--text-primary)'}}>{c.content}</p>
+                      <p className="text-xs mt-1" style={{color:'var(--text-tertiary)'}}>{c.contactName ?? '匿名'} · {c.createdAt?.slice?.(0,10)}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              {/* Right: Location + details */}
-              <div className="md:col-span-2 space-y-5">
-                <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-[#1a1a1a] p-5">
-                  <h3 className="text-[12px] font-medium text-[#1c1c1e]/30 dark:text-white/20 mb-3 uppercase tracking-wide">
-                    {t.case.lostInfo}
-                  </h3>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-[14px]">
-                    <InfoItem label={t.case.province} value={caseData.lostProvince} />
-                    <InfoItem label={t.case.city} value={caseData.lostCity} />
-                    <InfoItem label={t.case.district} value={caseData.lostDistrict} />
-                    <InfoItem label={t.case.lostDate} value={caseData.lostDate} />
-                  </div>
-                  {caseData.lostAddress && (
-                    <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5">
-                      <span className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20">{t.case.detailAddress}</span>
-                      <p className="text-[14px] mt-0.5 text-[#1c1c1e]/70 dark:text-white/60">{caseData.lostAddress}</p>
-                    </div>
-                  )}
-                  {caseData.feature && (
-                    <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5">
-                      <span className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20">{t.case.feature}</span>
-                      <p className="text-[14px] mt-0.5 text-[#1c1c1e]/70 dark:text-white/60">{caseData.feature}</p>
-                    </div>
-                  )}
-                </div>
-
-                {caseData.sourceUrl && (
-                  <a
-                    href={caseData.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[13px] text-[#c5705a] hover:text-[#b05a45] transition-colors"
-                  >
-                    {t.case.viewSource} <span className="text-[11px]">→</span>
-                  </a>
-                )}
+            )}
+            <div className="mb-10">
+              <h2 className="text-base font-semibold mb-3" style={{color:'var(--text-primary)'}}>提供线索</h2>
+              <div className="flex flex-col gap-2">
+                <textarea rows={2} placeholder="您知道的任何信息都可能帮助这个家庭团聚" value={clueForm} onChange={e=>setClueForm(e.target.value)} className="w-full rounded-xl px-3 py-2 text-sm outline-none resize-none" style={{background:'var(--bg-muted)',color:'var(--text-primary)'}} />
+                <button onClick={submitClue} disabled={!clueForm.trim()} className="self-end px-4 py-1.5 rounded-full text-sm font-medium disabled:opacity-40" style={{background:'var(--color-primary)',color:'#fff'}}>提交线索</button>
               </div>
             </div>
 
-            {/* 关注 & 统计区块 */}
-            <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl" style={{background:"var(--bg-muted)"}}>
-              <div className="flex gap-4 text-sm" style={{color:"var(--text-tertiary)"}}>
-                {(caseData.viewCount ?? 0) > 0 && <span>👁 {caseData.viewCount} 浏览</span>}
-                {(caseData.followCount ?? 0) > 0 && <span>🕯 {caseData.followCount} 守候</span>}
-              </div>
-              <div className="ml-auto flex gap-2">
-                <button
-                  onClick={async () => {
-                    requireAuth(async () => {
-                      const t = localStorage.getItem("bbhj_token");
-                      const res = await fetch(`/api/cases/${id}/follow`, {
-                        method: "POST", headers: { Authorization: `Bearer ${t}` },
-                      });
-                      const data = await res.json();
-                      setFollowing(data.following ?? false);
-                      if (data.following) setContactSheetOpen(true);
-                    });
+            {/* 疑问区 */}
+            <div className="mb-10">
+              <h2 className="text-base font-semibold mb-4" style={{color:'var(--text-primary)'}}>我有疑问</h2>
+              <div className="flex gap-2 mb-4">
+                <textarea rows={2} placeholder="对这条信息有什么疑问？" value={questionForm}
+                  onChange={(e) => setQuestionForm(e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-xl text-sm outline-none resize-none"
+                  style={{background:'var(--bg-muted)',border:'1px solid var(--border-default)',color:'var(--text-primary)'}}
+                />
+                <button disabled={!questionForm.trim() || qSubmitting}
+                  onClick={() => {
+                    const t = localStorage.getItem('bbhj_token');
+                    const submit = (tk: string) => {
+                      setQSubmitting(true);
+                      fetch('/api/cases/' + id + '/questions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tk },
+                        body: JSON.stringify({ content: questionForm }),
+                      }).then(() => { setQuestionForm(''); setQSubmitting(false); fetchQuestions(); });
+                    };
+                    if (t) { submit(t); } else {
+                      setPendingAction(() => () => { const tk = localStorage.getItem('bbhj_token'); if (tk) submit(tk); });
+                      setAuthOpen(true);
+                    }
                   }}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold transition-all"
-                  style={{
-                    background: following ? "#D4821A" : "#F5F4F0",
-                    color: following ? "white" : "var(--text-primary)",
-                    border: "1px solid var(--border-default)",
-                  }}
-                >
-                  {following ? "✓ 守候中" : "守候 TA"}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold self-end"
+                  style={{background: questionForm.trim() ? '#D4821A' : '#E5E7EB', color: questionForm.trim() ? 'white' : '#9CA3AF'}}>
+                  {qSubmitting ? '提交中' : '提交'}
                 </button>
               </div>
-            </div>
-
-            {/* Clue Timeline */}
-            {clues.length > 0 && (
-              <div className="mt-10 pt-8 border-t border-black/5 dark:border-white/5">
-                <h2 className="text-[16px] font-semibold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-5">
-                  {t.case.timelineTitle}
-                </h2>
-                <div className="relative pl-6">
-                  {/* Vertical line */}
-                  <div className="absolute left-[7px] top-2 bottom-2 w-px bg-black/[0.06] dark:bg-white/[0.08]" />
-                  <div className="space-y-6">
-                    {clues.map((clue: any) => {
-                      const cluePhotos: string[] = (() => {
-                        try { return JSON.parse(clue.photoUrls || "[]"); } catch { return []; }
-                      })();
-                      return (
-                        <div key={clue.id} className="relative">
-                          {/* Dot */}
-                          <div className="absolute left-[-18px] top-1.5 w-[15px] h-[15px] rounded-full bg-[#c5705a]/15 dark:bg-[#c5705a]/20 border-2 border-[#c5705a] flex items-center justify-center">
-                            <div className="w-[5px] h-[5px] rounded-full bg-[#c5705a]" />
-                          </div>
-                          <div className="rounded-xl border border-black/5 dark:border-white/5 bg-white dark:bg-[#1a1a1a] p-4">
-                            <p className="text-[14px] text-[#1c1c1e]/80 dark:text-white/70 leading-relaxed">
-                              {clue.content}
-                            </p>
-                            {cluePhotos.length > 0 && (
-                              <div className="flex gap-2 mt-3 flex-wrap">
-                                {cluePhotos.map((url: string, i: number) => (
-                                  <img key={i} src={url} alt="" className="w-16 h-16 rounded-lg object-cover" />
-                                ))}
-                              </div>
-                            )}
-                            <div className="mt-3 text-[11px] text-[#1c1c1e]/25 dark:text-white/15">
-                              {new Date(clue.createdAt).toLocaleDateString("zh-CN", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Comments */}
-            <div className="mt-10 pt-8 border-t border-black/5 dark:border-white/5">
-              <h2 className="text-[16px] font-semibold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-5">
-                {t.case.comments}
-              </h2>
-              <CommentForm caseId={id} onCommentAdded={fetchComments} />
-              <div className="mt-5">
-                {/* 疑问区块 */}
-                <div className="mb-8">
-                  <h2 className="text-[16px] font-semibold mb-4" style={{color:"var(--text-primary)"}}>我有疑问</h2>
-                  <div className="flex gap-2 mb-4">
-                    <textarea
-                      rows={2}
-                      placeholder="对这条信息有什么疑问？（500字以内）"
-                      value={questionForm}
-                      onChange={(e) => setQuestionForm(e.target.value)}
-                      className="flex-1 px-3 py-2 rounded-xl text-sm outline-none resize-none"
-                      style={{background:"var(--bg-muted)",border:"1px solid var(--border-default)",color:"var(--text-primary)"}}
-                    />
-                    <button
-                      disabled={!questionForm.trim() || qSubmitting}
-                      onClick={() => {
-                        requireAuth(async () => {
-                          const t = localStorage.getItem("bbhj_token");
-                          setQSubmitting(true);
-                          await fetch(`/api/cases/${id}/questions`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
-                            body: JSON.stringify({ content: questionForm }),
-                          });
-                          setQuestionForm("");
-                          setQSubmitting(false);
-                        });
-                      }}
-                      className="px-4 py-2 rounded-xl text-sm font-semibold text-white self-end"
-                      style={{background: questionForm.trim() ? "#D4821A" : "#E5E7EB", color: questionForm.trim() ? "white" : "#9CA3AF"}}
-                    >
-                      {qSubmitting ? "提交中" : "提交"}
-                    </button>
-                  </div>
-                  {questions.length > 0 && (
-                    <div className="space-y-3">
-                      {questions.map((q: any) => (
-                        <div key={q.id} className="p-3 rounded-xl" style={{background:"var(--bg-muted)"}}>
-                          <p className="text-sm" style={{color:"var(--text-primary)"}}>{q.content}</p>
-                          <p className="text-xs mt-1" style={{color:"var(--text-tertiary)"}}>{q.submitterName ?? "匿名用户"}</p>
-                        </div>
-                      ))}
+              {questions.length > 0 && (
+                <div className="space-y-3">
+                  {questions.map((q: any) => (
+                    <div key={q.id} className="p-3 rounded-xl" style={{background:'var(--bg-muted)'}}>
+                      <p className="text-sm" style={{color:'var(--text-primary)'}}>{q.content}</p>
+                      <p className="text-xs mt-1" style={{color:'var(--text-tertiary)'}}>{q.submitterName ?? '匿名用户'}</p>
                     </div>
-                  )}
+                  ))}
                 </div>
-                <CommentList comments={comments} />
+              )}
+            </div>
+
+            {/* 评论区 */}
+            <div className="mb-10">
+              <h2 className="text-base font-semibold mb-4" style={{color:'var(--text-primary)'}}>评论</h2>
+              <CommentList comments={comments} />
+              <div className="mt-4">
+                <CommentForm caseId={id} onCommentAdded={() => fetchComments()} />
               </div>
             </div>
-          </div>
+
+          </div>{/* max-w-5xl 结束 */}
         </Container>
       </main>
       <Footer />
-      <Modal
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        className="max-w-[90vw] max-h-[90vh] p-2 bg-transparent shadow-none"
-      >
-        <img
-          src={photos[activePhoto]}
-          alt={caseData.name}
-          className="max-w-full max-h-[85vh] object-contain rounded-lg"
-        />
-      </Modal>
-      <ToastContainer />
-    </div>
-  );
-}
-
-function InfoItem({ label, value }: { label: string; value: string | null }) {
-  return (
-    <div>
-      <span className="text-[#1c1c1e]/30 dark:text-white/20 text-[12px]">{label}</span>
-      <p className="text-[14px] mt-0.5">{value || "—"}</p>
-    </div>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string | null }) {
-  return (
-    <div className="flex justify-between items-center py-2 border-b border-black/5 dark:border-white/5">
-      <span className="text-[#1c1c1e]/40 dark:text-white/30">{label}</span>
-      <span className="font-medium">{value || "—"}</span>
+      <ContactInfoSheet open={contactSheetOpen} onClose={() => setContactSheetOpen(false)} />
     </div>
   );
 }
