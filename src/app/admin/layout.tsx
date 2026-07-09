@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { AdminProvider, useAdmin } from "./context";
-import { DashboardIcon, ClipboardIcon, FolderIcon, LogIcon, SunIcon, MoonIcon } from "@/components/ui/Icon";
+import { DashboardIcon, FolderIcon, SunIcon, MoonIcon, UsersIcon, MessageIcon, HelpIcon, LightbulbIcon, ActivityIcon, ShieldIcon, EyeIcon } from "@/components/ui/Icon";
 
 interface AdminInfo {
   id: string;
@@ -48,29 +48,29 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       label: "系统管理",
       items: [
         { href: "/admin/dashboard", label: t.sidebar.dashboard, icon: DashboardIcon },
-        { href: "/admin/audit-log", label: t.sidebar.auditLog, icon: LogIcon },
+        { href: "/admin/audit-log", label: t.sidebar.auditLog, icon: ShieldIcon },
       ],
     },
     {
       label: "寻人管理",
       items: [
-        { href: "/admin/review", label: t.sidebar.review, icon: ClipboardIcon },
+        { href: "/admin/review", label: t.sidebar.review, icon: EyeIcon },
         { href: "/admin/cases", label: t.sidebar.cases, icon: FolderIcon },
       ],
     },
     {
       label: "内容管理",
       items: [
-        { href: "/admin/comments", label: "评论管理", icon: ClipboardIcon },
-        { href: "/admin/questions", label: "疑问管理", icon: ClipboardIcon },
-        { href: "/admin/clues", label: "线索管理", icon: ClipboardIcon },
+        { href: "/admin/comments", label: "评论管理", icon: MessageIcon },
+        { href: "/admin/questions", label: "疑问管理", icon: HelpIcon },
+        { href: "/admin/clues", label: "线索管理", icon: LightbulbIcon },
       ],
     },
     {
       label: "用户管理",
       items: [
-        { href: "/admin/users", label: "用户管理", icon: LogIcon },
-        { href: "/admin/user-logs", label: "用户日志", icon: LogIcon },
+        { href: "/admin/users", label: "用户管理", icon: UsersIcon },
+        { href: "/admin/user-logs", label: "用户日志", icon: ActivityIcon },
       ],
     },
   ];
