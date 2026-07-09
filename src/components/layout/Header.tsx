@@ -1,15 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Container } from "./Container";
 import { usePublicLang } from "@/lib/i18n/public-context";
 import { useUser } from "@/lib/UserContext";
+import { ContactInfoSheet } from "@/components/auth/ContactInfoSheet";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [contactSheetOpen, setContactSheetOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { t } = usePublicLang();
-  const { user, setAuthOpen } = useUser();
+  const { user, token, setAuthOpen, logout } = useUser();
+
+  // Close user menu on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    if (userMenuOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [userMenuOpen]);
+
+  function handleAvatarClick() {
+    if (user) {
+      setUserMenuOpen(!userMenuOpen);
+    } else {
+      setAuthOpen(true);
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-black/5">
@@ -33,31 +56,51 @@ export function Header() {
             </nav>
 
             {/* User / Guest area */}
-            <button
-              onClick={() => setAuthOpen(true)}
-              className="flex items-center gap-2 ml-2 pl-3 pr-3 py-1.5 rounded-full hover:bg-black/5 transition-colors"
-            >
-              {user ? (
-                <>
-                  <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-                    style={{ background: `hsl(${user.avatarSeed ? user.avatarSeed.split('').reduce((a,c)=>a+c.charCodeAt(0),0) % 360 : 30}, 50%, 50%)` }}
+            <div className="relative ml-2" ref={menuRef}>
+              <button
+                onClick={handleAvatarClick}
+                className="flex items-center gap-2 pl-3 pr-3 py-1.5 rounded-full hover:bg-black/5 transition-colors"
+              >
+                {user ? (
+                  <>
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                      style={{ background: `hsl(${user.avatarSeed ? user.avatarSeed.split('').reduce((a,c)=>a+c.charCodeAt(0),0) % 360 : 30}, 50%, 50%)` }}
+                    >
+                      {user.username.charAt(0)}
+                    </div>
+                    <span className="text-[13px] text-[#1c1c1e] hidden sm:inline">{user.username}</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <span className="text-[13px] text-[#6B6860]">游客</span>
+                  </>
+                )}
+              </button>
+
+              {/* User dropdown menu */}
+              {user && userMenuOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                  <button
+                    onClick={() => { setUserMenuOpen(false); setContactSheetOpen(true); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-[#1c1c1e] hover:bg-gray-50 transition-colors"
                   >
-                    {user.username.charAt(0)}
-                  </div>
-                  <span className="text-[13px] text-[#1c1c1e] hidden sm:inline">{user.username}</span>
-                </>
-              ) : (
-                <>
-                  <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <span className="text-[13px] text-[#6B6860]">游客</span>
-                </>
+                    完善联系方式
+                  </button>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); logout(); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    退出登录
+                  </button>
+                </div>
               )}
-            </button>
+            </div>
 
             <button
               className="md:hidden p-2 text-[#1c1c1e]/50"
@@ -89,6 +132,8 @@ export function Header() {
           50% { opacity: 1; transform: scale(1.3); }
         }
       `}</style>
+
+      <ContactInfoSheet open={contactSheetOpen} onClose={() => setContactSheetOpen(false)} />
     </header>
   );
 }

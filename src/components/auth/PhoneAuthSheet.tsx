@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useUser } from "@/lib/UserContext";
 
 const COUNTRY_CODES = [
@@ -16,12 +16,19 @@ const COUNTRY_CODES = [
 ];
 
 export function PhoneAuthSheet() {
-  const { authOpen, setAuthOpen, pendingAction, setPendingAction, login } = useUser();
+  const { authOpen, setAuthOpen, pendingAction, setPendingAction, login, user } = useUser();
   const [countryCode, setCountryCode] = useState("+86");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showCodes, setShowCodes] = useState(false);
+
+  // If already logged in (from localStorage), don't show phone input
+  useEffect(() => {
+    if (authOpen && user) {
+      setAuthOpen(false);
+    }
+  }, [authOpen, user, setAuthOpen]);
 
   const isValid = phone.replace(/\s/g, "").length >= 7;
 
