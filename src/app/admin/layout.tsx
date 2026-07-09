@@ -47,6 +47,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     { href: "/admin/dashboard", label: t.sidebar.dashboard, icon: DashboardIcon },
     { href: "/admin/review", label: t.sidebar.review, icon: ClipboardIcon },
     { href: "/admin/cases", label: t.sidebar.cases, icon: FolderIcon },
+    { href: "/admin/users", label: "用户管理", icon: LogIcon },
+    { href: "/admin/user-logs", label: "用户日志", icon: LogIcon },
     { href: "/admin/audit-log", label: t.sidebar.auditLog, icon: LogIcon },
   ];
 

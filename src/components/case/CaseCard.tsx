@@ -27,6 +27,12 @@ function getEstimatedAge(age: number | null | undefined, lostDate: string | null
   return `失踪时 ${age} 岁，现约 ${current} 岁`;
 }
 
+function formatCount(n: number): string {
+  if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, "") + "万";
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+  return String(n);
+}
+
 export function CaseCard({ item }: { item: any }) {
   const photos: string[] = (() => {
     try {
@@ -76,9 +82,7 @@ export function CaseCard({ item }: { item: any }) {
           )}
           <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-tertiary)" }}>{location}</p>
           <div className="flex items-center gap-3 mt-2">
-            {(item.viewCount ?? 0) > 0 && (
-              <span className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>👁 {item.viewCount}</span>
-            )}
+            <span className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>👁 {formatCount(item.viewCount ?? 0)}</span>
             {(item.followCount ?? 0) > 0 && (
               <span className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>🕯 {item.followCount} 守候</span>
             )}

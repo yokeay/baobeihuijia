@@ -1,6 +1,7 @@
 import { getDb, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { getUserFromRequest } from "@/lib/user-auth";
+import { logActivity } from "@/lib/activity-log";
 
 export async function GET(request: Request) {
   const session = await getUserFromRequest(request);
@@ -35,5 +36,6 @@ export async function PATCH(request: Request) {
 
   const db = await getDb();
   await db.update(schema.users).set(update).where(eq(schema.users.id, session.id));
+  logActivity({ userId: session.id, username: session.username, action: "update_contact", detail: Object.keys(update).join(",") });
   return Response.json({ ok: true });
 }

@@ -120,3 +120,14 @@ export const questions = pgTable("questions", {
   status:        text("status").default("pending"),
   createdAt:     timestamp("created_at").notNull().defaultNow(),
 });
+
+export const userActivities = pgTable("user_activities", {
+  id:         text("id").primaryKey(),
+  userId:     text("user_id").notNull(),
+  username:   text("username").notNull(),
+  action:     text("action").notNull(), // login|logout|follow|unfollow|update_contact|submit_clue|submit_case|submit_question
+  target:     text("target"),           // case name, contact fields, etc
+  targetId:   text("target_id"),
+  detail:     text("detail"),
+  createdAt:  timestamp("created_at").notNull().defaultNow(),
+});

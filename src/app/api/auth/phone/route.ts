@@ -2,6 +2,7 @@ import { getDb, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { signUserToken, generateUsername, generateAvatarSeed } from "@/lib/user-auth";
+import { logActivity } from "@/lib/activity-log";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -45,6 +46,8 @@ export async function POST(request: Request) {
     avatarSeed: user.avatarSeed,
     region: user.region ?? "unknown",
   });
+
+  logActivity({ userId: user.id, username: user.username, action: "login", detail: fullPhone });
 
   return Response.json({
     token,

@@ -13,11 +13,13 @@ export async function POST(
   const fingerprint = crypto.createHash("md5").update(ip + ua).digest("hex");
 
   const db = await getDb();
+  // Try to record unique view (fingerprint may already exist, that's ok)
   try {
     await db.insert(schema.caseViews).values({ id: uuidv4(), caseId: id, fingerprint });
-    await db.update(schema.cases).set({ viewCount: sql`view_count + 1` }).where(eq(schema.cases.id, id));
   } catch {
-    // unique constraint: already counted
+    // duplicate fingerprint, ignore
   }
+  // Always increment view count
+  await db.update(schema.cases).set({ viewCount: sql`view_count + 1` }).where(eq(schema.cases.id, id));
   return Response.json({ ok: true });
 }
