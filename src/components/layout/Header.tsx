@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { Container } from "./Container";
+import { RegionPrompt } from "./RegionPrompt";
 import { usePublicLang } from "@/lib/i18n/public-context";
 import { useUser } from "@/lib/UserContext";
 
@@ -131,6 +132,9 @@ export function Header() {
           50% { opacity: 1; transform: scale(1.3); }
         }
       `}</style>
+
+      {/* Region switch prompt — top-right, only when overseas detected */}
+      <RegionPrompt />
     </header>
   );
 }
