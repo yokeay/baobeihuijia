@@ -11,10 +11,11 @@ import { getPool } from "@/lib/db/adapter-local-pg";
 
 const DEFAULT_COUNTRY = "CN";
 
-// HK/MO/TW share the same data table as CN
+// MO/TW have no dedicated data source yet — fall back to CN table.
+// HK has its own synced table (cases_hk), so it is NOT folded into CN.
 function normalizeCountryCode(code: string): string {
-  const ZH = new Set(["CN", "HK", "MO", "TW"]);
-  return ZH.has(code.toUpperCase()) ? "CN" : code.toUpperCase();
+  const FALLBACK_TO_CN = new Set(["CN", "MO", "TW"]);
+  return FALLBACK_TO_CN.has(code.toUpperCase()) ? "CN" : code.toUpperCase();
 }
 
 export async function GET(request: Request) {
