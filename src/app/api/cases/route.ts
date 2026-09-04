@@ -6,6 +6,7 @@ import {
   ensureCountryTable,
   buildCasesQuery,
   CASES_SELECT,
+  rowToCamelCase,
 } from "@/lib/db/country-helpers";
 import { getPool } from "@/lib/db/adapter-local-pg";
 
@@ -85,7 +86,9 @@ export async function GET(request: Request) {
     [...values, limit, offset]
   );
 
-  return Response.json({ items: rows.rows, total, page, limit, totalPages: Math.ceil(total / limit) });
+  const items = rows.rows.map(rowToCamelCase);
+
+  return Response.json({ items, total, page, limit, totalPages: Math.ceil(total / limit) });
 }
 
 export async function POST(request: Request) {

@@ -105,3 +105,13 @@ export function buildCasesQuery(params: {
 
 /** Select columns in order matching the API response shape. */
 export const CASES_SELECT = CASES_COLUMNS.join(", ");
+
+/** Converts a raw pg row (snake_case columns) to the camelCase shape the frontend expects (matches Drizzle's output for the CN table). */
+export function rowToCamelCase(row: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(row)) {
+    const camelKey = key.replace(/_([a-z0-9])/g, (_, c) => c.toUpperCase());
+    out[camelKey] = value;
+  }
+  return out;
+}
