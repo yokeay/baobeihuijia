@@ -147,7 +147,7 @@ export function CaseSidebar(props: CaseSidebarProps) {
   return (
     <>
       {/* Desktop persistent rail */}
-      <div className="hidden lg:block sticky top-16 self-start w-14 shrink-0">
+      <div className="hidden lg:block sticky top-16 z-30 self-start w-14 shrink-0">
         <div className="flex flex-col items-center gap-2">
           <button
             onClick={() => togglePanel("search")}
