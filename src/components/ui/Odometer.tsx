@@ -62,7 +62,7 @@ export function LiveTotal({
   useEffect(() => {
     async function poll() {
       try {
-        const res = await fetch("/api/cases?limit=1");
+        const res = await fetch("/api/stats");
         const data = await res.json();
         if (data.total && data.total !== totalRef.current) {
           setTotal(data.total);

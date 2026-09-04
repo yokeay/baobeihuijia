@@ -1,11 +1,9 @@
 import { getDb, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { getPool } from "@/lib/db/adapter-local-pg";
-import { getCasesTableName, CASES_SELECT, rowToCamelCase } from "@/lib/db/country-helpers";
+import { getCasesTableName, CASES_SELECT, rowToCamelCase, SYNCED_COUNTRIES } from "@/lib/db/country-helpers";
 
-// Country tables that actually have synced data (kept in sync with src/lib/sync/*.ts).
 // IDs are UUIDs, globally unique, so we can look them up without knowing the country upfront.
-const SYNCED_COUNTRIES = ["US", "HK"];
 
 export async function GET(
   _request: Request,

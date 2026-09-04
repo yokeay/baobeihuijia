@@ -33,7 +33,11 @@ function formatCount(n: number): string {
   return String(n);
 }
 
-export function CaseCard({ item }: { item: any }) {
+// Deterministic aspect-ratio cycle so cards vary in height (masonry feel)
+// without reflowing on re-render or depending on actual image dimensions.
+const ASPECT_RATIOS = ["3/4", "1/1", "4/5", "3/4", "5/6", "4/3"];
+
+export function CaseCard({ item, index = 0 }: { item: any; index?: number }) {
   const photos: string[] = (() => {
     try {
       const arr = JSON.parse(item.photoUrls || "[]");
@@ -42,6 +46,7 @@ export function CaseCard({ item }: { item: any }) {
     return [];
   })();
   const firstPhoto = photos[0] || "/placeholder.svg";
+  const aspectRatio = ASPECT_RATIOS[index % ASPECT_RATIOS.length];
   const duration = getLostDuration(item.lostDate);
   const ageText = getEstimatedAge(item.age, item.lostDate);
   const isFound = item.status === "found";
@@ -55,7 +60,7 @@ export function CaseCard({ item }: { item: any }) {
   return (
     <Link href={`/case/${item.id}`} className="block group">
       <div className="card-base overflow-hidden cursor-pointer">
-        <div className="relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
+        <div className="relative overflow-hidden" style={{ aspectRatio }}>
           <img
             src={firstPhoto}
             alt={item.name}

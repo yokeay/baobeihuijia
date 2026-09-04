@@ -27,9 +27,11 @@ export function CaseGrid({ items, loading, hasMore, loadingMore, onLoadMore }: C
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
         {Array.from({ length: 8 }).map((_, i) => (
-          <CaseCardSkeleton key={i} />
+          <div key={i} className="mb-4 break-inside-avoid">
+            <CaseCardSkeleton />
+          </div>
         ))}
       </div>
     );
@@ -47,9 +49,11 @@ export function CaseGrid({ items, loading, hasMore, loadingMore, onLoadMore }: C
 
   return (
     <div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {items.map((item) => (
-          <CaseCard key={item.id} item={item} />
+      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
+        {items.map((item, i) => (
+          <div key={item.id} className="mb-4 break-inside-avoid">
+            <CaseCard item={item} index={i} />
+          </div>
         ))}
       </div>
 
