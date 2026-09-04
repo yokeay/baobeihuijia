@@ -82,7 +82,13 @@ export function CaseCard({ item }: { item: any }) {
           )}
           <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-tertiary)" }}>{location}</p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>👁 {formatCount(item.viewCount ?? 0)}</span>
+            <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              {formatCount(item.viewCount ?? 0)}
+            </span>
             {(item.followCount ?? 0) > 0 && (
               <span className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>🕯 {item.followCount} 守候</span>
             )}

@@ -203,7 +203,15 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
 
                 {/* 统计：浏览 + 守候 */}
                 <div className="flex gap-4 mb-5 text-sm" style={{color:'var(--text-tertiary)'}}>
-                  {(caseData.viewCount ?? 0) > 0 && <span>👁 {caseData.viewCount} 浏览</span>}
+                  {(caseData.viewCount ?? 0) > 0 && (
+                    <span className="inline-flex items-center gap-1">
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                      {caseData.viewCount} 浏览
+                    </span>
+                  )}
                   {(caseData.followCount ?? 0) > 0 && <span>🕯 {caseData.followCount} 人守候</span>}
                 </div>
 

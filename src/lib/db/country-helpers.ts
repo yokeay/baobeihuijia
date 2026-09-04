@@ -6,6 +6,7 @@ const CASES_COLUMNS = [
   "height", "feature", "photo_urls", "source", "source_url", "source_id",
   "status", "submitter_name", "submitter_contact",
   "reviewed_by", "reviewed_at", "created_at", "updated_at",
+  "view_count", "follow_count", "missing_country",
 ];
 
 export function getCasesTableName(countryCode: string): string {
@@ -42,8 +43,19 @@ export async function ensureCountryTable(countryCode: string) {
       reviewed_by TEXT,
       reviewed_at TEXT,
       created_at TIMESTAMP NOT NULL DEFAULT now(),
-      updated_at TIMESTAMP NOT NULL DEFAULT now()
+      updated_at TIMESTAMP NOT NULL DEFAULT now(),
+      view_count INTEGER NOT NULL DEFAULT 0,
+      follow_count INTEGER NOT NULL DEFAULT 0,
+      missing_country TEXT
     );
+  `);
+
+  // Backfill columns for tables created before v2.0 added these fields.
+  await pool.query(`
+    ALTER TABLE "${tableName}"
+      ADD COLUMN IF NOT EXISTS view_count INTEGER NOT NULL DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS follow_count INTEGER NOT NULL DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS missing_country TEXT;
   `);
 }
 

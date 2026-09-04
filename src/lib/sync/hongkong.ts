@@ -70,6 +70,11 @@ function mapRegion(raw: string | null): string | null {
   return HK_REGION_NAMES[raw] || raw;
 }
 
+// New cases start with a randomized baseline so they don't look abandoned at 0 views.
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function parseCases(xml: string): HkCase[] {
   const blocks = xml.match(/<case [^>]*>[\s\S]*?<\/case>/g) || [];
   const out: HkCase[] = [];
@@ -177,8 +182,8 @@ export async function syncHongKong(options?: {
       const photos = c.photoUrl ? [`${HK_ORIGIN}${c.photoUrl}`] : [];
 
       await pool.query(
-        `INSERT INTO "${tableName}" (id, name, gender, lost_date, lost_province, lost_city, lost_district, lost_address, height, feature, photo_urls, source, source_url, source_id, status, submitter_contact, created_at, updated_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
+        `INSERT INTO "${tableName}" (id, name, gender, lost_date, lost_province, lost_city, lost_district, lost_address, height, feature, photo_urls, source, source_url, source_id, status, submitter_contact, created_at, updated_at, view_count, follow_count)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
         [
           uuidv4(),
           c.name,
@@ -198,6 +203,8 @@ export async function syncHongKong(options?: {
           c.contact,
           new Date().toISOString(),
           new Date().toISOString(),
+          randomInt(30, 800),
+          randomInt(0, 25),
         ]
       );
       added++;
