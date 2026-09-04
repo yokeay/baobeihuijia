@@ -37,7 +37,8 @@ export default function HomePage() {
 
   const contentRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const heroVisibleRef = useRef(true);
+  const slideRef = useRef<"hero" | "content">("hero");
+  const animatingRef = useRef(false);
 
   // Global total across all countries (for the hero stat) — independent of
   // the current country filter used by the list below.
@@ -103,27 +104,31 @@ export default function HomePage() {
     fetchCases(nextPage, false);
   }
 
-  // First scroll (wheel or touch) on the hero snaps smoothly down to the
-  // content section; after that, scrolling behaves normally so pagination
-  // and free browsing aren't affected.
+  // PPT-style paging: page 1 is the hero, page 2 is the content section.
+  // Scrolling down on the hero always pages to content. Scrolling up while
+  // the content section is itself scrolled to its top pages back to hero.
+  // Once inside content and scrolled down, wheel/touch behaves natively.
   useEffect(() => {
-    let triggered = false;
-    const observer = new IntersectionObserver(
-      ([entry]) => { heroVisibleRef.current = entry.isIntersecting; },
-      { threshold: 0.6 }
-    );
-    if (heroRef.current) observer.observe(heroRef.current);
-
-    function goToContent() {
-      if (triggered || !heroVisibleRef.current) return;
-      triggered = true;
-      contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      window.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("touchmove", handleTouch);
+    function goTo(target: "hero" | "content") {
+      if (animatingRef.current || slideRef.current === target) return;
+      animatingRef.current = true;
+      slideRef.current = target;
+      const el = target === "hero" ? heroRef.current : contentRef.current;
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => { animatingRef.current = false; }, 700);
     }
 
     function handleWheel(e: WheelEvent) {
-      if (e.deltaY > 0) goToContent();
+      if (animatingRef.current) { e.preventDefault(); return; }
+      if (slideRef.current === "hero" && e.deltaY > 0) {
+        e.preventDefault();
+        goTo("content");
+        return;
+      }
+      if (slideRef.current === "content" && e.deltaY < 0 && window.scrollY <= (contentRef.current?.offsetTop ?? 0) + 4) {
+        e.preventDefault();
+        goTo("hero");
+      }
     }
 
     let touchStartY = 0;
@@ -131,18 +136,27 @@ export default function HomePage() {
       touchStartY = e.touches[0]?.clientY ?? 0;
     }
     function handleTouch(e: TouchEvent) {
+      if (animatingRef.current) { e.preventDefault(); return; }
       const y = e.touches[0]?.clientY ?? touchStartY;
-      if (touchStartY - y > 10) goToContent();
+      const deltaY = touchStartY - y; // positive = swiping up (content-wise scroll down)
+      if (slideRef.current === "hero" && deltaY > 10) {
+        e.preventDefault();
+        goTo("content");
+        return;
+      }
+      if (slideRef.current === "content" && deltaY < -10 && window.scrollY <= (contentRef.current?.offsetTop ?? 0) + 4) {
+        e.preventDefault();
+        goTo("hero");
+      }
     }
 
-    window.addEventListener("wheel", handleWheel, { passive: true });
+    window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchmove", handleTouch, { passive: true });
+    window.addEventListener("touchmove", handleTouch, { passive: false });
     return () => {
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleTouch);
-      observer.disconnect();
     };
   }, []);
 
