@@ -1,5 +1,6 @@
 import { getPool } from "@/lib/db/adapter-local-pg";
 import { ensureCountryTable, getCasesTableName } from "@/lib/db/country-helpers";
+import { HK_REGION_NAMES } from "@/lib/regions/hongkong";
 import { v4 as uuidv4 } from "uuid";
 
 const HK_XML_URL = "https://www.police.gov.hk/info/appeals_public/missing_persons/mp.php?lang=sc";
@@ -56,14 +57,6 @@ function mapGender(raw: string | null): string | null {
   if (raw.includes("男")) return "男";
   return raw;
 }
-
-const HK_REGION_NAMES: Record<string, string> = {
-  HKI: "香港岛总区",
-  KE: "九龙东总区",
-  KW: "九龙西总区",
-  NTN: "新界北总区",
-  NTS: "新界南总区",
-};
 
 function mapRegion(raw: string | null): string | null {
   if (!raw) return null;

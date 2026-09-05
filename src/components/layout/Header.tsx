@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { Container } from "./Container";
 import { RegionPrompt } from "./RegionPrompt";
+import { RegionLangPrompt } from "./RegionLangPrompt";
 import { usePublicLang } from "@/lib/i18n/public-context";
 import { useUser } from "@/lib/UserContext";
 
@@ -135,6 +136,8 @@ export function Header() {
 
       {/* Region switch prompt — top-right, only when overseas detected */}
       <RegionPrompt />
+      {/* CN autonomous-region local-language prompt — 新疆/内蒙古/西藏 */}
+      <RegionLangPrompt />
     </header>
   );
 }

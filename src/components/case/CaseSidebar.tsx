@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { GENDERS } from "@/lib/constants";
 import { RegionCascader } from "@/components/shared/RegionCascader";
+import { HkRegionSelect } from "@/components/shared/HkRegionSelect";
+import { FreeTextLocation } from "@/components/shared/FreeTextLocation";
+import { COUNTRY_MAP } from "@/lib/countries";
 import { usePublicLang } from "@/lib/i18n/public-context";
 
 interface CaseSidebarProps {
+  countryCode: string;
   province: string;
   city: string;
   district: string;
@@ -102,6 +106,52 @@ export function CaseSidebar(props: CaseSidebarProps) {
     </form>
   );
 
+  const regionType = COUNTRY_MAP[props.countryCode]?.regionType ?? "free-text";
+
+  const genderSelect = (
+    <div>
+            <label className="block text-[12px] font-medium text-[#1c1c1e]/40 dark:text-white/30 mb-1">
+              {t.filter.genderLabel}
+            </label>
+            <select
+              value={props.gender}
+              onChange={(e) => props.onGenderChange(e.target.value)}
+              className="h-10 px-3.5 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e]/60 dark:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200 appearance-none w-full"
+            >
+              {GENDERS.map((g) => (
+                <option key={g.value} value={g.value}>
+                  {g.label}
+                </option>
+      ))}
+      </select>
+    </div>
+  );
+
+  const regionFilter =
+    regionType === "hk-cascade" ? (
+      <HkRegionSelect
+        city={props.city}
+        onCityChange={props.onCityChange}
+        rightSlot={genderSelect}
+      />
+    ) : regionType === "cn-cascade" ? (
+      <RegionCascader
+        province={props.province}
+        city={props.city}
+        district={props.district}
+        onProvinceChange={props.onProvinceChange}
+        onCityChange={props.onCityChange}
+        onDistrictChange={props.onDistrictChange}
+        rightSlot={genderSelect}
+      />
+    ) : (
+      <FreeTextLocation
+        value={props.city}
+        onChange={props.onCityChange}
+        rightSlot={genderSelect}
+      />
+    );
+
   const filterPanel = (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -115,32 +165,7 @@ export function CaseSidebar(props: CaseSidebarProps) {
           </button>
         )}
       </div>
-      <RegionCascader
-        province={props.province}
-        city={props.city}
-        district={props.district}
-        onProvinceChange={props.onProvinceChange}
-        onCityChange={props.onCityChange}
-        onDistrictChange={props.onDistrictChange}
-        rightSlot={
-          <div>
-            <label className="block text-[12px] font-medium text-[#1c1c1e]/40 dark:text-white/30 mb-1">
-              {t.filter.genderLabel}
-            </label>
-            <select
-              value={props.gender}
-              onChange={(e) => props.onGenderChange(e.target.value)}
-              className="h-10 px-3.5 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e]/60 dark:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200 appearance-none w-full"
-            >
-              {GENDERS.map((g) => (
-                <option key={g.value} value={g.value}>
-                  {g.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        }
-      />
+      {regionFilter}
     </div>
   );
 

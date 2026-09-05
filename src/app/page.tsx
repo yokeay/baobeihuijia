@@ -22,7 +22,7 @@ interface CaseItem {
 }
 
 export default function HomePage() {
-  const { t, countryCode } = usePublicLang();
+  const { t, countryCode, promptRegionLang } = usePublicLang();
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -91,6 +91,12 @@ export default function HomePage() {
     setGender("");
     setSearch("");
   }, [countryCode]);
+
+  // 新疆/内蒙古/西藏 selected within the CN region filter — offer a local-
+  // language overlay on top of the CN default.
+  useEffect(() => {
+    if (countryCode === "CN") promptRegionLang(province);
+  }, [countryCode, province, promptRegionLang]);
 
   useEffect(() => {
     setPage(1);
@@ -189,6 +195,7 @@ export default function HomePage() {
           <Container>
             <div className="flex gap-6 items-start">
               <CaseSidebar
+                countryCode={countryCode}
                 province={province}
                 city={city}
                 district={district}

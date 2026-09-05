@@ -25,6 +25,7 @@ const zh = {
     selectCity: "请选择城市",
     selectDistrict: "请选择区县",
     noDistrict: "该城市暂无区县数据",
+    locationLabel: "地点",
     locationPlaceholder: "输入城市或地区",
     genderLabel: "性别",
     selectGender: "全部",

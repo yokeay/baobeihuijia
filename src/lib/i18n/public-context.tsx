@@ -1,10 +1,33 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import zh, { type PublicTranslations } from "./public/zh";
 import en from "./public/en";
+import zhHant from "./public/zh-hant";
+import ja from "./public/ja";
+import ko from "./public/ko";
+import fr from "./public/fr";
+import de from "./public/de";
+import ug from "./public/ug";
+import mn from "./public/mn";
+import bo from "./public/bo";
+import { COUNTRY_MAP } from "@/lib/countries";
 
-type Lang = "zh" | "en";
+export type Lang = "zh" | "zh-Hant" | "en" | "ja" | "ko" | "fr" | "de" | "ug" | "mn" | "bo";
+
+// Provinces where the user may opt into a local-language UI on top of the
+// CN default. Not a country switch — this is an overlay on the CN language.
+export type RegionLangProvince = "新疆" | "内蒙古" | "西藏";
+
+const REGION_LANG_MAP: Record<RegionLangProvince, Lang> = {
+  "新疆": "ug",
+  "内蒙古": "mn",
+  "西藏": "bo",
+};
+
+function isRegionLangProvince(province: string): province is RegionLangProvince {
+  return province === "新疆" || province === "内蒙古" || province === "西藏";
+}
 
 interface PublicLangContextValue {
   countryCode: string;
@@ -15,11 +38,14 @@ interface PublicLangContextValue {
   switchCountry: (code: string) => void;
   dismissRegionPrompt: () => void;
   keepChina: () => void;
+  /** CN autonomous-region local-language overlay (新疆/内蒙古/西藏). */
+  pendingRegionLangProvince: RegionLangProvince | null;
+  regionLang: "zh" | "local" | null;
+  promptRegionLang: (province: string) => void;
+  setRegionLang: (choice: "zh" | "local") => void;
 }
 
 const PublicLangContext = createContext<PublicLangContextValue | null>(null);
-
-const ZH_COUNTRIES = new Set(["CN", "HK", "MO", "TW"]);
 
 // Country code -> display name (for the region prompt)
 const COUNTRY_NAMES: Record<string, string> = {
@@ -30,12 +56,25 @@ const COUNTRY_NAMES: Record<string, string> = {
   HK: "中国香港", MO: "中国澳门", TW: "中国台湾",
 };
 
+const TRANSLATIONS: Record<Lang, PublicTranslations> = {
+  zh,
+  "zh-Hant": zhHant,
+  en,
+  ja,
+  ko,
+  fr,
+  de,
+  ug,
+  mn,
+  bo,
+};
+
 function getLang(countryCode: string): Lang {
-  return ZH_COUNTRIES.has(countryCode) ? "zh" : "en";
+  return COUNTRY_MAP[countryCode]?.lang ?? "en";
 }
 
 function getTranslations(lang: Lang): PublicTranslations {
-  return lang === "zh" ? zh : en;
+  return TRANSLATIONS[lang] ?? en;
 }
 
 export function countryName(code: string): string {
@@ -49,6 +88,17 @@ export function PublicLangProvider({ children }: { children: ReactNode }) {
   const [promptDismissed, setPromptDismissed] = useState(false);
   const [lang, setLang] = useState<Lang>("zh");
   const [t, setT] = useState<PublicTranslations>(zh);
+
+  // CN autonomous-region local-language overlay (新疆/内蒙古/西藏). Independent
+  // from the country-level `lang` above — only meaningful while countryCode === "CN".
+  const [pendingRegionLangProvince, setPendingRegionLangProvince] = useState<RegionLangProvince | null>(null);
+  const [regionLang, setRegionLangState] = useState<"zh" | "local" | null>(null);
+  const askedProvincesRef = useRef<Set<RegionLangProvince>>(new Set());
+  const regionLangRef = useRef<"zh" | "local" | null>(null);
+
+  useEffect(() => {
+    regionLangRef.current = regionLang;
+  }, [regionLang]);
 
   // Detect the user's location but DO NOT auto-switch.
   // Only record it so the UI can ask whether to switch.
@@ -71,6 +121,8 @@ export function PublicLangProvider({ children }: { children: ReactNode }) {
     const nextLang = getLang(code);
     setLang(nextLang);
     setT(getTranslations(nextLang));
+    setPendingRegionLangProvince(null);
+    setRegionLangState(null);
   }, []);
 
   const keepChina = useCallback(() => {
@@ -78,11 +130,44 @@ export function PublicLangProvider({ children }: { children: ReactNode }) {
     setPromptDismissed(true);
     setLang("zh");
     setT(zh);
+    setPendingRegionLangProvince(null);
+    setRegionLangState(null);
   }, []);
 
   const dismissRegionPrompt = useCallback(() => {
     setPromptDismissed(true);
   }, []);
+
+  // Called when the CN region filter's province changes. Only triggers the
+  // local-language prompt for 新疆/内蒙古/西藏, and only once per province
+  // per session (re-selecting the same province won't re-prompt).
+  const promptRegionLang = useCallback((province: string) => {
+    if (!isRegionLangProvince(province)) {
+      setPendingRegionLangProvince(null);
+      if (regionLangRef.current !== null) {
+        setRegionLangState(null);
+        setLang("zh");
+        setT(zh);
+      }
+      return;
+    }
+    if (askedProvincesRef.current.has(province)) return;
+    askedProvincesRef.current.add(province);
+    setPendingRegionLangProvince(province);
+  }, []);
+
+  const setRegionLang = useCallback((choice: "zh" | "local") => {
+    setRegionLangState(choice);
+    setPendingRegionLangProvince(null);
+    if (choice === "local" && pendingRegionLangProvince) {
+      const localLang = REGION_LANG_MAP[pendingRegionLangProvince];
+      setLang(localLang);
+      setT(getTranslations(localLang));
+    } else {
+      setLang("zh");
+      setT(zh);
+    }
+  }, [pendingRegionLangProvince]);
 
   const showRegionPrompt = detectedCountry !== "" && !promptDismissed;
 
@@ -97,6 +182,10 @@ export function PublicLangProvider({ children }: { children: ReactNode }) {
         switchCountry,
         dismissRegionPrompt,
         keepChina,
+        pendingRegionLangProvince,
+        regionLang,
+        promptRegionLang,
+        setRegionLang,
       }}
     >
       {children}

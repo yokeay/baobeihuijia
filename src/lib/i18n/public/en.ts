@@ -27,6 +27,7 @@ const en: PublicTranslations = {
     selectCity: "Select city",
     selectDistrict: "Select district",
     noDistrict: "No district data",
+    locationLabel: "Location",
     locationPlaceholder: "Enter city or region",
     genderLabel: "Gender",
     selectGender: "All",
