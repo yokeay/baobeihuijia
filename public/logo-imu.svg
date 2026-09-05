@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="imu — I Miss You">
+  <defs>
+    <linearGradient id="imuLogoTile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D98166"/>
+      <stop offset="0.55" stop-color="#C5705A"/>
+      <stop offset="1" stop-color="#A85440"/>
+    </linearGradient>
+    <radialGradient id="imuLogoGlow" cx="0.3" cy="0.1" r="0.85">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="100" height="100" rx="26" fill="url(#imuLogoTile)"/>
+  <rect width="100" height="100" rx="26" fill="url(#imuLogoGlow)"/>
+
+  <!-- Lowercase monoline "imu": the tittle over the i is a heart, so the
+       wordmark quietly reads "i ♥ u" as well as "I Miss You". -->
+  <g fill="none" stroke="#FFF6F1" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M23 47 V70"/>
+    <path d="M38 70 V52 C38 48.5 41 46 45 46 C49 46 52 48.5 52 52 V70"/>
+    <path d="M52 70 V52 C52 48.5 55 46 59 46 C63 46 66 48.5 66 52 V70"/>
+    <path d="M77 46 V64 C77 67.5 80 70 84 70"/>
+    <path d="M91 46 V70"/>
+    <path d="M84 70 C88 70 91 67.5 91 64"/>
+  </g>
+  <!-- Heart tittle, warm amber so it reads as the one living detail -->
+  <path
+    d="M23 39.6 C18.2 35.4 16.3 33.4 16.3 30.7 C16.3 28.3 18 26.6 20.2 26.6 C21.5 26.6 22.5 27.2 23 28.2 C23.5 27.2 24.5 26.6 25.8 26.6 C28 26.6 29.7 28.3 29.7 30.7 C29.7 33.4 27.8 35.4 23 39.6 Z"
+    fill="#FFD9A0"
+  />
+</svg>

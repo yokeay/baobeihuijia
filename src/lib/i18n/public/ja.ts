@@ -117,6 +117,9 @@ const ja: PublicTranslations = {
     line1: "本プラットフォームは非営利であり、費用は一切かかりません。データは公開APIおよびユーザー提供によるものです。",
     line2: "手がかりがある場合は、現地の警察にご連絡ください。本プラットフォームは個人間の直接連絡をサポートしません。",
     donate: "寄付",
+    creditServer: "サーバー提供：ClodHost.com",
+    creditDomain: "ドメイン提供：Wang Zhen",
+    creditTech: "技術支援：SunChengxin",
   },
   country: {
     label: "国/地域",

@@ -117,6 +117,9 @@ const fr: PublicTranslations = {
     line1: "Cette plateforme est purement à but non lucratif et ne facture aucun frais. Les données proviennent des API publiques et des soumissions des utilisateurs.",
     line2: "Si vous avez des indices, veuillez contacter les autorités locales. Cette plateforme ne prend pas en charge les contacts privés.",
     donate: "Faire un don",
+    creditServer: "Serveur offert par ClodHost.com",
+    creditDomain: "Domaine offert par Wang Zhen",
+    creditTech: "Développement par SunChengxin",
   },
   country: {
     label: "Pays / Région",

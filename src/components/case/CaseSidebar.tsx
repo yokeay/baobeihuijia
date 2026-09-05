@@ -4,7 +4,7 @@ import { useState } from "react";
 import { GENDERS } from "@/lib/constants";
 import { RegionCascader } from "@/components/shared/RegionCascader";
 import { HkRegionSelect } from "@/components/shared/HkRegionSelect";
-import { CountryRegionSelect } from "@/components/shared/CountryRegionSelect";
+import { CountryRegionSelect, useCountryRegions } from "@/components/shared/CountryRegionSelect";
 import { COUNTRY_MAP } from "@/lib/countries";
 import { usePublicLang } from "@/lib/i18n/public-context";
 
@@ -57,6 +57,13 @@ export function CaseSidebar(props: CaseSidebarProps) {
   const hasFilter = Boolean(props.province || props.city || props.district || props.gender);
   const hasActive = hasFilter || Boolean(props.search);
 
+  const regionType = COUNTRY_MAP[props.countryCode]?.regionType ?? "data-cascade";
+  // Only data-cascade countries need a lookup; CN/HK have their own fixed lists.
+  const dataRegions = useCountryRegions(regionType === "data-cascade" ? props.countryCode : "");
+  // A country with no rows has nothing to filter by — drop the region block
+  // entirely rather than showing an empty dropdown.
+  const showRegionFilter = regionType !== "data-cascade" || dataRegions.provinces.length > 0;
+
   function togglePanel(next: Panel) {
     setPanel((cur) => (cur === next ? "none" : next));
   }
@@ -106,8 +113,6 @@ export function CaseSidebar(props: CaseSidebarProps) {
     </form>
   );
 
-  const regionType = COUNTRY_MAP[props.countryCode]?.regionType ?? "data-cascade";
-
   const genderSelect = (
     <div>
             <label className="block text-[12px] font-medium text-[#1c1c1e]/40 dark:text-white/30 mb-1">
@@ -150,6 +155,8 @@ export function CaseSidebar(props: CaseSidebarProps) {
         province={props.province}
         city={props.city}
         district={props.district}
+        provinces={dataRegions.provinces}
+        loaded={dataRegions.loaded}
         onProvinceChange={props.onProvinceChange}
         onCityChange={props.onCityChange}
         onDistrictChange={props.onDistrictChange}
@@ -159,18 +166,20 @@ export function CaseSidebar(props: CaseSidebarProps) {
 
   const filterPanel = (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[12px] font-medium text-[#1c1c1e]/40 dark:text-white/30">{t.filter.regionTab}</span>
-        {hasFilter && (
-          <button
-            onClick={clearFilters}
-            className="text-[12px] text-[#1c1c1e]/40 dark:text-white/30 hover:text-[#1c1c1e]/60 dark:hover:text-white/50 transition-colors"
-          >
-            {t.filter.clearButton}
-          </button>
-        )}
-      </div>
-      {regionFilter}
+      {showRegionFilter && (
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[12px] font-medium text-[#1c1c1e]/40 dark:text-white/30">{t.filter.regionTab}</span>
+          {hasFilter && (
+            <button
+              onClick={clearFilters}
+              className="text-[12px] text-[#1c1c1e]/40 dark:text-white/30 hover:text-[#1c1c1e]/60 dark:hover:text-white/50 transition-colors"
+            >
+              {t.filter.clearButton}
+            </button>
+          )}
+        </div>
+      )}
+      {showRegionFilter ? regionFilter : genderSelect}
     </div>
   );
 

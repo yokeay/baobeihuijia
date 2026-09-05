@@ -38,15 +38,34 @@ export function Header() {
     <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-black/5">
       <Container>
         <div className="flex items-center justify-between h-12">
-          {/* Logo - Song/Ming font + orange breathing dot */}
+          {/* Logo — IMU squircle wordmark + a heart that actually beats */}
           <Link href="/" className="flex items-center gap-2 font-semibold text-[15px] tracking-tight no-underline group">
-            <svg className="w-5 h-5" viewBox="0 0 100 100">
-              <path d="M50 80 C25 55, 10 45, 10 30 C10 18, 20 10, 32 10 C40 10, 48 15, 50 22 C52 15, 60 10, 68 10 C80 10, 90 18, 90 30 C90 45, 75 55, 50 80Z" fill="#c5705a"/>
+            <svg className="w-6 h-6 shrink-0" viewBox="0 0 100 100" aria-label="IMU" role="img">
+              <defs>
+                <linearGradient id="hdrTile" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#D98166" />
+                  <stop offset="0.55" stopColor="#C5705A" />
+                  <stop offset="1" stopColor="#A85440" />
+                </linearGradient>
+              </defs>
+              <rect width="100" height="100" rx="26" fill="url(#hdrTile)" />
+              <g fill="none" stroke="#FFF6F1" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 36 V68" />
+                <path d="M33 68 V37 L45 54 L57 37 V68" />
+                <path d="M67 36 V57 C67 63.5 71.5 68 76 68 C80.5 68 85 63.5 85 57 V36" />
+              </g>
             </svg>
             <span className="hidden sm:inline" style={{ fontFamily: '"Songti SC", "Noto Serif SC", "SimSun", serif', color: '#1c1c1e' }}>
               我好想你
             </span>
-            <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#D4821A', animation: 'breath 2s ease-in-out infinite' }} />
+            <svg
+              className="w-3 h-3 flex-shrink-0 animate-heartbeat"
+              viewBox="0 0 24 22"
+              fill="#c5705a"
+              aria-hidden="true"
+            >
+              <path d="M12 21.2C4.6 14.6 1.4 11.4 1.4 7.2 1.4 3.6 4.1 1 7.4 1c2 0 3.7 1 4.6 2.5C12.9 2 14.6 1 16.6 1 19.9 1 22.6 3.6 22.6 7.2c0 4.2-3.2 7.4-10.6 14z" />
+            </svg>
           </Link>
 
           <div className="flex items-center gap-3">
@@ -125,14 +144,6 @@ export function Header() {
           </div>
         )}
       </Container>
-
-      {/* Breathing dot keyframe */}
-      <style jsx>{`
-        @keyframes breath {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.3); }
-        }
-      `}</style>
 
       {/* Region switch prompt — top-right, only when overseas detected */}
       <RegionPrompt />

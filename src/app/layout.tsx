@@ -29,8 +29,12 @@ export const metadata: Metadata = {
   creator: "我好想你公益平台",
   publisher: "我好想你公益平台",
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/logo-imu.svg", type: "image/svg+xml", sizes: "any" },
+    ],
     shortcut: "/favicon.svg",
+    apple: "/logo-imu.svg",
   },
   alternates: {
     canonical: BASE_URL,
@@ -47,20 +51,11 @@ export const metadata: Metadata = {
     siteName: "我好想你",
     title: "我好想你 - 全球失踪人口信息聚合公益平台",
     description: "助力每一个家庭团圆，全球失踪人口信息聚合公益平台。聚合全球公开失踪人口数据，永久免费。",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "我好想你 - 全球失踪人口信息聚合公益平台",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "我好想你 - 全球失踪人口信息聚合公益平台",
     description: "助力每一个家庭团圆，全球失踪人口信息聚合公益平台",
-    images: ["/og-image.png"],
   },
   robots: {
     index: true,
@@ -101,9 +96,17 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: "我好想你",
-              alternateName: ["我好想你公益平台", "Wohaoxiangni"],
+              alternateName: ["我好想你公益平台", "Wohaoxiangni", "IMU", "I Miss You", "imu 寻人"],
               url: BASE_URL,
+              inLanguage: ["zh-CN", "zh-Hant", "en", "ja", "ko", "fr", "de"],
               description: "全球失踪人口信息聚合公益平台，助力每一个家庭团圆",
+              publisher: {
+                "@type": "Organization",
+                name: "我好想你公益平台",
+                alternateName: "IMU",
+                url: BASE_URL,
+                logo: `${BASE_URL}/logo-imu.svg`,
+              },
               potentialAction: {
                 "@type": "SearchAction",
                 target: {

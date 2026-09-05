@@ -117,6 +117,9 @@ const de: PublicTranslations = {
     line1: "Diese Plattform ist rein gemeinnützig und erhebt keine Gebühren. Die Daten stammen aus öffentlichen APIs und Nutzereinreichungen.",
     line2: "Wenn Sie Hinweise haben, wenden Sie sich bitte an die örtlichen Behörden. Diese Plattform unterstützt keine privaten Kontakte.",
     donate: "Spenden",
+    creditServer: "Server gestiftet von ClodHost.com",
+    creditDomain: "Domain gestiftet von Wang Zhen",
+    creditTech: "Technik von SunChengxin",
   },
   country: {
     label: "Land / Region",

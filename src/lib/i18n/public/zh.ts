@@ -115,6 +115,9 @@ const zh = {
     line1: "本平台为纯公益性质，不收取任何费用。数据来源于公开API及用户提交。",
     line2: "如有线索请联系当地公安机关。本平台不支持私下联系。",
     donate: "捐助",
+    creditServer: "ClodHost.com 捐助服务器",
+    creditDomain: "安徽安庆太湖王震 捐助域名",
+    creditTech: "SunChengxin 技术支持",
   },
   country: {
     label: "国家/地区",

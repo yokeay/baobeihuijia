@@ -22,15 +22,30 @@ interface CaseGridProps {
   onLoadMore?: () => void;
 }
 
+// Two columns on phones (the Xiaohongshu/Douyin shape), widening with the
+// viewport. Gutters stay tight so the wall of faces reads as one feed.
+const COLUMN_CLASS = "columns-2 md:columns-3 xl:columns-4 gap-2.5 sm:gap-3.5 [column-fill:_balance]";
+
+// Deterministic per-card bottom gap so the rows never line up into a grid.
+const GAPS = ["mb-2.5", "mb-4", "mb-3", "mb-5", "mb-3.5", "mb-2.5"];
+
+function gapFor(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 33 + id.charCodeAt(i)) >>> 0;
+  return GAPS[h % GAPS.length];
+}
+
+const SKELETON_RATIOS = [0.75, 1, 0.67, 0.83, 1.2, 0.7, 0.9, 0.6, 1.1, 0.8];
+
 export function CaseGrid({ items, loading, hasMore, loadingMore, onLoadMore }: CaseGridProps) {
   const { t } = usePublicLang();
 
   if (loading) {
     return (
-      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="mb-4 break-inside-avoid">
-            <CaseCardSkeleton />
+      <div className={COLUMN_CLASS}>
+        {SKELETON_RATIOS.map((r, i) => (
+          <div key={i} className="mb-3 break-inside-avoid">
+            <CaseCardSkeleton ratio={r} />
           </div>
         ))}
       </div>
@@ -49,9 +64,15 @@ export function CaseGrid({ items, loading, hasMore, loadingMore, onLoadMore }: C
 
   return (
     <div>
-      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
+      <div className={COLUMN_CLASS}>
         {items.map((item, i) => (
-          <div key={item.id} className="mb-4 break-inside-avoid">
+          <div
+            key={item.id}
+            className={`${gapFor(item.id)} break-inside-avoid card-enter`}
+            // Stagger only within the first couple of screens; later cards
+            // appear immediately so pagination never feels laggy.
+            style={{ animationDelay: `${Math.min(i, 11) * 45}ms` }}
+          >
             <CaseCard item={item} index={i} />
           </div>
         ))}

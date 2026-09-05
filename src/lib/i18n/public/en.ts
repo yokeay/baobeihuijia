@@ -117,6 +117,9 @@ const en: PublicTranslations = {
     line1: "This platform is purely non-profit and does not charge any fees. Data comes from public APIs and user submissions.",
     line2: "If you have leads, please contact local authorities. This platform does not support private contact.",
     donate: "Donate",
+    creditServer: "Server donated by ClodHost.com",
+    creditDomain: "Domain donated by Wang Zhen",
+    creditTech: "Engineering by SunChengxin",
   },
   country: {
     label: "Country / Region",

@@ -13,11 +13,12 @@ import { getPool } from "@/lib/db/adapter-local-pg";
 
 const DEFAULT_COUNTRY = "CN";
 
-// MO/TW have no dedicated data source yet — fall back to CN table.
-// HK has its own synced table (cases_hk), so it is NOT folded into CN.
+// Mainland China ("CN") covers every province except the two SARs. Hong Kong,
+// Macau and Taiwan are NOT part of the mainland dataset — each keeps its own
+// table, so selecting them never surfaces mainland cases. HK is synced from
+// HKPF; MO/TW have no source yet and legitimately come back empty.
 function normalizeCountryCode(code: string): string {
-  const FALLBACK_TO_CN = new Set(["CN", "MO", "TW"]);
-  return FALLBACK_TO_CN.has(code.toUpperCase()) ? "CN" : code.toUpperCase();
+  return code.toUpperCase();
 }
 
 export async function GET(request: Request) {

@@ -117,6 +117,9 @@ const ko: PublicTranslations = {
     line1: "본 플랫폼은 순수 비영리이며 어떠한 비용도 청구하지 않습니다. 데이터는 공개 API 및 사용자 제공에서 옵니다.",
     line2: "단서가 있으시면 현지 경찰에 연락해 주세요. 본 플랫폼은 개인 간 직접 연락을 지원하지 않습니다.",
     donate: "기부",
+    creditServer: "서버 후원: ClodHost.com",
+    creditDomain: "도메인 후원: Wang Zhen",
+    creditTech: "기술 지원: SunChengxin",
   },
   country: {
     label: "국가/지역",

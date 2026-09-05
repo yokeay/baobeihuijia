@@ -118,6 +118,9 @@ const bo: PublicTranslations = {
     line1: "གྲུབ་ཆ་འདི་སྤྱི་ཕན་རྐྱང་པ་ཡིན་ཞིང་། རིན་གོང་གང་ཡང་མི་འདེབས།",
     line2: "ཐོག་ཁུངས་ཡོད་ན་ས་གནས་ཉེན་རྟོག་པར་འབྲེལ་གཏུགས་གནང་།",
     donate: "ཕུལ་བ།",
+    creditServer: "ཞབས་ཞུ་འཕྲུལ་འཁོར། ClodHost.com",
+    creditDomain: "དྲ་མིང་། Wang Zhen",
+    creditTech: "ལག་རྩལ་རྒྱབ་སྐྱོར། SunChengxin",
   },
   country: {
     label: "རྒྱལ་ཁབ/ས་ཁུལ།",

@@ -1,7 +1,22 @@
 "use client";
 import Link from "next/link";
+import { useState } from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/** Shape the card actually reads. Rows come from several country tables, so
+ *  everything beyond id/name/photoUrls is treated as optional. */
+export interface CaseCardItem {
+  id: string;
+  name: string;
+  photoUrls?: string | null;
+  lostDate?: string | null;
+  lostProvince?: string | null;
+  lostCity?: string | null;
+  age?: number | null;
+  status?: string | null;
+  missingCountry?: string | null;
+  viewCount?: number | null;
+  followCount?: number | null;
+}
 
 function getLostDuration(lostDate: string | null | undefined): string {
   if (!lostDate) return "";
@@ -33,11 +48,18 @@ function formatCount(n: number): string {
   return String(n);
 }
 
-// Deterministic aspect-ratio cycle so cards vary in height (masonry feel)
-// without reflowing on re-render or depending on actual image dimensions.
-const ASPECT_RATIOS = ["3/4", "1/1", "4/5", "3/4", "5/6", "4/3"];
+// Placeholder ratios before the real image reports its dimensions. Keyed off the
+// case id rather than the list index, so the feed never falls into a visible
+// repeating rhythm the way a fixed short cycle does.
+const SEED_RATIOS = [0.75, 0.8, 1, 0.71, 0.67, 1.33, 0.83, 0.6, 0.9, 1.15, 0.7, 1.25];
 
-export function CaseCard({ item, index = 0 }: { item: any; index?: number }) {
+function seedRatio(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return SEED_RATIOS[h % SEED_RATIOS.length];
+}
+
+export function CaseCard({ item, index = 0 }: { item: CaseCardItem; index?: number }) {
   const photos: string[] = (() => {
     try {
       const arr = JSON.parse(item.photoUrls || "[]");
@@ -46,7 +68,11 @@ export function CaseCard({ item, index = 0 }: { item: any; index?: number }) {
     return [];
   })();
   const firstPhoto = photos[0] || "/placeholder.svg";
-  const aspectRatio = ASPECT_RATIOS[index % ASPECT_RATIOS.length];
+
+  // Start from the seeded ratio, then settle on the photo's real proportions —
+  // that is what makes the columns genuinely ragged instead of patterned.
+  const [ratio, setRatio] = useState(() => seedRatio(String(item.id ?? index)));
+
   const duration = getLostDuration(item.lostDate);
   const ageText = getEstimatedAge(item.age, item.lostDate);
   const isFound = item.status === "found";
@@ -60,12 +86,21 @@ export function CaseCard({ item, index = 0 }: { item: any; index?: number }) {
   return (
     <Link href={`/case/${item.id}`} className="block group">
       <div className="card-base overflow-hidden cursor-pointer">
-        <div className="relative overflow-hidden" style={{ aspectRatio }}>
+        <div className="relative overflow-hidden bg-[#f2efeb]" style={{ aspectRatio: String(ratio) }}>
           <img
             src={firstPhoto}
             alt={item.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
             loading="lazy"
+            decoding="async"
+            onLoad={(e) => {
+              const el = e.currentTarget;
+              if (el.naturalWidth > 0 && el.naturalHeight > 0) {
+                // Clamp so a freak panorama or sliver can't wreck the column.
+                const r = el.naturalWidth / el.naturalHeight;
+                setRatio(Math.min(Math.max(r, 0.55), 1.5));
+              }
+            }}
           />
           {isFound && (
             <div className="absolute inset-0 bg-green-900/60 flex items-center justify-center">
@@ -73,20 +108,20 @@ export function CaseCard({ item, index = 0 }: { item: any; index?: number }) {
             </div>
           )}
           {!isFound && duration && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2">
-              <span className="text-white text-xs opacity-90">{duration}</span>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-2.5 pt-6 pb-2">
+              <span className="text-white text-[11px] tracking-wide opacity-95">{duration}</span>
             </div>
           )}
         </div>
-        <div className="px-3.5 py-3">
-          <h3 className="font-semibold text-[15px] truncate" style={{ color: "var(--text-primary)" }}>
+        <div className="px-3 py-2.5">
+          <h3 className="font-semibold text-[14px] leading-snug truncate" style={{ color: "var(--text-primary)" }}>
             {item.name}
           </h3>
           {ageText && (
-            <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-secondary)" }}>{ageText}</p>
+            <p className="text-[11.5px] mt-0.5 truncate" style={{ color: "var(--text-secondary)" }}>{ageText}</p>
           )}
-          <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-tertiary)" }}>{location}</p>
-          <div className="flex items-center gap-3 mt-2">
+          <p className="text-[11.5px] mt-0.5 truncate" style={{ color: "var(--text-tertiary)" }}>{location}</p>
+          <div className="flex items-center gap-3 mt-1.5">
             <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: "var(--text-tertiary)" }}>
               <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
@@ -104,12 +139,12 @@ export function CaseCard({ item, index = 0 }: { item: any; index?: number }) {
   );
 }
 
-export function CaseCardSkeleton() {
+export function CaseCardSkeleton({ ratio = 0.75 }: { ratio?: number }) {
   return (
     <div className="card-base overflow-hidden">
-      <div className="w-full bg-gray-100 animate-pulse" style={{ aspectRatio: "3/4" }} />
-      <div className="px-3.5 py-3 space-y-2">
-        <div className="h-4 w-2/3 bg-gray-100 animate-pulse rounded-lg" />
+      <div className="w-full bg-gray-100 animate-pulse" style={{ aspectRatio: String(ratio) }} />
+      <div className="px-3 py-2.5 space-y-2">
+        <div className="h-3.5 w-2/3 bg-gray-100 animate-pulse rounded-lg" />
         <div className="h-3 w-1/2 bg-gray-100 animate-pulse rounded-lg" />
         <div className="h-3 w-3/4 bg-gray-100 animate-pulse rounded-lg" />
       </div>

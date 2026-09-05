@@ -3,20 +3,9 @@
 import { useEffect, useState } from "react";
 import { usePublicLang } from "@/lib/i18n/public-context";
 
-interface RegionOption {
+export interface RegionOption {
   value: string;
   count: number;
-}
-
-interface CountryRegionSelectProps {
-  countryCode: string;
-  province: string;
-  city: string;
-  district: string;
-  onProvinceChange: (v: string) => void;
-  onCityChange: (v: string) => void;
-  onDistrictChange: (v: string) => void;
-  rightSlot?: React.ReactNode;
 }
 
 // Each level's options are cached under the key they were fetched for, so a
@@ -38,35 +27,60 @@ async function fetchRegions(params: Record<string, string>): Promise<RegionOptio
 }
 
 /**
+ * Top-level region options for a country, derived from its own rows.
+ * Pass an empty countryCode to skip fetching (for countries that use a
+ * dedicated cascade instead). Callers use `provinces.length` to decide whether
+ * a region filter is worth showing at all.
+ */
+export function useCountryRegions(countryCode: string) {
+  const [data, setData] = useState<LevelData | null>(null);
+
+  useEffect(() => {
+    if (!countryCode) return;
+    let alive = true;
+    fetchRegions({ countryCode, level: "province" }).then((options) => {
+      if (alive) setData({ key: countryCode, options });
+    });
+    return () => { alive = false; };
+  }, [countryCode]);
+
+  const loaded = !countryCode || data?.key === countryCode;
+  return {
+    loaded,
+    provinces: countryCode && data?.key === countryCode ? data.options : [],
+  };
+}
+
+interface CountryRegionSelectProps {
+  countryCode: string;
+  province: string;
+  city: string;
+  district: string;
+  provinces: RegionOption[];
+  loaded: boolean;
+  onProvinceChange: (v: string) => void;
+  onCityChange: (v: string) => void;
+  onDistrictChange: (v: string) => void;
+  rightSlot?: React.ReactNode;
+}
+
+/**
  * Region filter for every country except mainland China and Hong Kong.
- * Options are derived from that country's own rows (/api/cases/regions), so the
- * dropdowns show its real administrative names and never fall back to mainland
- * provinces. Countries without structured data get an empty-state hint instead
- * of dropdowns that could not match anything.
+ * Option labels are that country's real administrative names — mainland
+ * provinces are never used as a fallback.
  */
 export function CountryRegionSelect(props: CountryRegionSelectProps) {
   const { t } = usePublicLang();
-  const { countryCode, province, city, district } = props;
+  const { countryCode, province, city, district, provinces, loaded } = props;
 
-  const [provinceData, setProvinceData] = useState<LevelData | null>(null);
   const [cityData, setCityData] = useState<LevelData | null>(null);
   const [districtData, setDistrictData] = useState<LevelData | null>(null);
 
   const cityKey = province ? `${countryCode}|${province}` : "";
   const districtKey = province && city ? `${countryCode}|${province}|${city}` : "";
 
-  const loaded = provinceData?.key === countryCode;
-  const provinces = loaded ? provinceData.options : [];
   const cities = cityKey && cityData?.key === cityKey ? cityData.options : [];
   const districts = districtKey && districtData?.key === districtKey ? districtData.options : [];
-
-  useEffect(() => {
-    let alive = true;
-    fetchRegions({ countryCode, level: "province" }).then((options) => {
-      if (alive) setProvinceData({ key: countryCode, options });
-    });
-    return () => { alive = false; };
-  }, [countryCode]);
 
   useEffect(() => {
     if (!cityKey) return;
@@ -97,17 +111,6 @@ export function CountryRegionSelect(props: CountryRegionSelectProps) {
     props.onDistrictChange("");
   }
 
-  if (loaded && provinces.length === 0) {
-    return (
-      <div className="grid grid-cols-1 gap-2">
-        <p className="text-[12px] text-[#1c1c1e]/35 dark:text-white/25 leading-relaxed">
-          {t.grid.empty}
-        </p>
-        {props.rightSlot}
-      </div>
-    );
-  }
-
   return (
     <div className={props.rightSlot ? "grid grid-cols-1 sm:grid-cols-2 gap-2" : "grid grid-cols-1 gap-2"}>
       <div>
@@ -128,11 +131,7 @@ export function CountryRegionSelect(props: CountryRegionSelectProps) {
       {cities.length > 0 && (
         <div>
           <label className={labelClass}>{t.filter.regionLabel2}</label>
-          <select
-            className={selectClass}
-            value={city}
-            onChange={(e) => handleCityChange(e.target.value)}
-          >
+          <select className={selectClass} value={city} onChange={(e) => handleCityChange(e.target.value)}>
             <option value="">{t.filter.selectAll}</option>
             {cities.map((o) => (
               <option key={o.value} value={o.value}>{`${o.value} (${o.count})`}</option>
@@ -144,11 +143,7 @@ export function CountryRegionSelect(props: CountryRegionSelectProps) {
       {districts.length > 0 && (
         <div>
           <label className={labelClass}>{t.filter.regionLabel3}</label>
-          <select
-            className={selectClass}
-            value={district}
-            onChange={(e) => props.onDistrictChange(e.target.value)}
-          >
+          <select className={selectClass} value={district} onChange={(e) => props.onDistrictChange(e.target.value)}>
             <option value="">{t.filter.selectAll}</option>
             {districts.map((o) => (
               <option key={o.value} value={o.value}>{`${o.value} (${o.count})`}</option>
