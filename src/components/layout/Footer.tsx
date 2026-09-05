@@ -14,9 +14,9 @@ export function Footer() {
         <div className="mt-5 pt-4 border-t border-black/5 dark:border-white/5">
           <p className="text-[11px] text-[#1c1c1e]/25 dark:text-white/20 mb-2">{t.footer.donate}</p>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] bg-black/5 dark:bg-white/5 text-[#1c1c1e]/40 dark:text-white/30">ClodHost.com 赞助服务器</span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] bg-black/5 dark:bg-white/5 text-[#1c1c1e]/40 dark:text-white/30">安徽安庆太湖王震 赞助域名</span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] bg-black/5 dark:bg-white/5 text-[#1c1c1e]/40 dark:text-white/30">安徽安庆太湖孙程鑫 技术支持</span>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] bg-black/5 dark:bg-white/5 text-[#1c1c1e]/40 dark:text-white/30">ClodHost.com 捐助服务器</span>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] bg-black/5 dark:bg-white/5 text-[#1c1c1e]/40 dark:text-white/30">安徽安庆太湖王震 捐助域名</span>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] bg-black/5 dark:bg-white/5 text-[#1c1c1e]/40 dark:text-white/30">SunChengxin 技术支持</span>
           </div>
         </div>
       </div>

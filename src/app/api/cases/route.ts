@@ -7,6 +7,7 @@ import {
   buildCasesQuery,
   CASES_SELECT,
   rowToCamelCase,
+  isValidCountryCode,
 } from "@/lib/db/country-helpers";
 import { getPool } from "@/lib/db/adapter-local-pg";
 
@@ -22,6 +23,9 @@ function normalizeCountryCode(code: string): string {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rawCode = searchParams.get("countryCode") || DEFAULT_COUNTRY;
+  if (!isValidCountryCode(rawCode)) {
+    return Response.json({ error: "Invalid countryCode" }, { status: 400 });
+  }
   const countryCode = normalizeCountryCode(rawCode);
   const province = searchParams.get("province");
   const city = searchParams.get("city");
@@ -102,7 +106,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "请上传至少一张照片" }, { status: 400 });
   }
 
-  const countryCode = normalizeCountryCode(body.countryCode || DEFAULT_COUNTRY);
+  const rawPostCode = String(body.countryCode || DEFAULT_COUNTRY);
+  if (!isValidCountryCode(rawPostCode)) {
+    return Response.json({ error: "Invalid countryCode" }, { status: 400 });
+  }
+  const countryCode = normalizeCountryCode(rawPostCode);
 
   if (countryCode === "CN") {
     const db = await getDb();

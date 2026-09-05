@@ -4,7 +4,7 @@ import { useState } from "react";
 import { GENDERS } from "@/lib/constants";
 import { RegionCascader } from "@/components/shared/RegionCascader";
 import { HkRegionSelect } from "@/components/shared/HkRegionSelect";
-import { FreeTextLocation } from "@/components/shared/FreeTextLocation";
+import { CountryRegionSelect } from "@/components/shared/CountryRegionSelect";
 import { COUNTRY_MAP } from "@/lib/countries";
 import { usePublicLang } from "@/lib/i18n/public-context";
 
@@ -106,7 +106,7 @@ export function CaseSidebar(props: CaseSidebarProps) {
     </form>
   );
 
-  const regionType = COUNTRY_MAP[props.countryCode]?.regionType ?? "free-text";
+  const regionType = COUNTRY_MAP[props.countryCode]?.regionType ?? "data-cascade";
 
   const genderSelect = (
     <div>
@@ -145,9 +145,14 @@ export function CaseSidebar(props: CaseSidebarProps) {
         rightSlot={genderSelect}
       />
     ) : (
-      <FreeTextLocation
-        value={props.city}
-        onChange={props.onCityChange}
+      <CountryRegionSelect
+        countryCode={props.countryCode}
+        province={props.province}
+        city={props.city}
+        district={props.district}
+        onProvinceChange={props.onProvinceChange}
+        onCityChange={props.onCityChange}
+        onDistrictChange={props.onDistrictChange}
         rightSlot={genderSelect}
       />
     );

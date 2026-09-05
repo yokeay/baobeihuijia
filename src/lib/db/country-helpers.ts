@@ -9,8 +9,19 @@ const CASES_COLUMNS = [
   "view_count", "follow_count", "missing_country",
 ];
 
+// Country codes end up interpolated into table names (pg has no placeholder
+// for identifiers), so anything reaching getCasesTableName must be proven to
+// be a plain 2-letter code first — otherwise a crafted ?countryCode= value
+// would be executed as SQL.
+export function isValidCountryCode(code: string): boolean {
+  return /^[A-Za-z]{2}$/.test(code);
+}
+
 export function getCasesTableName(countryCode: string): string {
-  if (countryCode === "CN") return "cases";
+  if (!isValidCountryCode(countryCode)) {
+    throw new Error(`Invalid country code: ${countryCode}`);
+  }
+  if (countryCode.toUpperCase() === "CN") return "cases";
   return `cases_${countryCode.toLowerCase()}`;
 }
 
