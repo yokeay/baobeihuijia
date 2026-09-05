@@ -121,6 +121,8 @@ const mn: PublicTranslations = {
     creditServer: "Сервер хандив: ClodHost.com",
     creditDomain: "Домэйн хандив: Wang Zhen",
     creditTech: "Техник дэмжлэг: SunChengxin",
+    terms: "Хэрэглэгчийн гэрээ",
+    privacy: "Нууцлалын журам",
   },
   country: {
     label: "Улс/Бүс нутаг",

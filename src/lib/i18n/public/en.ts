@@ -120,6 +120,8 @@ const en: PublicTranslations = {
     creditServer: "Server donated by ClodHost.com",
     creditDomain: "Domain donated by Wang Zhen",
     creditTech: "Engineering by SunChengxin",
+    terms: "Terms of Service",
+    privacy: "Privacy Policy",
   },
   country: {
     label: "Country / Region",

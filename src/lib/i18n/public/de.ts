@@ -120,6 +120,8 @@ const de: PublicTranslations = {
     creditServer: "Server gestiftet von ClodHost.com",
     creditDomain: "Domain gestiftet von Wang Zhen",
     creditTech: "Technik von SunChengxin",
+    terms: "Nutzungsbedingungen",
+    privacy: "Datenschutzerklärung",
   },
   country: {
     label: "Land / Region",

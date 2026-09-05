@@ -120,6 +120,8 @@ const ja: PublicTranslations = {
     creditServer: "サーバー提供：ClodHost.com",
     creditDomain: "ドメイン提供：Wang Zhen",
     creditTech: "技術支援：SunChengxin",
+    terms: "利用規約",
+    privacy: "プライバシーポリシー",
   },
   country: {
     label: "国/地域",

@@ -120,6 +120,8 @@ const zhHant: PublicTranslations = {
     creditServer: "ClodHost.com 捐助伺服器",
     creditDomain: "安徽安慶太湖王震 捐助網域",
     creditTech: "SunChengxin 技術支援",
+    terms: "用戶協議",
+    privacy: "隱私政策",
   },
   country: {
     label: "國家/地區",

@@ -121,6 +121,8 @@ const bo: PublicTranslations = {
     creditServer: "ཞབས་ཞུ་འཕྲུལ་འཁོར། ClodHost.com",
     creditDomain: "དྲ་མིང་། Wang Zhen",
     creditTech: "ལག་རྩལ་རྒྱབ་སྐྱོར། SunChengxin",
+    terms: "སྤྱོད་མཁན་གྲོས་མཐུན།",
+    privacy: "གསང་དོན་སྲིད་ཇུས།",
   },
   country: {
     label: "རྒྱལ་ཁབ/ས་ཁུལ།",

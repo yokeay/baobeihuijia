@@ -118,6 +118,8 @@ const zh = {
     creditServer: "ClodHost.com 捐助服务器",
     creditDomain: "安徽安庆太湖王震 捐助域名",
     creditTech: "SunChengxin 技术支持",
+    terms: "用户协议",
+    privacy: "隐私政策",
   },
   country: {
     label: "国家/地区",

@@ -120,6 +120,8 @@ const ko: PublicTranslations = {
     creditServer: "서버 후원: ClodHost.com",
     creditDomain: "도메인 후원: Wang Zhen",
     creditTech: "기술 지원: SunChengxin",
+    terms: "이용약관",
+    privacy: "개인정보 처리방침",
   },
   country: {
     label: "국가/지역",

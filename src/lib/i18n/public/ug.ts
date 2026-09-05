@@ -121,6 +121,8 @@ const ug: PublicTranslations = {
     creditServer: "مۇلازىمېتىر ئىئانىسى: ClodHost.com",
     creditDomain: "دومېن ئىئانىسى: Wang Zhen",
     creditTech: "تېخنىكا قوللىشى: SunChengxin",
+    terms: "ئىشلىتىش كېلىشىمى",
+    privacy: "شەخسىي مەخپىيەتلىك سىياسىتى",
   },
   country: {
     label: "دۆلەت/رايون",
