@@ -136,7 +136,7 @@ src/
 
 ## 致谢
 
-服务器由 ClodHost.com 捐助，域名由安徽安庆太湖王震捐助，技术支持 SunChengxin。
+服务器由 Clodhost.com（创始人 Josh Jones）捐助，域名由安徽安庆-王镇捐助，技术支持 SunChengxin。
 
 ## 待办
 
