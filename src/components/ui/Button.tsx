@@ -11,7 +11,8 @@ const variants = {
   secondary: "bg-black/5 dark:bg-white/10 text-[#1c1c1e]/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/20",
   outline: "border border-black/10 dark:border-white/10 text-[#1c1c1e]/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5",
   ghost: "text-[#1c1c1e]/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5",
-  danger: "bg-red-500 text-white hover:bg-red-600",
+  // 比 primary 的中国红更深，否则破坏性操作和主行动看起来是同一个按钮
+  danger: "bg-[#9e0016] text-white hover:bg-[#800012]",
 };
 
 const sizes = {

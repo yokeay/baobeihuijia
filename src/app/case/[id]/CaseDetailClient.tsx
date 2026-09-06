@@ -196,7 +196,7 @@ export function CaseDetailClient({ id }: { id: string }) {
                 {/* 姓名 + 状态 */}
                 <div className="flex items-center gap-3 mb-4">
                   <h1 className="text-2xl font-bold" style={{color:'var(--text-primary)'}}>{caseData.name}</h1>
-                  {caseData.status === 'found' && <span className="px-2 py-1 rounded-full text-xs font-semibold text-white bg-green-600">❤️ 已团聚</span>}
+                  {caseData.status === 'found' && <span className="px-2 py-1 rounded-full text-xs font-semibold text-white" style={{ background: "var(--success)" }}>❤️ 已团聚</span>}
                   {caseData.status !== 'found' && <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{background:'var(--accent-light)',color:'var(--accent)'}}>寻找中</span>}
                 </div>
 

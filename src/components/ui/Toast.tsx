@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 
 interface ToastData {
   id: string;
@@ -14,6 +13,14 @@ let addToastFn: ((t: ToastData) => void) | null = null;
 export function showToast(message: string, type: ToastData["type"] = "info") {
   addToastFn?.({ id: Math.random().toString(36).slice(2), message, type });
 }
+
+// Toast 用设计 token 而不是 Tailwind 任意色阶：success/danger 必须和全站
+// 同一个绿、同一个深红，否则 error 提示会跟品牌红撞色。
+const TOAST_BG: Record<ToastData["type"], string> = {
+  success: "var(--success)",
+  error: "var(--danger)",
+  info: "#17181A",
+};
 
 export function ToastContainer() {
   const [toasts, setToasts] = useState<ToastData[]>([]);
@@ -35,12 +42,8 @@ export function ToastContainer() {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={cn(
-            "px-4 py-3 rounded-xl shadow-lg text-sm font-medium animate-in slide-in-from-right",
-            t.type === "success" && "bg-green-500 text-white",
-            t.type === "error" && "bg-red-500 text-white",
-            t.type === "info" && "bg-gray-800 text-white"
-          )}
+          className="px-4 py-3 rounded-xl shadow-lg text-sm font-medium text-white animate-in slide-in-from-right"
+          style={{ background: TOAST_BG[t.type] }}
         >
           {t.message}
         </div>

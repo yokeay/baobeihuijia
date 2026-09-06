@@ -75,7 +75,7 @@ export function ContactInfoSheet({ open, onClose }: Props) {
                     placeholder={f.placeholder}
                     value={form[f.key] ?? ""}
                     onChange={(e) => setForm((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#e60012]/25"
                   />
                 </div>
               ))}

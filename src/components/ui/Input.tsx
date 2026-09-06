@@ -22,12 +22,12 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
           "bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8]",
           "focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 focus:border-[#e60012]/40",
           "placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20",
-          error && "border-red-500/50 focus:ring-red-500/20 focus:border-red-500",
+          error && "border-[#9e0016]/50 focus:ring-[#9e0016]/20 focus:border-[#9e0016]",
           className
         )}
         {...props}
       />
-      {error && <p className="mt-1 text-[12px] text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-[12px]" style={{ color: "var(--danger)" }}>{error}</p>}
     </div>
   );
 }
@@ -54,13 +54,13 @@ export function Textarea({
           "bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8]",
           "focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 focus:border-[#e60012]/40",
           "placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20",
-          error && "border-red-500/50 focus:ring-red-500/20 focus:border-red-500",
+          error && "border-[#9e0016]/50 focus:ring-[#9e0016]/20 focus:border-[#9e0016]",
           className
         )}
         rows={4}
         {...(props as any)}
       />
-      {error && <p className="mt-1 text-[12px] text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-[12px]" style={{ color: "var(--danger)" }}>{error}</p>}
     </div>
   );
 }

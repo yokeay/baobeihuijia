@@ -77,7 +77,7 @@ export function PhoneAuthSheet() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            className="flex-1 px-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500"
+            className="flex-1 px-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#e60012]/25"
             autoFocus
           />
         </div>
@@ -85,13 +85,13 @@ export function PhoneAuthSheet() {
           <div className="mb-4 border border-gray-200 rounded-xl overflow-hidden">
             {COUNTRY_CODES.map((c) => (
               <button key={c.code} onClick={() => { setCountryCode(c.code); setShowCodes(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-amber-50 border-b border-gray-100 last:border-0">
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#ffecee] border-b border-gray-100 last:border-0">
                 {c.label}
               </button>
             ))}
           </div>
         )}
-        {error && <p className="text-red-500 text-xs mb-3">{error}</p>}
+        {error && <p className="text-xs mb-3" style={{ color: "var(--danger)" }}>{error}</p>}
         <button
           onClick={handleSubmit}
           disabled={!isValid || loading}

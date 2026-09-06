@@ -103,8 +103,8 @@ export function CaseCard({ item, index = 0 }: { item: CaseCardItem; index?: numb
             }}
           />
           {isFound && (
-            <div className="absolute inset-0 bg-green-900/60 flex items-center justify-center">
-              <span className="text-white text-sm font-semibold bg-green-600 px-3 py-1 rounded-full">❤️ 已团聚</span>
+            <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(20, 61, 38, 0.6)" }}>
+              <span className="text-white text-sm font-semibold px-3 py-1 rounded-full" style={{ background: "var(--success)" }}>❤️ 已团聚</span>
             </div>
           )}
           {!isFound && duration && (

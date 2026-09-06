@@ -102,7 +102,8 @@ export function Header() {
                   </Link>
                   <button
                     onClick={() => { setUserMenuOpen(false); logout(); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#ffecee] transition-colors"
+                    style={{ color: "var(--danger)" }}
                   >
                     退出登录
                   </button>
