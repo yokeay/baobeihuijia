@@ -28,13 +28,13 @@ export const metadata: Metadata = {
   authors: [{ name: "我好想你公益平台" }],
   creator: "我好想你公益平台",
   publisher: "我好想你公益平台",
+  // One mark everywhere: /favicon.svg carries the same artwork as the header
+  // <ImuMark />. Do not add a second icon file — the tab icon and the on-page
+  // logo drifted apart last time there were two.
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/logo-imu.svg", type: "image/svg+xml", sizes: "any" },
-    ],
+    icon: "/favicon.svg",
     shortcut: "/favicon.svg",
-    apple: "/logo-imu.svg",
+    apple: "/favicon.svg",
   },
   alternates: {
     canonical: BASE_URL,
@@ -105,7 +105,7 @@ export default function RootLayout({
                 name: "我好想你公益平台",
                 alternateName: "IMU",
                 url: BASE_URL,
-                logo: `${BASE_URL}/logo-imu.svg`,
+                logo: `${BASE_URL}/favicon.svg`,
               },
               potentialAction: {
                 "@type": "SearchAction",

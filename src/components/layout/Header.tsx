@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { Container } from "./Container";
 import { RegionPrompt } from "./RegionPrompt";
 import { RegionLangPrompt } from "./RegionLangPrompt";
+import { ImuMark, CHINA_RED } from "@/components/brand/ImuMark";
 import { usePublicLang } from "@/lib/i18n/public-context";
 import { useUser } from "@/lib/UserContext";
 
@@ -40,28 +41,15 @@ export function Header() {
         <div className="flex items-center justify-between h-12">
           {/* Logo — IMU squircle wordmark + a heart that actually beats */}
           <Link href="/" className="flex items-center gap-2 font-semibold text-[15px] tracking-tight no-underline group">
-            <svg className="w-6 h-6 shrink-0" viewBox="0 0 100 100" aria-label="IMU" role="img">
-              <defs>
-                <linearGradient id="hdrTile" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#D98166" />
-                  <stop offset="0.55" stopColor="#C5705A" />
-                  <stop offset="1" stopColor="#A85440" />
-                </linearGradient>
-              </defs>
-              <rect width="100" height="100" rx="26" fill="url(#hdrTile)" />
-              <g fill="none" stroke="#FFF6F1" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 36 V68" />
-                <path d="M33 68 V37 L45 54 L57 37 V68" />
-                <path d="M67 36 V57 C67 63.5 71.5 68 76 68 C80.5 68 85 63.5 85 57 V36" />
-              </g>
-            </svg>
+            <ImuMark className="w-6 h-6 shrink-0" />
             <span className="hidden sm:inline" style={{ fontFamily: '"Songti SC", "Noto Serif SC", "SimSun", serif', color: '#1c1c1e' }}>
               我好想你
             </span>
+            {/* Same 中国红 as the tile so the lockup reads as one mark */}
             <svg
               className="w-3 h-3 flex-shrink-0 animate-heartbeat"
               viewBox="0 0 24 22"
-              fill="#c5705a"
+              fill={CHINA_RED}
               aria-hidden="true"
             >
               <path d="M12 21.2C4.6 14.6 1.4 11.4 1.4 7.2 1.4 3.6 4.1 1 7.4 1c2 0 3.7 1 4.6 2.5C12.9 2 14.6 1 16.6 1 19.9 1 22.6 3.6 22.6 7.2c0 4.2-3.2 7.4-10.6 14z" />
