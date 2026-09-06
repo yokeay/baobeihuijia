@@ -44,14 +44,14 @@ export function CommentForm({
         placeholder={t.comment.nicknamePlaceholder}
         value={authorName}
         onChange={(e) => setAuthorName(e.target.value)}
-        className="w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200 placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20"
+        className="w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 transition-all duration-200 placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20"
         maxLength={20}
       />
       <textarea
         placeholder={t.comment.contentPlaceholder}
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] resize-none bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200 placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20"
+        className="w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] resize-none bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 transition-all duration-200 placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20"
         rows={3}
         maxLength={500}
       />

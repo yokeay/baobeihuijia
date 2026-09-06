@@ -33,7 +33,7 @@ export function LegalPage({
       <main className="flex-1 py-10">
         <Container className="max-w-3xl">
           <nav className="mb-6 text-[12px] text-[#1c1c1e]/35">
-            <Link href="/" className="hover:text-[#c5705a] no-underline">
+            <Link href="/" className="hover:text-[#e60012] no-underline">
               ← 我好想你
             </Link>
           </nav>
@@ -50,7 +50,7 @@ export function LegalPage({
           <hr className="my-10 border-black/5" />
 
           <details className="group">
-            <summary className="cursor-pointer text-[13px] text-[#1c1c1e]/45 hover:text-[#c5705a] list-none">
+            <summary className="cursor-pointer text-[13px] text-[#1c1c1e]/45 hover:text-[#e60012] list-none">
               {preferEnglish ? "查看中文版（以中文版为准）" : "View English version"}
             </summary>
             <div className="mt-6 legal-body">{preferEnglish ? zh : en}</div>

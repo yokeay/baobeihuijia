@@ -88,7 +88,7 @@ export function ContactInfoSheet({ open, onClose }: Props) {
                 onClick={handleSave}
                 disabled={loading}
                 className="flex-1 py-3 rounded-xl text-sm font-semibold text-white"
-                style={{ background: "#D4821A" }}
+                style={{ background: "#E60012" }}
               >
                 {loading ? "保存中…" : "保存"}
               </button>

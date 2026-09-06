@@ -20,7 +20,7 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
         className={cn(
           "w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] transition-all duration-200",
           "bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8]",
-          "focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 focus:border-[#c5705a]/40",
+          "focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 focus:border-[#e60012]/40",
           "placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20",
           error && "border-red-500/50 focus:ring-red-500/20 focus:border-red-500",
           className
@@ -52,7 +52,7 @@ export function Textarea({
         className={cn(
           "w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] transition-all duration-200 resize-none",
           "bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8]",
-          "focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 focus:border-[#c5705a]/40",
+          "focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 focus:border-[#e60012]/40",
           "placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20",
           error && "border-red-500/50 focus:ring-red-500/20 focus:border-red-500",
           className

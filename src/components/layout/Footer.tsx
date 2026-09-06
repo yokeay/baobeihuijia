@@ -15,11 +15,11 @@ export function Footer() {
         <p className="mt-1">{t.footer.line2}</p>
 
         <div className="mt-4 flex items-center justify-center gap-4 text-[12px]">
-          <Link href="/terms" className="text-[#1c1c1e]/45 hover:text-[#c5705a] no-underline transition-colors">
+          <Link href="/terms" className="text-[#1c1c1e]/45 hover:text-[#e60012] no-underline transition-colors">
             {t.footer.terms}
           </Link>
           <span className="text-[#1c1c1e]/15">·</span>
-          <Link href="/privacy" className="text-[#1c1c1e]/45 hover:text-[#c5705a] no-underline transition-colors">
+          <Link href="/privacy" className="text-[#1c1c1e]/45 hover:text-[#e60012] no-underline transition-colors">
             {t.footer.privacy}
           </Link>
         </div>

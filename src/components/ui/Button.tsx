@@ -7,7 +7,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary: "bg-[#c5705a] text-white hover:bg-[#b05a45] shadow-sm",
+  primary: "bg-[#e60012] text-white hover:bg-[#c1000f] shadow-sm",
   secondary: "bg-black/5 dark:bg-white/10 text-[#1c1c1e]/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/20",
   outline: "border border-black/10 dark:border-white/10 text-[#1c1c1e]/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5",
   ghost: "text-[#1c1c1e]/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5",
@@ -29,7 +29,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/30 disabled:opacity-40 disabled:pointer-events-none cursor-pointer",
+        "inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#e60012]/30 disabled:opacity-40 disabled:pointer-events-none cursor-pointer",
         variants[variant],
         sizes[size],
         className

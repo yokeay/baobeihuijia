@@ -13,7 +13,7 @@ import { GENDERS } from "@/lib/constants";
 import { RegionCascader } from "@/components/shared/RegionCascader";
 import { usePublicLang } from "@/lib/i18n/public-context";
 
-const selectClass = "w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200";
+const selectClass = "w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 transition-all duration-200";
 
 type Tab = "missing" | "clue";
 
@@ -222,7 +222,7 @@ export default function SubmitPage() {
                 onClick={() => setTab("missing")}
                 className={`flex-1 py-2.5 rounded-[10px] text-[14px] font-medium transition-all duration-200 ${
                   tab === "missing"
-                    ? "bg-white dark:bg-[#1a1a1a] text-[#c5705a] shadow-sm"
+                    ? "bg-white dark:bg-[#1a1a1a] text-[#e60012] shadow-sm"
                     : "text-[#1c1c1e]/35 dark:text-white/25 hover:text-[#1c1c1e]/60 dark:hover:text-white/50"
                 }`}
               >
@@ -233,7 +233,7 @@ export default function SubmitPage() {
                 onClick={() => setTab("clue")}
                 className={`flex-1 py-2.5 rounded-[10px] text-[14px] font-medium transition-all duration-200 ${
                   tab === "clue"
-                    ? "bg-white dark:bg-[#1a1a1a] text-[#c5705a] shadow-sm"
+                    ? "bg-white dark:bg-[#1a1a1a] text-[#e60012] shadow-sm"
                     : "text-[#1c1c1e]/35 dark:text-white/25 hover:text-[#1c1c1e]/60 dark:hover:text-white/50"
                 }`}
               >
@@ -379,7 +379,7 @@ export default function SubmitPage() {
                       <button
                         type="button"
                         onClick={() => setClueStep("search")}
-                        className="text-[13px] text-[#c5705a] hover:underline"
+                        className="text-[13px] text-[#e60012] hover:underline"
                       >
                         {t.filter.searchButton}
                       </button>
@@ -460,7 +460,7 @@ export default function SubmitPage() {
                       <button
                         type="button"
                         onClick={() => setClueStep("select")}
-                        className="text-[12px] text-[#c5705a] hover:underline shrink-0"
+                        className="text-[12px] text-[#e60012] hover:underline shrink-0"
                       >
                         {t.submit.clueStepSelect}
                       </button>

@@ -86,7 +86,7 @@ export function CaseCard({ item, index = 0 }: { item: CaseCardItem; index?: numb
   return (
     <Link href={`/case/${item.id}`} className="block group">
       <div className="card-base overflow-hidden cursor-pointer">
-        <div className="relative overflow-hidden bg-[#f2efeb]" style={{ aspectRatio: String(ratio) }}>
+        <div className="relative overflow-hidden bg-[#e8f0f3]" style={{ aspectRatio: String(ratio) }}>
           <img
             src={firstPhoto}
             alt={item.name}

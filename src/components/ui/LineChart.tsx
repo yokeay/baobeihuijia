@@ -2,7 +2,7 @@
 
 interface DataPoint { date: string; count: number }
 
-export function LineChart({ data, color = "#D4821A", height = 200 }: { data: DataPoint[]; color?: string; height?: number }) {
+export function LineChart({ data, color = "#E60012", height = 200 }: { data: DataPoint[]; color?: string; height?: number }) {
   const w = 600;
   const h = height;
   const pad = { top: 20, right: 10, bottom: 30, left: 40 };

@@ -167,14 +167,14 @@ export default function HomePage() {
             </p>
             <div className="flex items-center justify-center gap-8 mt-10">
               <div>
-                <div className="text-[32px] font-semibold tracking-tight text-[#c5705a]">
+                <div className="text-[32px] font-semibold tracking-tight text-[#e60012]">
                   <LiveTotal initialTotal={globalTotal} />
                 </div>
                 <div className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20 mt-0.5">{t.hero.totalLabel}</div>
               </div>
               <div className="w-px h-10 bg-black/10 dark:bg-white/10" />
               <div>
-                <div className="text-[32px] font-semibold tracking-tight text-[#c5705a]">
+                <div className="text-[32px] font-semibold tracking-tight text-[#e60012]">
                   {t.hero.freeLabel}
                 </div>
                 <div className="text-[12px] text-[#1c1c1e]/30 dark:text-white/20 mt-0.5">{t.hero.freeSubLabel}</div>

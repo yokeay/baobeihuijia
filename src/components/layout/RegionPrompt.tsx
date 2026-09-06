@@ -23,7 +23,7 @@ export function RegionPrompt() {
       </button>
 
       <div className="flex items-start gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c5705a]/10 text-[#c5705a]">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e60012]/10 text-[#e60012]">
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
             <circle cx="12" cy="10" r="3" />
@@ -40,7 +40,7 @@ export function RegionPrompt() {
             <button
               onClick={() => switchCountry(detectedCountry)}
               disabled={leaving}
-              className="flex-1 rounded-lg bg-[#c5705a] py-1.5 text-[12px] font-medium text-white transition hover:bg-[#b5604b] active:scale-[0.98]"
+              className="flex-1 rounded-lg bg-[#e60012] py-1.5 text-[12px] font-medium text-white transition hover:bg-[#c1000f] active:scale-[0.98]"
             >
               切换
             </button>

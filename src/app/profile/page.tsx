@@ -113,7 +113,7 @@ export default function ProfilePage() {
               onClick={handleSave}
               disabled={saving}
               className="w-full mt-6 py-3.5 rounded-xl text-sm font-semibold text-white transition-all"
-              style={{ background: saved ? "#2D7D4F" : "#D4821A" }}
+              style={{ background: saved ? "#2D7D4F" : "#E60012" }}
             >
               {saving ? "保存中…" : saved ? "✓ 已保存" : "保存"}
             </button>

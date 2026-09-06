@@ -96,7 +96,7 @@ export function PhoneAuthSheet() {
           onClick={handleSubmit}
           disabled={!isValid || loading}
           className="w-full py-3.5 rounded-xl font-semibold text-white transition-all"
-          style={{ background: isValid ? "#D4821A" : "#E5E7EB", color: isValid ? "white" : "#9CA3AF" }}
+          style={{ background: isValid ? "#E60012" : "#E5E7EB", color: isValid ? "white" : "#9CA3AF" }}
         >
           {loading ? "登录中…" : "继续"}
         </button>

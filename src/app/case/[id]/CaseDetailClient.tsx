@@ -241,7 +241,7 @@ export function CaseDetailClient({ id }: { id: string }) {
                   <button
                     onClick={handleFollow}
                     className="px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer"
-                    style={{background: following ? '#D4821A' : 'var(--bg-muted)', color: following ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-default)'}}
+                    style={{background: following ? '#E60012' : 'var(--bg-muted)', color: following ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-default)'}}
                   >
                     {following ? '✓ 守候中（点击取消）' : '守候 TA'}
                   </button>
@@ -292,7 +292,7 @@ export function CaseDetailClient({ id }: { id: string }) {
                 <button disabled={!questionForm.trim() || qSubmitting}
                   onClick={handleQuestionSubmit}
                   className="px-4 py-2 rounded-xl text-sm font-semibold self-end"
-                  style={{background: questionForm.trim() ? '#D4821A' : '#E5E7EB', color: questionForm.trim() ? 'white' : '#9CA3AF'}}>
+                  style={{background: questionForm.trim() ? '#E60012' : '#E5E7EB', color: questionForm.trim() ? 'white' : '#9CA3AF'}}>
                   {qSubmitting ? '提交中' : '提交'}
                 </button>
               </div>

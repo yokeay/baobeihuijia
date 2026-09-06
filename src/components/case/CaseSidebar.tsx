@@ -90,11 +90,11 @@ export function CaseSidebar(props: CaseSidebarProps) {
         value={localSearch}
         onChange={(e) => setLocalSearch(e.target.value)}
         placeholder={t.filter.searchPlaceholder}
-        className="flex-1 h-10 px-4 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200"
+        className="flex-1 h-10 px-4 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 transition-all duration-200"
       />
       <button
         type="submit"
-        className="h-10 px-5 text-[13px] font-medium text-white bg-[#c5705a] hover:bg-[#b05a45] rounded-xl transition-colors duration-200"
+        className="h-10 px-5 text-[13px] font-medium text-white bg-[#e60012] hover:bg-[#c1000f] rounded-xl transition-colors duration-200"
       >
         {t.filter.searchButton}
       </button>
@@ -121,7 +121,7 @@ export function CaseSidebar(props: CaseSidebarProps) {
             <select
               value={props.gender}
               onChange={(e) => props.onGenderChange(e.target.value)}
-              className="h-10 px-3.5 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e]/60 dark:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c5705a]/20 transition-all duration-200 appearance-none w-full"
+              className="h-10 px-3.5 text-[13px] border border-black/10 dark:border-white/10 rounded-xl bg-white dark:bg-[#1a1a1a] text-[#1c1c1e]/60 dark:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 transition-all duration-200 appearance-none w-full"
             >
               {GENDERS.map((g) => (
                 <option key={g.value} value={g.value}>
@@ -192,23 +192,23 @@ export function CaseSidebar(props: CaseSidebarProps) {
             onClick={() => togglePanel("search")}
             className={`relative flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${
               panel === "search"
-                ? "border-[#c5705a]/30 bg-[#c5705a]/10 text-[#c5705a]"
+                ? "border-[#e60012]/30 bg-[#e60012]/10 text-[#e60012]"
                 : "border-black/10 dark:border-white/10 text-[#1c1c1e]/50 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5"
             }`}
           >
             <SearchIcon className="h-4.5 w-4.5" />
-            {props.search && <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#c5705a]" />}
+            {props.search && <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#e60012]" />}
           </button>
           <button
             onClick={() => togglePanel("filter")}
             className={`relative flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${
               panel === "filter"
-                ? "border-[#c5705a]/30 bg-[#c5705a]/10 text-[#c5705a]"
+                ? "border-[#e60012]/30 bg-[#e60012]/10 text-[#e60012]"
                 : "border-black/10 dark:border-white/10 text-[#1c1c1e]/50 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5"
             }`}
           >
             <FilterIcon className="h-4.5 w-4.5" />
-            {hasFilter && <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#c5705a]" />}
+            {hasFilter && <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#e60012]" />}
           </button>
         </div>
 
@@ -227,11 +227,11 @@ export function CaseSidebar(props: CaseSidebarProps) {
       <button
         onClick={() => setMobileOpen(true)}
         className="lg:hidden fixed bottom-6 right-5 z-40 flex h-13 w-13 items-center justify-center rounded-full shadow-lg text-white transition-transform active:scale-95"
-        style={{ background: "#c5705a", width: "52px", height: "52px" }}
+        style={{ background: "#e60012", width: "52px", height: "52px" }}
       >
         <FilterIcon className="h-5 w-5" />
         {hasActive && (
-          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-white border-2" style={{ borderColor: "#c5705a" }} />
+          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-white border-2" style={{ borderColor: "#e60012" }} />
         )}
       </button>
 

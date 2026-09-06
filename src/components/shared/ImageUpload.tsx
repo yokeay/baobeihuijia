@@ -59,7 +59,7 @@ export function ImageUpload({ photos, onPhotosChange, max = 9 }: ImageUploadProp
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="w-20 h-20 rounded-xl border-2 border-dashed border-black/10 dark:border-white/10 flex items-center justify-center text-[#1c1c1e]/20 dark:text-white/15 hover:border-[#c5705a]/40 hover:text-[#c5705a] transition-all duration-200 text-2xl"
+            className="w-20 h-20 rounded-xl border-2 border-dashed border-black/10 dark:border-white/10 flex items-center justify-center text-[#1c1c1e]/20 dark:text-white/15 hover:border-[#e60012]/40 hover:text-[#e60012] transition-all duration-200 text-2xl"
           >
             {uploading ? "..." : "+"}
           </button>
