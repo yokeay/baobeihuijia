@@ -6,11 +6,11 @@ export const FISH_BELLY_WHITE = "#F0FCFF";
 /**
  * The IMU mark — a 中国红 squircle with monoline IMU in 鱼肚白.
  *
- * This is the canonical React copy. The static asset `public/favicon.svg`
- * carries the identical artwork for browsers (tab icon, apple-touch-icon,
- * schema.org logo) and `src/app/opengraph-image.tsx` reproduces it for share
- * cards. **Change all three together** — they previously drifted into two
- * different marks, which is exactly what this component exists to prevent.
+ * This is the canonical React copy. `src/app/icon.svg` (plus `apple-icon.svg`)
+ * carries the identical artwork for browsers and `src/app/opengraph-image.tsx`
+ * reproduces it for share cards. **Change all three together** — they
+ * previously drifted into two different marks, which is exactly what this
+ * component exists to prevent.
  */
 export function ImuMark({ className = "w-6 h-6 shrink-0" }: { className?: string }) {
   return (

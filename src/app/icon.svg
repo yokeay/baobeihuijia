@@ -1,6 +1,12 @@
 <!-- IMU mark. Identical artwork to src/components/brand/ImuMark.tsx (header)
      and the tile in src/app/opengraph-image.tsx — change all three together.
-     底色 中国红 #E60012，字 鱼肚白 #F0FCFF。 -->
+     底色 中国红 #E60012，字 鱼肚白 #F0FCFF。
+
+     Lives in src/app/ (not public/) on purpose: Next hashes app-dir icons into
+     the <link> URL, so editing this file automatically busts the browser's
+     favicon cache. Favicons are cached far more stubbornly than normal assets —
+     a plain /favicon.svg in public/ kept serving the old mark to tabs that had
+     already seen it. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="IMU">
   <rect width="100" height="100" rx="26" fill="#E60012"/>
 

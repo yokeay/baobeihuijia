@@ -28,14 +28,10 @@ export const metadata: Metadata = {
   authors: [{ name: "我好想你公益平台" }],
   creator: "我好想你公益平台",
   publisher: "我好想你公益平台",
-  // One mark everywhere: /favicon.svg carries the same artwork as the header
-  // <ImuMark />. Do not add a second icon file — the tab icon and the on-page
-  // logo drifted apart last time there were two.
-  icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
-  },
+  // No `icons` block on purpose: src/app/icon.svg and src/app/apple-icon.svg
+  // are picked up by Next's file convention, which appends a content hash to
+  // the <link> URL. That hash is what actually busts the browser's favicon
+  // cache when the mark changes — a fixed /favicon.svg does not.
   alternates: {
     canonical: BASE_URL,
     languages: {
@@ -105,7 +101,7 @@ export default function RootLayout({
                 name: "我好想你公益平台",
                 alternateName: "IMU",
                 url: BASE_URL,
-                logo: `${BASE_URL}/favicon.svg`,
+                logo: `${BASE_URL}/icon.svg`,
               },
               potentialAction: {
                 "@type": "SearchAction",
