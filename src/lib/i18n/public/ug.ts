@@ -120,7 +120,6 @@ const ug: PublicTranslations = {
     donate: "ئىئانە",
     creditServer: "مۇلازىمېتىر ئىئانىسى: Clodhost.com (قۇرغۇچى Josh Jones)",
     creditDomain: "دومېن ئىئانىسى: Wang Zhen (Anqing, Anhui)",
-    creditTech: "تېخنىكا قوللىشى: SunChengxin",
     terms: "ئىشلىتىش كېلىشىمى",
     privacy: "شەخسىي مەخپىيەتلىك سىياسىتى",
   },

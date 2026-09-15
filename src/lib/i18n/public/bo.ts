@@ -120,7 +120,6 @@ const bo: PublicTranslations = {
     donate: "ཕུལ་བ།",
     creditServer: "ཞབས་ཞུ་འཕྲུལ་འཁོར། Clodhost.com (Josh Jones)",
     creditDomain: "དྲ་མིང་། Wang Zhen (Anqing, Anhui)",
-    creditTech: "ལག་རྩལ་རྒྱབ་སྐྱོར། SunChengxin",
     terms: "སྤྱོད་མཁན་གྲོས་མཐུན།",
     privacy: "གསང་དོན་སྲིད་ཇུས།",
   },

@@ -117,7 +117,6 @@ const zh = {
     donate: "捐助",
     creditServer: "Clodhost.com（创始人 Josh Jones）捐助服务器",
     creditDomain: "安徽安庆-王镇 捐助域名",
-    creditTech: "SunChengxin 技术支持",
     terms: "用户协议",
     privacy: "隐私政策",
   },

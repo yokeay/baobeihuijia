@@ -38,7 +38,7 @@ function Credit({ text }: { text: string }) {
 
 export function Footer() {
   const { t } = usePublicLang();
-  const credits = [t.footer.creditServer, t.footer.creditDomain, t.footer.creditTech];
+  const credits = [t.footer.creditServer, t.footer.creditDomain];
 
   return (
     <footer className="border-t border-black/5 dark:border-white/5 mt-auto">

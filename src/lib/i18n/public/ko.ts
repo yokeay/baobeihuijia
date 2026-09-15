@@ -119,7 +119,6 @@ const ko: PublicTranslations = {
     donate: "기부",
     creditServer: "서버 후원: Clodhost.com (창립자 Josh Jones)",
     creditDomain: "도메인 후원: 안후이 안칭 왕전",
-    creditTech: "기술 지원: SunChengxin",
     terms: "이용약관",
     privacy: "개인정보 처리방침",
   },

@@ -119,7 +119,6 @@ const fr: PublicTranslations = {
     donate: "Faire un don",
     creditServer: "Serveur offert par Clodhost.com (fondateur Josh Jones)",
     creditDomain: "Domaine offert par Wang Zhen, Anqing, Anhui",
-    creditTech: "Développement par SunChengxin",
     terms: "Conditions d'utilisation",
     privacy: "Politique de confidentialité",
   },

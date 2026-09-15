@@ -120,7 +120,6 @@ const mn: PublicTranslations = {
     donate: "Хандив өгөх",
     creditServer: "Сервер хандив: Clodhost.com (үүсгэн байгуулагч Josh Jones)",
     creditDomain: "Домэйн хандив: Wang Zhen, Anqing, Anhui",
-    creditTech: "Техник дэмжлэг: SunChengxin",
     terms: "Хэрэглэгчийн гэрээ",
     privacy: "Нууцлалын журам",
   },

@@ -119,7 +119,6 @@ const zhHant: PublicTranslations = {
     donate: "捐助",
     creditServer: "Clodhost.com（創始人 Josh Jones）捐助伺服器",
     creditDomain: "安徽安慶-王鎮 捐助網域",
-    creditTech: "SunChengxin 技術支援",
     terms: "用戶協議",
     privacy: "隱私政策",
   },

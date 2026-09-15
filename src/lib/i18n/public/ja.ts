@@ -119,7 +119,6 @@ const ja: PublicTranslations = {
     donate: "寄付",
     creditServer: "サーバー提供：Clodhost.com（創業者 Josh Jones）",
     creditDomain: "ドメイン提供：安徽安慶 王鎮",
-    creditTech: "技術支援：SunChengxin",
     terms: "利用規約",
     privacy: "プライバシーポリシー",
   },
