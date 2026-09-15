@@ -82,6 +82,7 @@ export default function UsersPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 p-4 bg-gray-50/30 dark:bg-[#111]/30 border-t border-gray-200/60 dark:border-[#1f1f1f]/80">

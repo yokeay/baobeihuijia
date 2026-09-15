@@ -327,11 +327,7 @@ export default function AdminCasesPage() {
             </div>
           </>
         )}
-          </>
-        )}
       </div>
-
-      {/* Drawer */}
       <Drawer open={drawerOpen} onClose={closeDrawer} title={t.cases.drawerTitle}>
         {selectedCase && (
           <div className="space-y-5 text-[13px]">
