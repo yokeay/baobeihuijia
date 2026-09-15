@@ -200,48 +200,56 @@ export default function AdminCasesPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <div className="flex rounded-md border border-gray-200 dark:border-[#1f1f1f] overflow-hidden text-[12px]">
-          {(["all", ...statusKeys] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 transition-colors ${
-                filter === f
-                  ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium"
-                  : "text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414]"
-              }`}
-            >
-              {f === "all" ? t.cases.all : statusLabels[f]}
-            </button>
-          ))}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-xl p-1 bg-white/60 dark:bg-[#141414]/60 backdrop-blur-md border border-gray-200/50 dark:border-[#2a2a2a]/50 shadow-sm overflow-hidden text-[12px]">
+            {(["all", ...statusKeys] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3 py-1 rounded-lg transition-all duration-200 ${
+                  filter === f
+                    ? "bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white font-medium shadow-sm"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                }`}
+              >
+                {f === "all" ? t.cases.all : statusLabels[f]}
+              </button>
+            ))}
+          </div>
+          <div className="flex rounded-xl p-1 bg-white/60 dark:bg-[#141414]/60 backdrop-blur-md border border-gray-200/50 dark:border-[#2a2a2a]/50 shadow-sm overflow-hidden text-[12px]">
+            {(["all", ...sourceKeys] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setSourceFilter(f)}
+                className={`px-3 py-1 rounded-lg transition-all duration-200 ${
+                  sourceFilter === f
+                    ? "bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white font-medium shadow-sm"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                }`}
+              >
+                {f === "all" ? t.cases.allSources : sourceLabels[f]}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex rounded-md border border-gray-200 dark:border-[#1f1f1f] overflow-hidden text-[12px]">
-          {(["all", ...sourceKeys] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setSourceFilter(f)}
-              className={`px-3 py-1.5 transition-colors ${
-                sourceFilter === f
-                  ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium"
-                  : "text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414]"
-              }`}
-            >
-              {f === "all" ? t.cases.allSources : sourceLabels[f]}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 max-w-xs flex-1 p-1 bg-white/60 dark:bg-[#141414]/60 backdrop-blur-md rounded-xl border border-gray-200/50 dark:border-[#2a2a2a]/50 shadow-sm">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && fetchCases(1)}
+            placeholder={t.cases.searchPlaceholder}
+            className="px-3 py-1 text-[12px] bg-transparent flex-1 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none"
+          />
+          <button onClick={() => fetchCases(1)} className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90 transition-opacity shadow-sm">
+            搜索
+          </button>
         </div>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t.cases.searchPlaceholder}
-          className="px-3 py-1.5 text-[12px] border border-gray-200 dark:border-[#1f1f1f] rounded-md bg-white dark:bg-[#0d0d0d] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 flex-1 min-w-[160px] max-w-xs outline-none focus:border-gray-400 dark:focus:border-gray-600"
-        />
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] overflow-hidden">
+      <div className="rounded-2xl border border-gray-200/60 dark:border-[#1f1f1f]/80 bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-xl shadow-sm overflow-hidden">
         {loading ? (
           <p className="text-[13px] text-gray-400 py-12 text-center">{t.cases.loading}</p>
         ) : filtered.length === 0 ? (
@@ -250,38 +258,38 @@ export default function AdminCasesPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-[13px]">
-                <thead>
-                  <tr className="border-b border-gray-100 dark:border-[#1f1f1f]">
-                    <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.name}</th>
-                    <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.lostLocation}</th>
-                    <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.lostDate}</th>
-                    <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.source}</th>
-                    <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.status}</th>
-                    <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.cases.actions}</th>
+                <thead className="bg-gray-50/40 dark:bg-[#111]/40 border-b border-gray-200/60 dark:border-[#1f1f1f]/80">
+                  <tr>
+                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.name}</th>
+                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.lostLocation}</th>
+                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.lostDate}</th>
+                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.source}</th>
+                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.status}</th>
+                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.actions}</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-100/50 dark:divide-[#1a1a1a]/50">
                   {filtered.map((item) => (
-                    <tr key={item.id} className="border-b border-gray-50 dark:border-[#1a1a1a] hover:bg-gray-50/50 dark:hover:bg-[#141414]">
-                      <td className="py-2.5 px-4 font-medium">{item.name}</td>
-                      <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500">
+                    <tr key={item.id} className="group hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors duration-200">
+                      <td className="py-3.5 px-5 font-medium">{item.name}</td>
+                      <td className="py-3.5 px-5 text-gray-500 dark:text-gray-400 text-[12px]">
                         {[item.lostProvince, item.lostCity].filter(Boolean).join(" ") || "-"}
                       </td>
-                      <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500">{item.lostDate || "-"}</td>
-                      <td className="py-2.5 px-4">
-                        <span className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+                      <td className="py-3.5 px-5 text-gray-500 dark:text-gray-400 text-[12px]">{item.lostDate || "-"}</td>
+                      <td className="py-3.5 px-5">
+                        <span className="text-[11px] px-2.5 py-1 rounded-md font-medium border bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200/50 dark:border-white/10">
                           {sourceLabels[item.source] || item.source}
                         </span>
                       </td>
-                      <td className="py-2.5 px-4">
-                        <span className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+                      <td className="py-3.5 px-5">
+                        <span className={`text-[11px] px-2.5 py-1 rounded-md font-medium border ${item.status === 'approved' ? 'bg-green-50/50 dark:bg-green-900/10 text-green-600 dark:text-green-400 border-green-200/50 dark:border-green-800/30' : item.status === 'rejected' ? 'bg-red-50/50 dark:bg-red-900/10 text-red-600 dark:text-red-400 border-red-200/50 dark:border-red-800/30' : 'bg-amber-50/50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 border-amber-200/50 dark:border-amber-800/30'}`}>
                           {statusLabels[item.status] || item.status}
                         </span>
                       </td>
-                      <td className="py-2.5 px-4">
+                      <td className="py-3.5 px-5">
                         <button
                           onClick={() => openDrawer(item.id)}
-                          className="text-[12px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
+                          className="text-[12px] px-3 py-1.5 rounded-lg border border-gray-200/50 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
                         >
                           {t.cases.viewDetail}
                         </button>
@@ -293,30 +301,32 @@ export default function AdminCasesPage() {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-[#1f1f1f]">
-              <span className="text-[12px] text-gray-400 dark:text-gray-500">
+            <div className="flex items-center justify-between px-5 py-4 border-t border-gray-200/60 dark:border-[#1f1f1f]/80 bg-gray-50/30 dark:bg-[#111]/30">
+              <span className="text-[12px] text-gray-500 dark:text-gray-400">
                 {t.cases.showing.replace("{filtered}", String(filtered.length)).replace("{total}", String(total))}
               </span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => goToPage(page - 1)}
                   disabled={page <= 1}
-                  className="px-2.5 py-1 text-[12px] rounded-md border border-gray-200 dark:border-[#1f1f1f] text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200/50 dark:border-white/10 text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   ←
                 </button>
-                <span className="text-[12px] text-gray-500 dark:text-gray-500 px-1 tabular-nums">
+                <span className="text-[13px] font-medium text-gray-700 dark:text-gray-300 px-2 tabular-nums">
                   {page} / {totalPages}
                 </span>
                 <button
                   onClick={() => goToPage(page + 1)}
                   disabled={page >= totalPages}
-                  className="px-2.5 py-1 text-[12px] rounded-md border border-gray-200 dark:border-[#1f1f1f] text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200/50 dark:border-white/10 text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   →
                 </button>
               </div>
             </div>
+          </>
+        )}
           </>
         )}
       </div>
