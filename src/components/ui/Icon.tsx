@@ -130,3 +130,102 @@ export function EyeIcon({ size = 20, className }: IconProps) {
     </svg>
   );
 }
+
+export function SearchIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx={11} cy={11} r={7} />
+      <path d="M20 20l-3.5-3.5" />
+    </svg>
+  );
+}
+
+export function ChevronLeftIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M15 18l-6-6 6-6" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+export function InboxIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M4 13h4l1.5 3h5L16 13h4" />
+      <path d="M5.5 5h13l1.5 8v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4l1.5-8z" />
+    </svg>
+  );
+}
+
+export function CheckIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}
+
+export function CloseIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+export function RefreshIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M20 11A8 8 0 006.3 5.7L4 8" />
+      <path d="M4 4v4h4" />
+      <path d="M4 13a8 8 0 0013.7 5.3L20 16" />
+      <path d="M20 20v-4h-4" />
+    </svg>
+  );
+}
+
+export function ClockIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx={12} cy={12} r={9} />
+      <path d="M12 7v5l3.5 2" />
+    </svg>
+  );
+}
+
+export function LogoutIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3" />
+      <path d="M10 17l-5-5 5-5" />
+      <path d="M5 12h10" />
+    </svg>
+  );
+}
+
+export function GlobeIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx={12} cy={12} r={9} />
+      <path d="M3 12h18" />
+      <path d="M12 3a15 15 0 010 18a15 15 0 010-18z" />
+    </svg>
+  );
+}
+
+export function PencilIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M4 20h4l10-10a2.83 2.83 0 10-4-4L4 16v4z" />
+      <path d="M13.5 6.5l4 4" />
+    </svg>
+  );
+}

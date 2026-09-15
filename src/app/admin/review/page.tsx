@@ -3,8 +3,28 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAdmin } from "../context";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
-import { RefreshButton } from "@/components/ui/RefreshButton";
 import Drawer from "@/components/ui/Drawer";
+import {
+  Badge,
+  DetailField,
+  DrawerSection,
+  EmptyState,
+  IconButton,
+  MetaFooter,
+  PageHeader,
+  Pagination,
+  Panel,
+  PhotoStrip,
+  SearchField,
+  Segmented,
+  StatCard,
+  Table,
+  TableSkeleton,
+  Td,
+  Th,
+  Tr,
+} from "@/components/ui/admin/kit";
+import { RefreshIcon, CheckIcon, CloseIcon, EyeIcon } from "@/components/ui/Icon";
 
 interface CaseItem {
   id: string;
@@ -36,6 +56,17 @@ interface ClueItem {
   submitterContact: string | null;
   status: string;
   createdAt: string;
+}
+
+function safeParsePhotos(photoUrls: string | null | undefined): string[] {
+  if (!photoUrls) return [];
+  try {
+    const arr = JSON.parse(photoUrls);
+    if (Array.isArray(arr)) return arr.filter((u: unknown) => typeof u === "string" && u.length > 0);
+  } catch {
+    /* ignore */
+  }
+  return [];
 }
 
 export default function AdminReviewPage() {
@@ -153,195 +184,184 @@ export default function AdminReviewPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-1">
-          <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mr-4">{t.review.title}</h2>
-          <div className="flex rounded-lg bg-gray-100 dark:bg-[#1a1a1a] p-0.5">
-            <button
-              onClick={() => setTab("cases")}
-              className={`px-3 py-1 text-[12px] rounded-md font-medium transition-colors ${
-                tab === "cases"
-                  ? "bg-white dark:bg-[#0d0d0d] text-gray-900 dark:text-gray-100 shadow-sm"
-                  : "text-gray-500 dark:text-gray-500"
-              }`}
-            >
-              {t.review.caseTab}
-            </button>
-            <button
-              onClick={() => setTab("clues")}
-              className={`px-3 py-1 text-[12px] rounded-md font-medium transition-colors ${
-                tab === "clues"
-                  ? "bg-white dark:bg-[#0d0d0d] text-gray-900 dark:text-gray-100 shadow-sm"
-                  : "text-gray-500 dark:text-gray-500"
-              }`}
-            >
-              {t.review.cluesTab}
-            </button>
-          </div>
-        </div>
-        <span className="text-[12px] text-gray-400 dark:text-gray-500">
-          {t.review.count.replace("{count}", String(tab === "cases" ? caseTotal : clueTotal))}
-        </span>
-        <RefreshButton onClick={() => tab === "cases" ? fetchCases() : fetchClues()} />
-      </div>
+      <PageHeader
+        title={t.review.title}
+        description="待审核的寻亲帖与线索，通过后将展示在前台"
+        actions={
+          <IconButton label="刷新" onClick={() => (tab === "cases" ? fetchCases() : fetchClues())}>
+            <RefreshIcon size={16} />
+          </IconButton>
+        }
+      />
 
-      {/* Search */}
-      <div className="mb-4">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t.review.searchPlaceholder}
-          className="w-full max-w-sm px-3.5 py-2 text-[13px] rounded-lg border border-gray-200 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-800"
+      {/* 待审总量 + 切换 */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-5">
+        <StatCard
+          label={t.review.caseTab}
+          value={caseTotal.toLocaleString()}
+          hint="待审核寻亲帖"
+          tone={tab === "cases" ? "brand" : "neutral"}
+        />
+        <StatCard
+          label={t.review.cluesTab}
+          value={clueTotal.toLocaleString()}
+          hint="待审核线索"
+          tone={tab === "clues" ? "brand" : "neutral"}
         />
       </div>
 
-      {loading ? (
-        <p className="text-[13px] text-gray-400 py-16 text-center">{t.review.loading}</p>
-      ) : tab === "cases" ? (
-        cases.length === 0 ? (
-          <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] py-16 text-center">
-            <p className="text-[13px] text-gray-400">{t.review.empty}</p>
-            <p className="text-[11px] text-gray-300 dark:text-gray-600 mt-1">{t.review.emptyHint}</p>
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <Segmented
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: "cases", label: t.review.caseTab },
+            { value: "clues", label: t.review.cluesTab },
+          ]}
+        />
+        <SearchField
+          value={search}
+          onChange={setSearch}
+          placeholder={t.review.searchPlaceholder}
+          className="w-full sm:w-80"
+        />
+      </div>
+
+      <Panel>
+        {loading ? (
+          <TableSkeleton rows={6} cols={tab === "cases" ? 8 : 6} />
+        ) : tab === "cases" ? (
+          cases.length === 0 ? (
+            <EmptyState title={t.review.empty} hint={t.review.emptyHint} icon={<CheckIcon size={20} />} />
+          ) : (
+            <>
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t.dashboard.name}</Th>
+                    <Th>{t.review.gender}</Th>
+                    <Th>{t.review.height}</Th>
+                    <Th>{t.dashboard.lostLocation}</Th>
+                    <Th>{t.review.lostDate}</Th>
+                    <Th>{t.dashboard.source}</Th>
+                    <Th>{t.dashboard.submitter}</Th>
+                    <Th align="center">{t.dashboard.actions}</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cases.map((item) => (
+                    <Tr key={item.id}>
+                      <Td className="font-medium whitespace-nowrap">{item.name}</Td>
+                      <Td muted>{item.gender || "-"}</Td>
+                      <Td muted className="tabular-nums">{item.height ? `${item.height}cm` : "-"}</Td>
+                      <Td muted className="max-w-[180px] truncate">
+                        {[item.lostProvince, item.lostCity, item.lostDistrict].filter(Boolean).join(" ") || "-"}
+                      </Td>
+                      <Td muted className="whitespace-nowrap">{item.lostDate || "-"}</Td>
+                      <Td>
+                        <Badge tone="neutral">
+                          {item.source === "user_submit" ? t.cases.sourceUser : item.source}
+                        </Badge>
+                      </Td>
+                      <Td muted>{item.submitterName || "-"}</Td>
+                      <Td align="center">
+                        <div className="flex gap-1.5 justify-center items-center">
+                          <IconButton label={t.review.detail} onClick={() => openDrawer(item)}>
+                            <EyeIcon size={15} />
+                          </IconButton>
+                          <button
+                            type="button"
+                            onClick={() => handleReview(item.id, "approved")}
+                            className="inline-flex items-center gap-1 h-8 px-3 rounded-lg cursor-pointer bg-[#e60012] text-white text-[12px] font-medium shadow-[0_1px_2px_rgba(230,0,18,0.28)] hover:bg-[#c1000f] active:scale-[0.97] transition-all duration-200"
+                          >
+                            <CheckIcon size={14} />
+                            {t.review.approve}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleReview(item.id, "rejected")}
+                            className="inline-flex items-center gap-1 h-8 px-3 rounded-lg cursor-pointer bg-white dark:bg-transparent border border-black/[0.08] dark:border-white/[0.10] text-[#475467] dark:text-[#98a2b3] text-[12px] font-medium hover:text-[#b42318] hover:border-[#f04438]/30 hover:bg-[#fef3f2] dark:hover:bg-[#f04438]/[0.10] active:scale-[0.97] transition-all duration-200"
+                          >
+                            <CloseIcon size={14} />
+                            {t.review.reject}
+                          </button>
+                        </div>
+                      </Td>
+                    </Tr>
+                  ))}
+                </tbody>
+              </Table>
+              <Pagination
+                page={casePage}
+                totalPages={caseTotalPages}
+                total={caseTotal}
+                onChange={setCasePage}
+                totalLabel={t.review.count.replace("{count}", String(caseTotal))}
+              />
+            </>
+          )
+        ) : clues.length === 0 ? (
+          <EmptyState title={t.review.clueNoPending} icon={<CheckIcon size={20} />} />
         ) : (
           <>
-            <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-[13px]">
-                  <thead>
-                    <tr className="border-b border-gray-100 dark:border-[#1f1f1f]">
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.dashboard.name}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.review.gender}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.review.height}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.dashboard.lostLocation}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.review.lostDate}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.dashboard.source}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.dashboard.submitter}</th>
-                      <th className="text-center py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.dashboard.actions}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cases.map((item) => (
-                      <tr key={item.id} className="border-b border-gray-50 dark:border-[#1a1a1a] hover:bg-gray-50/50 dark:hover:bg-[#141414]">
-                        <td className="py-2.5 px-4 font-medium whitespace-nowrap">{item.name}</td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500">{item.gender || "-"}</td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500">{item.height ? `${item.height}cm` : "-"}</td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500 max-w-[160px] truncate">
-                          {[item.lostProvince, item.lostCity, item.lostDistrict].filter(Boolean).join(" ") || "-"}
-                        </td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500 whitespace-nowrap">{item.lostDate || "-"}</td>
-                        <td className="py-2.5 px-4">
-                          <span className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                            {item.source === "user_submit" ? t.cases.sourceUser : item.source}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500">{item.submitterName || "-"}</td>
-                        <td className="py-2.5 px-4">
-                          <div className="flex gap-1.5 justify-center items-center">
-                            <button
-                              onClick={() => openDrawer(item)}
-                              className="px-2.5 py-1.5 text-[11px] rounded-md border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1f1f1f] transition-colors"
-                            >
-                              {t.review.detail}
-                            </button>
-                            <button
-                              onClick={() => handleReview(item.id, "approved")}
-                              className="px-3 py-1.5 text-[12px] rounded-md bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 font-medium transition-colors"
-                            >
-                              {t.review.approve}
-                            </button>
-                            <button
-                              onClick={() => handleReview(item.id, "rejected")}
-                              className="px-3 py-1.5 text-[12px] rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 transition-colors"
-                            >
-                              {t.review.reject}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <Pagination
-              page={casePage}
-              totalPages={caseTotalPages}
-              total={caseTotal}
-              onPrev={() => setCasePage((p) => Math.max(1, p - 1))}
-              onNext={() => setCasePage((p) => p + 1)}
-              t={t}
-            />
-          </>
-        )
-      ) : (
-        clues.length === 0 ? (
-          <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] py-16 text-center">
-            <p className="text-[13px] text-gray-400">{t.review.clueNoPending}</p>
-          </div>
-        ) : (
-          <>
-            <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-[13px]">
-                  <thead>
-                    <tr className="border-b border-gray-100 dark:border-[#1f1f1f]">
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.review.clueAssociateCase}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.review.clueContent}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.dashboard.submitter}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.review.contact}</th>
-                      <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.auditLog.time}</th>
-                      <th className="text-center py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.dashboard.actions}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {clues.map((clue) => (
-                      <tr key={clue.id} className="border-b border-gray-50 dark:border-[#1a1a1a] hover:bg-gray-50/50 dark:hover:bg-[#141414]">
-                        <td className="py-2.5 px-4 font-medium whitespace-nowrap">{clue.caseName || "-"}</td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500 max-w-[240px] truncate">{clue.content}</td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500 whitespace-nowrap">{clue.submitterName || "-"}</td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500 whitespace-nowrap">{clue.submitterContact || "-"}</td>
-                        <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500 whitespace-nowrap">{new Date(clue.createdAt).toLocaleDateString("zh-CN")}</td>
-                        <td className="py-2.5 px-4">
-                          <div className="flex gap-1.5 justify-center items-center">
-                            <button
-                              onClick={() => openDrawer(clue)}
-                              className="px-2.5 py-1.5 text-[11px] rounded-md border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1f1f1f] transition-colors"
-                            >
-                              {t.review.detail}
-                            </button>
-                            <button
-                              onClick={() => handleClueReview(clue.id, "approved")}
-                              className="px-3 py-1.5 text-[12px] rounded-md bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 font-medium transition-colors"
-                            >
-                              {t.review.approve}
-                            </button>
-                            <button
-                              onClick={() => handleClueReview(clue.id, "rejected")}
-                              className="px-3 py-1.5 text-[12px] rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 transition-colors"
-                            >
-                              {t.review.reject}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>{t.review.clueAssociateCase}</Th>
+                  <Th>{t.review.clueContent}</Th>
+                  <Th>{t.dashboard.submitter}</Th>
+                  <Th>{t.review.contact}</Th>
+                  <Th>{t.auditLog.time}</Th>
+                  <Th align="center">{t.dashboard.actions}</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {clues.map((clue) => (
+                  <Tr key={clue.id}>
+                    <Td className="font-medium whitespace-nowrap">{clue.caseName || "-"}</Td>
+                    <Td muted className="max-w-[240px] truncate">{clue.content}</Td>
+                    <Td muted className="whitespace-nowrap">{clue.submitterName || "-"}</Td>
+                    <Td muted className="whitespace-nowrap">{clue.submitterContact || "-"}</Td>
+                    <Td muted className="whitespace-nowrap tabular-nums">
+                      {new Date(clue.createdAt).toLocaleDateString("zh-CN")}
+                    </Td>
+                    <Td align="center">
+                      <div className="flex gap-1.5 justify-center items-center">
+                        <IconButton label={t.review.detail} onClick={() => openDrawer(clue)}>
+                          <EyeIcon size={15} />
+                        </IconButton>
+                        <button
+                          type="button"
+                          onClick={() => handleClueReview(clue.id, "approved")}
+                          className="inline-flex items-center gap-1 h-8 px-3 rounded-lg cursor-pointer bg-[#e60012] text-white text-[12px] font-medium shadow-[0_1px_2px_rgba(230,0,18,0.28)] hover:bg-[#c1000f] active:scale-[0.97] transition-all duration-200"
+                        >
+                          <CheckIcon size={14} />
+                          {t.review.approve}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleClueReview(clue.id, "rejected")}
+                          className="inline-flex items-center gap-1 h-8 px-3 rounded-lg cursor-pointer bg-white dark:bg-transparent border border-black/[0.08] dark:border-white/[0.10] text-[#475467] dark:text-[#98a2b3] text-[12px] font-medium hover:text-[#b42318] hover:border-[#f04438]/30 hover:bg-[#fef3f2] dark:hover:bg-[#f04438]/[0.10] active:scale-[0.97] transition-all duration-200"
+                        >
+                          <CloseIcon size={14} />
+                          {t.review.reject}
+                        </button>
+                      </div>
+                    </Td>
+                  </Tr>
+                ))}
+              </tbody>
+            </Table>
             <Pagination
               page={cluePage}
               totalPages={clueTotalPages}
               total={clueTotal}
-              onPrev={() => setCluePage((p) => Math.max(1, p - 1))}
-              onNext={() => setCluePage((p) => p + 1)}
-              t={t}
+              onChange={setCluePage}
+              totalLabel={t.review.count.replace("{count}", String(clueTotal))}
             />
           </>
-        )
-      )}
+        )}
+      </Panel>
 
       {/* Detail Drawer */}
       <Drawer
@@ -363,141 +383,80 @@ export default function AdminReviewPage() {
   );
 }
 
-function Pagination({
-  page,
-  totalPages,
-  total,
-  onPrev,
-  onNext,
-  t,
-}: {
-  page: number;
-  totalPages: number;
-  total: number;
-  onPrev: () => void;
-  onNext: () => void;
-  t: any;
-}) {
-  if (totalPages <= 1) return null;
-  return (
-    <div className="flex items-center justify-between mt-4 text-[12px]">
-      <span className="text-gray-400 dark:text-gray-500">
-        {t.review.page.replace("{page}", String(page)).replace("{total}", String(totalPages))}
-      </span>
-      <div className="flex gap-2">
-        <button
-          onClick={onPrev}
-          disabled={page <= 1}
-          className="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1f1f1f] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          {t.review.previous}
-        </button>
-        <button
-          onClick={onNext}
-          disabled={page >= totalPages}
-          className="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1f1f1f] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          {t.review.next}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function CaseDrawerContent({ item, t }: { item: CaseItem; t: any }) {
-  const photos: string[] = (() => {
-    try { return JSON.parse(item.photoUrls || "[]"); } catch { return []; }
-  })();
+  const photos = safeParsePhotos(item.photoUrls);
 
   return (
-    <div className="space-y-5">
-      {photos.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {photos.map((url, i) => (
-            <img key={i} src={url} alt="" className="w-24 h-24 rounded-lg object-cover flex-shrink-0" />
-          ))}
+    <div className="space-y-6">
+      {photos.length > 0 ? (
+        <DrawerSection title="照片">
+          <PhotoStrip photos={photos} />
+        </DrawerSection>
+      ) : null}
+
+      <DrawerSection title="基本信息">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
+          <DetailField label={t.review.submitter_label} value={item.submitterName} />
+          <DetailField label={t.review.contact} value={item.submitterContact} />
+          <DetailField label={t.review.birthDate} value={item.birthDate} />
+          <DetailField label={t.review.lostDate} value={item.lostDate} />
+          <DetailField label={t.review.gender} value={item.gender} />
+          <DetailField label={t.review.height} value={item.height ? `${item.height}cm` : null} />
+          <DetailField label={t.review.province} value={item.lostProvince} />
+          <DetailField label={t.review.city} value={item.lostCity} />
         </div>
-      )}
+      </DrawerSection>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
-        <DetailItem label={t.review.submitter_label} value={item.submitterName} />
-        <DetailItem label={t.review.contact} value={item.submitterContact} />
-        <DetailItem label={t.review.birthDate} value={item.birthDate} />
-        <DetailItem label={t.review.lostDate} value={item.lostDate} />
-        <DetailItem label={t.review.gender} value={item.gender} />
-        <DetailItem label={t.review.height} value={item.height ? `${item.height}cm` : null} />
-        <DetailItem label={t.review.province} value={item.lostProvince} />
-        <DetailItem label={t.review.city} value={item.lostCity} />
-      </div>
+      {item.lostAddress ? (
+        <DrawerSection title={t.review.lostAddress}>
+          <p className="text-[13px] leading-6 text-[#344054] dark:text-[#d0d5dd]">{item.lostAddress}</p>
+        </DrawerSection>
+      ) : null}
 
-      {item.lostAddress && (
-        <div>
-          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-1">{t.review.lostAddress}</p>
-          <p className="text-[13px] text-gray-700 dark:text-gray-300">{item.lostAddress}</p>
-        </div>
-      )}
+      {item.feature ? (
+        <DrawerSection title={t.review.feature}>
+          <p className="text-[13px] leading-6 whitespace-pre-wrap text-[#344054] dark:text-[#d0d5dd]">{item.feature}</p>
+        </DrawerSection>
+      ) : null}
 
-      {item.feature && (
-        <div>
-          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-1">{t.review.feature}</p>
-          <p className="text-[13px] text-gray-700 dark:text-gray-300">{item.feature}</p>
-        </div>
-      )}
-
-      <div className="text-[11px] text-gray-400 dark:text-gray-600 pt-3 border-t border-gray-100 dark:border-[#1f1f1f]">
-        <p>ID: {item.id}</p>
+      <MetaFooter>
+        <p>ID · {item.id}</p>
         <p>{new Date(item.createdAt).toLocaleString("zh-CN")}</p>
-      </div>
+      </MetaFooter>
     </div>
   );
 }
 
 function ClueDrawerContent({ item, t }: { item: ClueItem; t: any }) {
-  const photos: string[] = (() => {
-    try { return JSON.parse(item.photoUrls || "[]"); } catch { return []; }
-  })();
+  const photos = safeParsePhotos(item.photoUrls);
 
   return (
-    <div className="space-y-5">
-      <div>
-        <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-1">{t.review.clueAssociateCase}</p>
-        <p className="text-[14px] font-medium text-gray-900 dark:text-gray-100">{item.caseName || "-"}</p>
-      </div>
+    <div className="space-y-6">
+      <DrawerSection title={t.review.clueAssociateCase}>
+        <p className="text-[14px] font-medium text-[#101828] dark:text-white">{item.caseName || "-"}</p>
+      </DrawerSection>
 
-      <div>
-        <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-1">{t.review.clueContent}</p>
-        <p className="text-[13px] text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{item.content}</p>
-      </div>
+      <DrawerSection title={t.review.clueContent}>
+        <p className="text-[13px] leading-6 whitespace-pre-wrap text-[#344054] dark:text-[#d0d5dd]">{item.content}</p>
+      </DrawerSection>
 
-      {photos.length > 0 && (
-        <div>
-          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">{t.review.cluePhotos}</p>
-          <div className="flex gap-2 flex-wrap">
-            {photos.map((url, i) => (
-              <img key={i} src={url} alt="" className="w-24 h-24 rounded-lg object-cover" />
-            ))}
-          </div>
+      {photos.length > 0 ? (
+        <DrawerSection title={t.review.cluePhotos}>
+          <PhotoStrip photos={photos} />
+        </DrawerSection>
+      ) : null}
+
+      <DrawerSection title="提交信息">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
+          <DetailField label={t.review.submitter_label} value={item.submitterName} />
+          <DetailField label={t.review.contact} value={item.submitterContact} />
         </div>
-      )}
+      </DrawerSection>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
-        <DetailItem label={t.review.submitter_label} value={item.submitterName} />
-        <DetailItem label={t.review.contact} value={item.submitterContact} />
-      </div>
-
-      <div className="text-[11px] text-gray-400 dark:text-gray-600 pt-3 border-t border-gray-100 dark:border-[#1f1f1f]">
-        <p>ID: {item.id}</p>
+      <MetaFooter>
+        <p>ID · {item.id}</p>
         <p>{new Date(item.createdAt).toLocaleString("zh-CN")}</p>
-      </div>
-    </div>
-  );
-}
-
-function DetailItem({ label, value }: { label: string; value: string | null }) {
-  return (
-    <div>
-      <span className="text-gray-400 dark:text-gray-600 text-[11px]">{label}</span>
-      <p className="text-[13px] mt-0.5 text-gray-900 dark:text-gray-100">{value || "-"}</p>
+      </MetaFooter>
     </div>
   );
 }

@@ -4,7 +4,22 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { AdminProvider, useAdmin } from "./context";
-import { DashboardIcon, FolderIcon, SunIcon, MoonIcon, UsersIcon, MessageIcon, HelpIcon, LightbulbIcon, ActivityIcon, ShieldIcon, EyeIcon } from "@/components/ui/Icon";
+import {
+  DashboardIcon,
+  FolderIcon,
+  SunIcon,
+  MoonIcon,
+  UsersIcon,
+  MessageIcon,
+  HelpIcon,
+  LightbulbIcon,
+  ActivityIcon,
+  ShieldIcon,
+  EyeIcon,
+  LogoutIcon,
+  GlobeIcon,
+} from "@/components/ui/Icon";
+import { cn } from "@/lib/utils";
 
 interface AdminInfo {
   id: string;
@@ -19,12 +34,10 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const { t, lang, setLang, theme, setTheme } = useAdmin();
   const [admin, setAdmin] = useState<AdminInfo | null>(null);
   const [loading, setLoading] = useState(true);
-
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
+  const isLogin = pathname === "/admin/login";
 
   useEffect(() => {
+    if (isLogin) return;
     fetch("/api/admin/me")
       .then((r) => {
         if (!r.ok) throw new Error("Not logged in");
@@ -33,12 +46,17 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       .then((data) => setAdmin(data))
       .catch(() => router.push("/admin/login"))
       .finally(() => setLoading(false));
-  }, [router]);
+  }, [router, isLogin]);
+
+  if (isLogin) return <>{children}</>;
 
   if (loading || !admin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0a0a0a]">
-        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#f6f7f9] dark:bg-[#0a0a0a]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 border-2 border-black/10 border-t-[#e60012] rounded-full animate-spin" />
+          <p className="text-[12px] text-[#98a2b3]">Loading…</p>
+        </div>
       </div>
     );
   }
@@ -75,39 +93,57 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     },
   ];
 
+  const utilityBtn = cn(
+    "flex items-center gap-2.5 w-full h-9 px-2.5 rounded-xl cursor-pointer",
+    "text-[12.5px] font-medium text-[#667085] dark:text-[#98a2b3]",
+    "transition-colors duration-150",
+    "hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-[#101828] dark:hover:text-white"
+  );
+
   return (
-    <div className="h-screen overflow-hidden flex bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
+    <div className="h-screen overflow-hidden flex bg-[#f6f7f9] dark:bg-[#0a0a0a] text-[#101828] dark:text-[#eceff3]">
       {/* Sidebar */}
-      <aside className="w-56 border-r border-gray-100 dark:border-[#1f1f1f] flex flex-col flex-shrink-0 bg-gray-50/50 dark:bg-[#0d0d0d]">
+      <aside className="w-[236px] flex flex-col flex-shrink-0 bg-white dark:bg-[#0d0e10] border-r border-black/[0.06] dark:border-white/[0.06]">
         {/* Brand */}
-        <div className="h-12 flex items-center px-5 border-b border-gray-100 dark:border-[#1f1f1f]">
-          <Link href="/" className="text-[13px] font-medium tracking-tight text-gray-900 dark:text-gray-100">
+        <div className="h-14 flex items-center gap-2.5 px-4 border-b border-black/[0.06] dark:border-white/[0.06]">
+          <span className="w-7 h-7 rounded-[9px] bg-[#e60012] text-white flex items-center justify-center text-[12px] font-bold flex-shrink-0 shadow-[0_2px_6px_-1px_rgba(230,0,18,0.4)]">
+            寻
+          </span>
+          <Link
+            href="/"
+            className="text-[13px] font-semibold tracking-[-0.01em] text-[#101828] dark:text-white truncate"
+          >
             {t.sidebar.brand}
           </Link>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-3 space-y-4 overflow-y-auto">
+        <nav className="flex-1 px-2.5 py-3.5 space-y-5 overflow-y-auto">
           {navSections.map((section) => (
             <div key={section.label}>
-              <div className="px-3 py-1 text-[11px] font-medium text-gray-400 dark:text-gray-600 uppercase tracking-wide">
+              <div className="px-2.5 pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[#98a2b3] dark:text-[#5b6472]">
                 {section.label}
               </div>
-              <div className="space-y-0.5 mt-1">
+              <div className="space-y-0.5">
                 {section.items.map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] transition-colors ${
+                      className={cn(
+                        "relative flex items-center gap-2.5 h-9 px-2.5 rounded-xl text-[13px]",
+                        "transition-colors duration-150",
                         isActive
-                          ? "bg-gray-100 dark:bg-[#1f1f1f] text-gray-900 dark:text-gray-100 font-medium"
-                          : "text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300"
-                      }`}
+                          ? "bg-[#e60012]/[0.07] dark:bg-[#e60012]/[0.12] text-[#c1000f] dark:text-[#ff8a92] font-medium"
+                          : "text-[#5d6b7a] dark:text-[#98a2b3] hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-[#101828] dark:hover:text-white"
+                      )}
                     >
-                      <item.icon size={17} />
-                      {item.label}
+                      {isActive ? (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-[#e60012]" />
+                      ) : null}
+                      <item.icon size={17} className="flex-shrink-0" />
+                      <span className="truncate">{item.label}</span>
                     </Link>
                   );
                 })}
@@ -117,55 +153,56 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Bottom controls */}
-        <div className="border-t border-gray-100 dark:border-[#1f1f1f] px-3 py-2.5 space-y-2">
-          {/* Theme toggle */}
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md text-[13px] text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-          >
-            {theme === "dark" ? <SunIcon size={17} /> : <MoonIcon size={17} />}
+        <div className="border-t border-black/[0.06] dark:border-white/[0.06] px-2.5 py-3 space-y-1">
+          <button type="button" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={utilityBtn}>
+            {theme === "dark" ? <SunIcon size={16} /> : <MoonIcon size={16} />}
             {theme === "dark" ? t.theme.light : t.theme.dark}
           </button>
 
-          {/* Lang toggle */}
-          <button
-            onClick={() => setLang(lang === "zh" ? "en" : "zh")}
-            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md text-[13px] text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-          >
-            <span className="text-[17px] leading-none w-[17px] text-center">文</span>
+          <button type="button" onClick={() => setLang(lang === "zh" ? "en" : "zh")} className={utilityBtn}>
+            <GlobeIcon size={16} />
             {t.lang.switch}
           </button>
 
           {/* User */}
-          <div className="flex items-center gap-2.5 px-3 pt-2 border-t border-gray-100 dark:border-[#1f1f1f]">
+          <div className="flex items-center gap-2.5 px-2.5 pt-3 mt-1.5 border-t border-black/[0.06] dark:border-white/[0.06]">
             {admin.avatarUrl ? (
-              <img src={admin.avatarUrl} alt="" className="w-6 h-6 rounded-full" />
+              <img
+                src={admin.avatarUrl}
+                alt=""
+                className="w-7 h-7 rounded-full flex-shrink-0 ring-1 ring-black/[0.06] dark:ring-white/[0.10]"
+              />
             ) : (
-              <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[11px] text-gray-500 dark:text-gray-400">
+              <div className="w-7 h-7 rounded-full flex-shrink-0 bg-[#f2f4f7] dark:bg-white/[0.06] flex items-center justify-center text-[11px] font-semibold text-[#667085] dark:text-[#98a2b3]">
                 {admin.username.charAt(0).toUpperCase()}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="text-[12px] font-medium truncate leading-tight">
+              <p className="text-[12px] font-medium truncate leading-tight text-[#101828] dark:text-white">
                 {admin.githubUsername || admin.username}
               </p>
-              <p className="text-[10px] text-gray-400 dark:text-gray-600 leading-tight">{t.sidebar.admin}</p>
+              <p className="text-[10.5px] text-[#98a2b3] dark:text-[#5b6472] leading-tight">{t.sidebar.admin}</p>
             </div>
             <button
+              type="button"
+              title={t.sidebar.logout}
+              aria-label={t.sidebar.logout}
               onClick={async () => {
                 await fetch("/api/auth/logout", { method: "POST" });
                 router.push("/admin/login");
               }}
-              className="text-[11px] text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+              className="flex-shrink-0 w-7 h-7 inline-flex items-center justify-center rounded-lg cursor-pointer text-[#98a2b3] hover:text-[#e60012] hover:bg-[#e60012]/[0.08] transition-colors"
             >
-              {t.sidebar.logout}
+              <LogoutIcon size={15} />
             </button>
           </div>
         </div>
       </aside>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 p-6 overflow-y-auto">{children}</main>
+      <main className="flex-1 min-w-0 overflow-y-auto">
+        <div className="max-w-[1400px] px-7 py-6">{children}</div>
+      </main>
     </div>
   );
 }
