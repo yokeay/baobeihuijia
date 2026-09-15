@@ -2,7 +2,20 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAdmin } from "../context";
-import { RefreshButton } from "@/components/ui/RefreshButton";
+import {
+  Badge,
+  EmptyState,
+  IconButton,
+  PageHeader,
+  Panel,
+  Table,
+  TableSkeleton,
+  Td,
+  Th,
+  Tr,
+  type Tone,
+} from "@/components/ui/admin/kit";
+import { RefreshIcon, ShieldIcon } from "@/components/ui/Icon";
 
 interface AuditLogItem {
   id: string;
@@ -14,6 +27,15 @@ interface AuditLogItem {
   detail: string | null;
   createdAt: string;
 }
+
+const ACTION_TONES: Record<string, Tone> = {
+  login: "info",
+  logout: "neutral",
+  approve: "success",
+  reject: "danger",
+  sync: "warning",
+  edit: "brand",
+};
 
 export default function AdminAuditLogPage() {
   const { t } = useAdmin();
@@ -57,7 +79,7 @@ export default function AdminAuditLogPage() {
   }
 
   function parseDetail(detail: string | null) {
-    if (!detail) return "-";
+    if (!detail) return "—";
     try {
       const obj = JSON.parse(detail);
       return obj.caseName || obj.githubUsername || detail;
@@ -68,61 +90,56 @@ export default function AdminAuditLogPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">{t.auditLog.title}</h2>
-        <RefreshButton onClick={fetchLogs} />
-      </div>
+      <PageHeader
+        title={t.auditLog.title}
+        description="管理员的关键操作留痕，仅记录不修改"
+        actions={
+          <IconButton label="刷新" onClick={fetchLogs}>
+            <RefreshIcon size={16} />
+          </IconButton>
+        }
+      />
 
-      <div className="rounded-xl border border-gray-100 dark:border-[#1f1f1f] bg-white dark:bg-[#0d0d0d] overflow-hidden">
+      <Panel>
         {loading ? (
-          <p className="text-[13px] text-gray-400 py-12 text-center">{t.auditLog.loading}</p>
+          <TableSkeleton rows={10} cols={5} />
         ) : logs.length === 0 ? (
-          <p className="text-[13px] text-gray-400 py-12 text-center">{t.auditLog.noData}</p>
+          <EmptyState title={t.auditLog.noData} icon={<ShieldIcon size={20} />} />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-gray-100 dark:border-[#1f1f1f]">
-                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.auditLog.action}</th>
-                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.auditLog.operator}</th>
-                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.auditLog.target}</th>
-                  <th className="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.auditLog.detail}</th>
-                  <th className="text-right py-2.5 px-4 font-medium text-gray-500 dark:text-gray-500">{t.auditLog.time}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id} className="border-b border-gray-50 dark:border-[#1a1a1a] hover:bg-gray-50/50 dark:hover:bg-[#141414]">
-                    <td className="py-2.5 px-4">
-                      <span className={`text-[11px] px-2 py-0.5 rounded-full border ${
-                        log.action === "login"
-                          ? "border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400"
-                          : log.action === "approve"
-                          ? "border-green-200 dark:border-green-800 text-green-600 dark:text-green-400"
-                          : log.action === "reject"
-                          ? "border-red-200 dark:border-red-800 text-red-600 dark:text-red-400"
-                          : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
-                      }`}>
-                        {actionLabels[log.action] || log.action}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-4">{log.adminUsername}</td>
-                    <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500">
-                      {log.targetType ? targetLabels[log.targetType] || log.targetType : "-"}
-                    </td>
-                    <td className="py-2.5 px-4 text-gray-500 dark:text-gray-500 max-w-[200px] truncate">
-                      {parseDetail(log.detail)}
-                    </td>
-                    <td className="py-2.5 px-4 text-right text-gray-400 dark:text-gray-600 text-[11px] tabular-nums">
-                      {formatTime(log.createdAt)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <thead>
+              <tr>
+                <Th>{t.auditLog.action}</Th>
+                <Th>{t.auditLog.operator}</Th>
+                <Th>{t.auditLog.target}</Th>
+                <Th>{t.auditLog.detail}</Th>
+                <Th align="right">{t.auditLog.time}</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {logs.map((log) => (
+                <Tr key={log.id}>
+                  <Td>
+                    <Badge tone={ACTION_TONES[log.action] || "neutral"}>
+                      {actionLabels[log.action] || log.action}
+                    </Badge>
+                  </Td>
+                  <Td className="font-medium whitespace-nowrap">{log.adminUsername}</Td>
+                  <Td muted>
+                    {log.targetType ? targetLabels[log.targetType] || log.targetType : "—"}
+                  </Td>
+                  <Td muted className="max-w-[240px] truncate text-[12.5px]">
+                    {parseDetail(log.detail)}
+                  </Td>
+                  <Td muted align="right" className="whitespace-nowrap tabular-nums text-[11.5px]">
+                    {formatTime(log.createdAt)}
+                  </Td>
+                </Tr>
+              ))}
+            </tbody>
+          </Table>
         )}
-      </div>
+      </Panel>
     </div>
   );
 }

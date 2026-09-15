@@ -3,7 +3,27 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAdmin } from "../context";
 import Drawer from "@/components/ui/Drawer";
-import { RefreshButton } from "@/components/ui/RefreshButton";
+import {
+  Badge,
+  DetailField,
+  DrawerSection,
+  EmptyState,
+  IconButton,
+  MetaFooter,
+  PageHeader,
+  Pagination,
+  Panel,
+  PhotoStrip,
+  SearchField,
+  Segmented,
+  Table,
+  TableSkeleton,
+  Td,
+  Th,
+  Tr,
+  statusTone,
+} from "@/components/ui/admin/kit";
+import { RefreshIcon, PencilIcon, FolderIcon } from "@/components/ui/Icon";
 
 interface CaseItem {
   id: string;
@@ -189,251 +209,211 @@ export default function AdminCasesPage() {
     fetchCases(p);
   }
 
+  const editingCount = Object.keys(editForm).length;
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">{t.cases.title}</h2>
-        <span className="text-[12px] text-gray-400 dark:text-gray-500">
-          {t.cases.showing.replace("{filtered}", String(filtered.length)).replace("{total}", String(total))}
-        </span>
-        <RefreshButton onClick={() => fetchCases(page)} />
-      </div>
+      <PageHeader
+        title={t.cases.title}
+        description={t.cases.showing.replace("{filtered}", String(filtered.length)).replace("{total}", String(total))}
+        actions={
+          <IconButton label="刷新" onClick={() => fetchCases(page)}>
+            <RefreshIcon size={16} />
+          </IconButton>
+        }
+      />
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-xl p-1 bg-white/60 dark:bg-[#141414]/60 backdrop-blur-md border border-gray-200/50 dark:border-[#2a2a2a]/50 shadow-sm overflow-hidden text-[12px]">
-            {(["all", ...statusKeys] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1 rounded-lg transition-all duration-200 ${
-                  filter === f
-                    ? "bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white font-medium shadow-sm"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                }`}
-              >
-                {f === "all" ? t.cases.all : statusLabels[f]}
-              </button>
-            ))}
-          </div>
-          <div className="flex rounded-xl p-1 bg-white/60 dark:bg-[#141414]/60 backdrop-blur-md border border-gray-200/50 dark:border-[#2a2a2a]/50 shadow-sm overflow-hidden text-[12px]">
-            {(["all", ...sourceKeys] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setSourceFilter(f)}
-                className={`px-3 py-1 rounded-lg transition-all duration-200 ${
-                  sourceFilter === f
-                    ? "bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white font-medium shadow-sm"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                }`}
-              >
-                {f === "all" ? t.cases.allSources : sourceLabels[f]}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-2 max-w-xs flex-1 p-1 bg-white/60 dark:bg-[#141414]/60 backdrop-blur-md rounded-xl border border-gray-200/50 dark:border-[#2a2a2a]/50 shadow-sm">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && fetchCases(1)}
-            placeholder={t.cases.searchPlaceholder}
-            className="px-3 py-1 text-[12px] bg-transparent flex-1 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none"
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Segmented
+            value={filter}
+            onChange={setFilter}
+            options={[
+              { value: "all", label: t.cases.all },
+              ...statusKeys.map((k) => ({ value: k, label: statusLabels[k] })),
+            ]}
           />
-          <button onClick={() => fetchCases(1)} className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90 transition-opacity shadow-sm">
-            搜索
-          </button>
+          <Segmented
+            value={sourceFilter}
+            onChange={setSourceFilter}
+            options={[
+              { value: "all", label: t.cases.allSources },
+              ...sourceKeys.map((k) => ({ value: k, label: sourceLabels[k] })),
+            ]}
+          />
         </div>
+        <SearchField
+          value={search}
+          onChange={setSearch}
+          onSubmit={() => fetchCases(1)}
+          placeholder={t.cases.searchPlaceholder}
+          className="w-full sm:w-72"
+        />
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-gray-200/60 dark:border-[#1f1f1f]/80 bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-xl shadow-sm overflow-hidden">
+      <Panel>
         {loading ? (
-          <p className="text-[13px] text-gray-400 py-12 text-center">{t.cases.loading}</p>
+          <TableSkeleton rows={8} cols={6} />
         ) : filtered.length === 0 ? (
-          <p className="text-[13px] text-gray-400 py-12 text-center">{t.cases.noData}</p>
+          <EmptyState title={t.cases.noData} icon={<FolderIcon size={20} />} />
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full text-[13px]">
-                <thead className="bg-gray-50/40 dark:bg-[#111]/40 border-b border-gray-200/60 dark:border-[#1f1f1f]/80">
-                  <tr>
-                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.name}</th>
-                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.lostLocation}</th>
-                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.lostDate}</th>
-                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.source}</th>
-                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.status}</th>
-                    <th className="text-left py-3 px-5 font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider text-[11px]">{t.cases.actions}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100/50 dark:divide-[#1a1a1a]/50">
-                  {filtered.map((item) => (
-                    <tr key={item.id} className="group hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors duration-200">
-                      <td className="py-3.5 px-5 font-medium">{item.name}</td>
-                      <td className="py-3.5 px-5 text-gray-500 dark:text-gray-400 text-[12px]">
-                        {[item.lostProvince, item.lostCity].filter(Boolean).join(" ") || "-"}
-                      </td>
-                      <td className="py-3.5 px-5 text-gray-500 dark:text-gray-400 text-[12px]">{item.lostDate || "-"}</td>
-                      <td className="py-3.5 px-5">
-                        <span className="text-[11px] px-2.5 py-1 rounded-md font-medium border bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200/50 dark:border-white/10">
-                          {sourceLabels[item.source] || item.source}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-5">
-                        <span className={`text-[11px] px-2.5 py-1 rounded-md font-medium border ${item.status === 'approved' ? 'bg-green-50/50 dark:bg-green-900/10 text-green-600 dark:text-green-400 border-green-200/50 dark:border-green-800/30' : item.status === 'rejected' ? 'bg-red-50/50 dark:bg-red-900/10 text-red-600 dark:text-red-400 border-red-200/50 dark:border-red-800/30' : 'bg-amber-50/50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 border-amber-200/50 dark:border-amber-800/30'}`}>
-                          {statusLabels[item.status] || item.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-5">
-                        <button
-                          onClick={() => openDrawer(item.id)}
-                          className="text-[12px] px-3 py-1.5 rounded-lg border border-gray-200/50 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                        >
-                          {t.cases.viewDetail}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>{t.cases.name}</Th>
+                  <Th>{t.cases.lostLocation}</Th>
+                  <Th>{t.cases.lostDate}</Th>
+                  <Th>{t.cases.source}</Th>
+                  <Th>{t.cases.status}</Th>
+                  <Th align="right">{t.cases.actions}</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((item) => (
+                  <Tr key={item.id}>
+                    <Td className="font-medium">{item.name}</Td>
+                    <Td muted>
+                      {[item.lostProvince, item.lostCity].filter(Boolean).join(" ") || "-"}
+                    </Td>
+                    <Td muted className="whitespace-nowrap tabular-nums">{item.lostDate || "-"}</Td>
+                    <Td>
+                      <Badge tone="neutral">{sourceLabels[item.source] || item.source}</Badge>
+                    </Td>
+                    <Td>
+                      <Badge tone={statusTone(item.status)}>
+                        {statusLabels[item.status] || item.status}
+                      </Badge>
+                    </Td>
+                    <Td align="right">
+                      <button
+                        type="button"
+                        onClick={() => openDrawer(item.id)}
+                        className="inline-flex items-center h-8 px-3 rounded-lg cursor-pointer bg-white dark:bg-transparent border border-black/[0.08] dark:border-white/[0.10] text-[12px] font-medium text-[#475467] dark:text-[#98a2b3] hover:text-[#101828] dark:hover:text-white hover:border-black/[0.16] dark:hover:border-white/[0.20] active:scale-[0.97] transition-all duration-200"
+                      >
+                        {t.cases.viewDetail}
+                      </button>
+                    </Td>
+                  </Tr>
+                ))}
+              </tbody>
+            </Table>
 
-            {/* Pagination */}
-            <div className="flex items-center justify-between px-5 py-4 border-t border-gray-200/60 dark:border-[#1f1f1f]/80 bg-gray-50/30 dark:bg-[#111]/30">
-              <span className="text-[12px] text-gray-500 dark:text-gray-400">
-                {t.cases.showing.replace("{filtered}", String(filtered.length)).replace("{total}", String(total))}
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => goToPage(page - 1)}
-                  disabled={page <= 1}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200/50 dark:border-white/10 text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  ←
-                </button>
-                <span className="text-[13px] font-medium text-gray-700 dark:text-gray-300 px-2 tabular-nums">
-                  {page} / {totalPages}
-                </span>
-                <button
-                  onClick={() => goToPage(page + 1)}
-                  disabled={page >= totalPages}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200/50 dark:border-white/10 text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  →
-                </button>
-              </div>
-            </div>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              onChange={goToPage}
+              totalLabel={t.cases.showing.replace("{filtered}", String(filtered.length)).replace("{total}", String(total))}
+            />
           </>
         )}
-      </div>
+      </Panel>
+
       <Drawer open={drawerOpen} onClose={closeDrawer} title={t.cases.drawerTitle}>
         {selectedCase && (
-          <div className="space-y-5 text-[13px]">
+          <div className="space-y-6">
             {/* Photos */}
             {parsePhotos(selectedCase.photoUrls).length > 0 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {parsePhotos(selectedCase.photoUrls).map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt=""
-                    className="w-24 h-24 object-cover rounded-lg border border-gray-100 dark:border-[#1f1f1f] flex-shrink-0"
-                  />
-                ))}
-              </div>
+              <DrawerSection title="照片">
+                <PhotoStrip photos={parsePhotos(selectedCase.photoUrls)} />
+              </DrawerSection>
             )}
 
             {/* Editable fields */}
-            {editableFields.map(({ key, label }) => {
-              const isEditing = key in editForm;
-              const value = isEditing ? editForm[key] : (selectedCase as unknown as Record<string, unknown>)[key];
+            <DrawerSection title="档案信息">
+              <div className="space-y-1">
+                {editableFields.map(({ key, label }) => {
+                  const isEditing = key in editForm;
+                  const value = isEditing ? editForm[key] : (selectedCase as unknown as Record<string, unknown>)[key];
 
-              return (
-                <div key={key} className="flex flex-col gap-1">
-                  <span className="text-[11px] text-gray-400 dark:text-gray-500">{label}</span>
-                  {isEditing ? (
-                    <input
-                      type={key === "height" ? "number" : "text"}
-                      value={value === null || value === undefined ? "" : String(value)}
-                      onChange={(e) => updateEditForm(key, e.target.value)}
-                      className="px-2.5 py-1.5 text-[13px] border border-gray-200 dark:border-[#1f1f1f] rounded-md bg-white dark:bg-[#0d0d0d] text-gray-900 dark:text-gray-100 outline-none focus:border-gray-400 dark:focus:border-gray-600"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-between group">
-                      <span className="text-gray-700 dark:text-gray-300">
-                        {value === null || value === undefined || value === "" ? (
-                          <span className="text-gray-300 dark:text-gray-600">-</span>
-                        ) : (
-                          String(value)
-                        )}
-                      </span>
-                      <button
-                        onClick={() => startEdit(key, value as string | number | null)}
-                        className="text-[11px] text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 transition-colors opacity-0 group-hover:opacity-100"
+                  if (isEditing) {
+                    return (
+                      <div
+                        key={key}
+                        className="rounded-xl border border-[#e60012]/25 bg-[#e60012]/[0.03] dark:bg-[#e60012]/[0.06] px-3 py-2.5"
                       >
+                        <span className="block text-[11px] font-medium text-[#c1000f] dark:text-[#ff8a92]">{label}</span>
+                        <input
+                          type={key === "height" ? "number" : "text"}
+                          value={value === null || value === undefined ? "" : String(value)}
+                          onChange={(e) => updateEditForm(key, e.target.value)}
+                          className="mt-1.5 w-full h-9 px-3 rounded-lg text-[13px] bg-white dark:bg-[#0d0e10] border border-black/[0.08] dark:border-white/[0.10] text-[#101828] dark:text-white outline-none focus:border-[#e60012]/40 focus:shadow-[0_0_0_3px_rgba(230,0,18,0.08)] transition-all"
+                        />
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={key}
+                      className="group flex items-start justify-between gap-3 rounded-xl px-3 py-2.5 hover:bg-black/[0.025] dark:hover:bg-white/[0.03] transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <span className="block text-[11px] text-[#98a2b3] dark:text-[#667085]">{label}</span>
+                        <p className="mt-0.5 text-[13px] leading-5 break-words text-[#344054] dark:text-[#d0d5dd]">
+                          {value === null || value === undefined || value === "" ? (
+                            <span className="text-[#d0d5dd] dark:text-[#475467]">—</span>
+                          ) : (
+                            String(value)
+                          )}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => startEdit(key, value as string | number | null)}
+                        className="flex-shrink-0 inline-flex items-center gap-1 h-7 px-2 rounded-lg cursor-pointer text-[11px] font-medium text-[#98a2b3] hover:text-[#e60012] hover:bg-[#e60012]/[0.08] opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all"
+                      >
+                        <PencilIcon size={13} />
                         {t.cases.edit}
                       </button>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            </DrawerSection>
 
             {/* Read-only fields */}
-            <div className="pt-4 border-t border-gray-100 dark:border-[#1f1f1f] space-y-3">
-              <div className="flex flex-col gap-1">
-                <span className="text-[11px] text-gray-400 dark:text-gray-500">ID</span>
-                <span className="text-[12px] text-gray-400 dark:text-gray-600 font-mono">{selectedCase.id}</span>
+            <DrawerSection title="系统信息">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
+                <DetailField label={t.cases.status} value={<Badge tone={statusTone(selectedCase.status)}>{statusLabels[selectedCase.status] || selectedCase.status}</Badge>} />
+                <DetailField label={t.cases.source} value={<Badge tone="neutral">{sourceLabels[selectedCase.source] || selectedCase.source}</Badge>} />
+                <DetailField label="创建时间" value={new Date(selectedCase.createdAt).toLocaleString()} />
+                <DetailField label="更新时间" value={new Date(selectedCase.updatedAt).toLocaleString()} />
+                {selectedCase.reviewedBy ? (
+                  <DetailField
+                    label="审核人"
+                    value={`${selectedCase.reviewedBy} · ${selectedCase.reviewedAt || "-"}`}
+                    className="col-span-2"
+                  />
+                ) : null}
               </div>
-              <div className="flex gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] text-gray-400 dark:text-gray-500">{t.cases.status}</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 inline-block w-fit">
-                    {statusLabels[selectedCase.status] || selectedCase.status}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] text-gray-400 dark:text-gray-500">{t.cases.source}</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 inline-block w-fit">
-                    {sourceLabels[selectedCase.source] || selectedCase.source}
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] text-gray-400 dark:text-gray-500">创建时间</span>
-                  <span className="text-gray-600 dark:text-gray-400">{new Date(selectedCase.createdAt).toLocaleString()}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] text-gray-400 dark:text-gray-500">更新时间</span>
-                  <span className="text-gray-600 dark:text-gray-400">{new Date(selectedCase.updatedAt).toLocaleString()}</span>
-                </div>
-              </div>
-              {selectedCase.reviewedBy && (
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] text-gray-400 dark:text-gray-500">审核人</span>
-                  <span className="text-gray-600 dark:text-gray-400">{selectedCase.reviewedBy} · {selectedCase.reviewedAt || "-"}</span>
-                </div>
-              )}
-            </div>
+            </DrawerSection>
+
+            <MetaFooter>
+              <p>ID · {selectedCase.id}</p>
+            </MetaFooter>
 
             {/* Save / Cancel */}
-            {Object.keys(editForm).length > 0 && (
-              <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-[#1f1f1f]">
+            {editingCount > 0 && (
+              <div className="sticky bottom-0 -mx-5 -mb-5 px-5 py-3 bg-white/90 dark:bg-[#0d0e10]/90 backdrop-blur border-t border-black/[0.06] dark:border-white/[0.06] flex items-center gap-2">
+                <span className="mr-auto text-[12px] text-[#98a2b3]">已修改 {editingCount} 项</span>
                 <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="px-4 py-1.5 text-[12px] rounded-md bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 font-medium transition-colors disabled:opacity-50"
-                >
-                  {saving ? "..." : t.cases.save}
-                </button>
-                <button
+                  type="button"
                   onClick={() => setEditForm({})}
-                  className="px-4 py-1.5 text-[12px] rounded-md border border-gray-200 dark:border-[#1f1f1f] text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#141414] transition-colors"
+                  className="h-9 px-4 rounded-xl cursor-pointer text-[12.5px] font-medium bg-white dark:bg-transparent border border-black/[0.08] dark:border-white/[0.10] text-[#475467] dark:text-[#98a2b3] hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-colors"
                 >
                   {t.cases.cancel}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="h-9 px-4 rounded-xl cursor-pointer text-[12.5px] font-medium bg-[#e60012] text-white shadow-[0_1px_2px_rgba(230,0,18,0.28)] hover:bg-[#c1000f] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {saving ? "保存中…" : t.cases.save}
                 </button>
               </div>
             )}
