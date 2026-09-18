@@ -1,5 +1,6 @@
 import { getDb, schema } from "@/lib/db";
 import { eq, and, like, desc, sql, type SQL } from "drizzle-orm";
+import { apiError } from "@/lib/i18n/api-messages";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
   const limit = Math.min(parseInt(searchParams.get("limit") || "10"), 50);
 
   if (!q || !q.trim()) {
-    return Response.json({ error: "请输入搜索关键词" }, { status: 400 });
+    return apiError(request, "searchKeywordRequired", 400);
   }
 
   const db = await getDb();

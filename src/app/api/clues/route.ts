@@ -1,13 +1,14 @@
 import { getDb, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import { apiError } from "@/lib/i18n/api-messages";
 
 export async function POST(request: Request) {
   const body = await request.json();
   const { caseId, content, photoUrls, submitterName, submitterContact } = body;
 
   if (!caseId || !content?.trim()) {
-    return Response.json({ error: "关联案例和线索内容为必填项" }, { status: 400 });
+    return apiError(request, "clueFieldsRequired", 400);
   }
 
   const db = await getDb();
@@ -19,11 +20,11 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (rows.length === 0) {
-    return Response.json({ error: "关联案例不存在" }, { status: 404 });
+    return apiError(request, "clueCaseNotFound", 404);
   }
 
   if (rows[0].status !== "approved") {
-    return Response.json({ error: "只能为已发布的案例提供线索" }, { status: 400 });
+    return apiError(request, "clueCaseNotPublished", 400);
   }
 
   const id = uuidv4();

@@ -27,8 +27,6 @@ export const PROVINCES = [
   "内蒙古", "广西", "西藏", "宁夏", "新疆", "香港", "澳门",
 ] as const;
 
-export const GENDERS = [
-  { value: "", label: "全部" },
-  { value: "男", label: "男" },
-  { value: "女", label: "女" },
-] as const;
+// Values are the exact strings stored in every country table; labels are
+// resolved per-language at render time.
+export const GENDERS = [{ value: "" }, { value: "男" }, { value: "女" }] as const;

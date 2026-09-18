@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { showToast } from "@/components/ui/Toast";
 import { uploadToDooong } from "@/lib/upload-doooong";
+import { usePublicLang } from "@/lib/i18n/public-context";
+import { fmt } from "@/lib/i18n/public/format";
 
 interface ImageUploadProps {
   photos: string[];
@@ -11,13 +13,14 @@ interface ImageUploadProps {
 }
 
 export function ImageUpload({ photos, onPhotosChange, max = 9 }: ImageUploadProps) {
+  const { t } = usePublicLang();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
   async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
     if (photos.length + files.length > max) {
-      showToast(`最多上传${max}张图片`, "error");
+      showToast(fmt(t.upload.tooManyPhotos, { max }), "error");
       return;
     }
 
@@ -28,7 +31,7 @@ export function ImageUpload({ photos, onPhotosChange, max = 9 }: ImageUploadProp
         onPhotosChange([...photos, url]);
       }
     } catch {
-      showToast("上传失败，请重试", "error");
+      showToast(t.upload.uploadFailed, "error");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -73,7 +76,7 @@ export function ImageUpload({ photos, onPhotosChange, max = 9 }: ImageUploadProp
         onChange={handleFiles}
         className="hidden"
       />
-      <p className="text-[12px] text-[#1c1c1e]/25 dark:text-white/15">支持jpg/png，最多{max}张</p>
+      <p className="text-[12px] text-[#1c1c1e]/25 dark:text-white/15">{fmt(t.upload.uploadHint, { max })}</p>
     </div>
   );
 }

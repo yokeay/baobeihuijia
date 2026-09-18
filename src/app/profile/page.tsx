@@ -6,24 +6,12 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
 import { useUser } from "@/lib/UserContext";
-
-const MAINLAND_FIELDS = [
-  { key: "wechat", label: "微信号", placeholder: "wxid_xxx" },
-  { key: "qq", label: "QQ 号", placeholder: "10000001" },
-  { key: "douyin", label: "抖音号", placeholder: "@你的抖音号" },
-  { key: "bilibili", label: "B 站号", placeholder: "UID 或 @用户名" },
-];
-
-const OVERSEAS_FIELDS = [
-  { key: "x", label: "X (Twitter)", placeholder: "@username" },
-  { key: "instagram", label: "Instagram", placeholder: "@username" },
-  { key: "facebook", label: "Facebook", placeholder: "主页链接或用户名" },
-  { key: "wechat", label: "WeChat", placeholder: "wxid_xxx" },
-  { key: "email", label: "Email", placeholder: "you@example.com" },
-];
+import { usePublicLang } from "@/lib/i18n/public-context";
+import { contactFields } from "@/components/auth/contact-fields";
 
 export default function ProfilePage() {
   const { user, token } = useUser();
+  const { t } = usePublicLang();
   const router = useRouter();
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -47,12 +35,12 @@ export default function ProfilePage() {
   if (!user) return (
     <div className="flex flex-col min-h-full">
       <Header />
-      <main className="flex-1 py-20"><Container><p className="text-center text-sm text-gray-400">请先登录</p></Container></main>
+      <main className="flex-1 py-20"><Container><p className="text-center text-sm text-gray-400">{t.auth.loginRequired}</p></Container></main>
       <Footer />
     </div>
   );
 
-  const fields = user.region === "overseas" ? OVERSEAS_FIELDS : MAINLAND_FIELDS;
+  const fields = contactFields(t, user.region);
 
   async function handleSave() {
     setSaving(true);
@@ -77,32 +65,32 @@ export default function ProfilePage() {
       <main className="flex-1 py-8">
         <Container>
           <div className="max-w-lg mx-auto">
-            <h1 className="text-xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>个人资料</h1>
+            <h1 className="text-xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>{t.auth.profileTitle}</h1>
 
             {/* Phone - read only */}
             <div className="mb-6 p-4 rounded-2xl" style={{ background: "var(--bg-muted)" }}>
-              <label className="text-xs font-medium text-gray-500 mb-1 block">手机号码</label>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">{t.auth.phoneNumber}</label>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
                   {user.phone}
                 </span>
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-200 text-gray-500">不可修改</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-200 text-gray-500">{t.auth.notEditable}</span>
               </div>
             </div>
 
             {/* Contact fields */}
-            <h2 className="text-base font-semibold mb-1" style={{ color: "var(--text-primary)" }}>联系方式</h2>
-            <p className="text-sm text-gray-400 mb-4">除手机号外，填写更多联系方式，确保线索第一时间触达你</p>
+            <h2 className="text-base font-semibold mb-1" style={{ color: "var(--text-primary)" }}>{t.auth.contactMethods}</h2>
+            <p className="text-sm text-gray-400 mb-4">{t.auth.completeContactHint}</p>
 
             <div className="space-y-4">
               {fields.map((f) => (
-                <div key={f.key}>
+                <div key={f.field}>
                   <label className="text-xs font-medium text-gray-500 mb-1.5 block">{f.label}</label>
                   <input
                     type="text"
                     placeholder={f.placeholder}
-                    value={form[f.key] ?? ""}
-                    onChange={(e) => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                    value={form[f.field] ?? ""}
+                    onChange={(e) => setForm(prev => ({ ...prev, [f.field]: e.target.value }))}
                     className="w-full px-4 py-3 bg-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#e60012]/25 transition-all"
                   />
                 </div>
@@ -115,7 +103,7 @@ export default function ProfilePage() {
               className="w-full mt-6 py-3.5 rounded-xl text-sm font-semibold text-white transition-all"
               style={{ background: saved ? "#2D7D4F" : "#E60012" }}
             >
-              {saving ? "保存中…" : saved ? "✓ 已保存" : "保存"}
+              {saving ? t.auth.saving : saved ? `✓ ${t.auth.saved}` : t.auth.save}
             </button>
           </div>
         </Container>

@@ -1,22 +1,28 @@
 "use client";
 import { useState, useCallback, useEffect } from "react";
 import { useUser } from "@/lib/UserContext";
+import { usePublicLang } from "@/lib/i18n/public-context";
 
+// Dialling codes carry two names on purpose: every pack we ship is either
+// Chinese or reads English place names fine, and ten hand-translated country
+// names per locale would be copy nobody here can review.
 const COUNTRY_CODES = [
-  { code: "+86", label: "中国大陆 +86" },
-  { code: "+852", label: "香港 +852" },
-  { code: "+853", label: "澳门 +853" },
-  { code: "+886", label: "台湾 +886" },
-  { code: "+1", label: "美国/加拿大 +1" },
-  { code: "+44", label: "英国 +44" },
-  { code: "+65", label: "新加坡 +65" },
-  { code: "+81", label: "日本 +81" },
-  { code: "+61", label: "澳大利亚 +61" },
-  { code: "+49", label: "德国 +49" },
+  { code: "+86", zh: "中国大陆", en: "Mainland China" },
+  { code: "+852", zh: "香港", en: "Hong Kong" },
+  { code: "+853", zh: "澳门", en: "Macau" },
+  { code: "+886", zh: "台湾", en: "Taiwan" },
+  { code: "+1", zh: "美国/加拿大", en: "United States / Canada" },
+  { code: "+44", zh: "英国", en: "United Kingdom" },
+  { code: "+65", zh: "新加坡", en: "Singapore" },
+  { code: "+81", zh: "日本", en: "Japan" },
+  { code: "+61", zh: "澳大利亚", en: "Australia" },
+  { code: "+49", zh: "德国", en: "Germany" },
 ];
 
 export function PhoneAuthSheet() {
   const { authOpen, setAuthOpen, pendingAction, setPendingAction, login, user } = useUser();
+  const { lang, t } = usePublicLang();
+  const isChinese = lang === "zh" || lang === "zh-Hant";
   const [countryCode, setCountryCode] = useState("+86");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,17 +49,17 @@ export function PhoneAuthSheet() {
         body: JSON.stringify({ phone, countryCode }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "登录失败，请重试"); return; }
+      if (!res.ok) { setError(data.error || t.auth.loginFailed); return; }
       login(data.token, data.user);
       setAuthOpen(false);
       setPhone("");
       if (pendingAction) { pendingAction(); setPendingAction(null); }
     } catch {
-      setError("网络异常，请稍后重试");
+      setError(t.auth.networkError);
     } finally {
       setLoading(false);
     }
-  }, [isValid, loading, phone, countryCode, login, setAuthOpen, pendingAction, setPendingAction]);
+  }, [isValid, loading, phone, countryCode, login, setAuthOpen, pendingAction, setPendingAction, t]);
 
   if (!authOpen) return null;
 
@@ -62,7 +68,7 @@ export function PhoneAuthSheet() {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setAuthOpen(false)} />
       <div className="relative w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 shadow-2xl">
         <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-6" />
-        <h2 className="text-lg font-semibold text-gray-900 mb-5">确认您的身份</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-5">{t.auth.confirmIdentity}</h2>
         <div className="flex gap-2 mb-4">
           <button
             onClick={() => setShowCodes(!showCodes)}
@@ -73,7 +79,7 @@ export function PhoneAuthSheet() {
           <input
             type="tel"
             inputMode="numeric"
-            placeholder="手机号码"
+            placeholder={t.auth.phoneNumber}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
@@ -86,7 +92,7 @@ export function PhoneAuthSheet() {
             {COUNTRY_CODES.map((c) => (
               <button key={c.code} onClick={() => { setCountryCode(c.code); setShowCodes(false); }}
                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#ffecee] border-b border-gray-100 last:border-0">
-                {c.label}
+                {isChinese ? c.zh : c.en} {c.code}
               </button>
             ))}
           </div>
@@ -98,12 +104,12 @@ export function PhoneAuthSheet() {
           className="w-full py-3.5 rounded-xl font-semibold text-white transition-all"
           style={{ background: isValid ? "#E60012" : "#E5E7EB", color: isValid ? "white" : "#9CA3AF" }}
         >
-          {loading ? "登录中…" : "继续"}
+          {loading ? t.auth.loggingIn : t.auth.continueButton}
         </button>
         <p className="text-xs text-gray-400 text-center mt-4 leading-relaxed">
-          ⚠️ 为了保证您能早日找到亲友，请勿填写虚假信息，后续有线索会直接联系您！
+          ⚠️ {t.auth.fraudWarning}
         </p>
-        <p className="text-xs text-gray-300 text-center mt-2">继续即代表您同意《用户协议》与《隐私政策》</p>
+        <p className="text-xs text-gray-300 text-center mt-2">{t.auth.termsNotice}</p>
       </div>
     </div>
   );

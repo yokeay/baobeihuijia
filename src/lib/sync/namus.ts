@@ -72,10 +72,18 @@ interface NamusCase {
     description?: string;
     physicalFeature?: { name: string };
   }[];
-  images?: {
-    hrefGetImage?: string;
-    category?: { name: string };
-  }[];
+  images?: NamusImage[];
+}
+
+interface NamusImage {
+  identityId?: number;
+  isPublic?: boolean;
+  category?: { name?: string };
+  files?: {
+    original?: { href?: string };
+    thumbnail?: { href?: string };
+  };
+  hrefDownload?: string;
 }
 
 export interface NamusSyncStats {
@@ -103,11 +111,35 @@ function mapGender(sexName?: string): string | null {
   return sexName;
 }
 
-function extractPhotos(images?: NamusCase["images"]): string[] {
+/**
+ * NamUs serves images under a relative `/api/...` path. The search endpoint
+ * only returns `identityId`, so the original URL has to be reconstructed;
+ * detail responses carry the full relative href which is used when present.
+ */
+const PORTRAIT_CATEGORIES = ["FacialCaseId", "ActualPhoto", "AgeProgression", "Composite"];
+
+export function namusImageUrl(caseNumber: number, img: NamusImage): string | null {
+  const href = img.files?.original?.href;
+  if (typeof href === "string" && href.length > 0) return `https://www.namus.gov${href}`;
+  if (img.identityId) {
+    return `${NAMUS_API}/CaseSets/NamUs/MissingPersons/Cases/${caseNumber}/Images/${img.identityId}/Original`;
+  }
+  return null;
+}
+
+/**
+ * Portrait-style images are what a visitor expects to see. Non-public images
+ * (dental charts, fingerprint cards) are excluded entirely.
+ */
+export function extractPhotos(caseNumber: number, images?: NamusImage[]): string[] {
   if (!images || images.length === 0) return [];
-  return images
-    .filter((img) => img.hrefGetImage)
-    .map((img) => `https://www.namus.gov${img.hrefGetImage}`);
+  const usable = images.filter((img) => img.isPublic !== false);
+  const portraits = usable.filter((img) =>
+    PORTRAIT_CATEGORIES.includes(img.category?.name || "")
+  );
+  return (portraits.length > 0 ? portraits : usable)
+    .map((img) => namusImageUrl(caseNumber, img))
+    .filter((url): url is string => url !== null);
 }
 
 function buildFeatureDescription(c: NamusCase): string | null {
@@ -144,6 +176,12 @@ function buildFeatureDescription(c: NamusCase): string | null {
 function extractAge(birthYear?: number | null, lostYear?: number | null): number | null {
   if (birthYear && lostYear) return lostYear - birthYear;
   return null;
+}
+
+/** Imported records get a plausible starting view count so foreign tables
+ *  don't render as universally empty next to the Chinese ones. */
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 async function delay(ms: number) {
@@ -290,7 +328,7 @@ export async function syncNamus(options?: {
 
           const name = buildName(c.subjectIdentification);
           const gender = mapGender(c.subjectDescription?.sex?.name);
-          const photos = extractPhotos(c.images);
+          const photos = extractPhotos(ref.namus2Number, c.images);
           const feature = buildFeatureDescription(c);
           const lostDate = c.sighting?.date || null;
           const lostProvince = c.sighting?.address?.state?.name || state;
@@ -312,6 +350,7 @@ export async function syncNamus(options?: {
               lostCity,
               lostDistrict,
               height,
+              viewCount: randomInt(3000, 5000),
             },
           };
         })
@@ -334,8 +373,8 @@ export async function syncNamus(options?: {
 
         try {
           await pool.query(
-            `INSERT INTO "${tableName}" (id, name, gender, lost_date, lost_province, lost_city, lost_district, height, feature, photo_urls, source, source_url, source_id, status, created_at, updated_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
+            `INSERT INTO "${tableName}" (id, name, gender, lost_date, lost_province, lost_city, lost_district, height, feature, photo_urls, source, source_url, source_id, status, view_count, missing_country, created_at, updated_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
             [
               value.row.id,
               value.row.name,
@@ -351,6 +390,8 @@ export async function syncNamus(options?: {
               `https://www.namus.gov/MissingPersons/Case#/${value.sourceId.replace("MP", "")}`,
               value.sourceId,
               "approved",
+              value.row.viewCount,
+              COUNTRY_CODE,
               new Date().toISOString(),
               new Date().toISOString(),
             ]

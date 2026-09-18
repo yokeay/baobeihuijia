@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { usePublicLang, countryName } from "@/lib/i18n/public-context";
+import { fmt } from "@/lib/i18n/public/format";
 
 export function RegionPrompt() {
-  const { showRegionPrompt, detectedCountry, switchCountry, keepChina } = usePublicLang();
+  const { showRegionPrompt, detectedCountry, switchCountry, keepChina, promptLang, promptT } = usePublicLang();
   const [leaving, setLeaving] = useState(false);
 
   if (!showRegionPrompt || !detectedCountry) return null;
@@ -14,7 +15,7 @@ export function RegionPrompt() {
       {/* close */}
       <button
         onClick={() => keepChina()}
-        aria-label="关闭"
+        aria-label={promptT.region.close}
         className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full text-black/30 transition hover:text-black/60 dark:text-white/40 dark:hover:text-white/70"
       >
         <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -31,10 +32,10 @@ export function RegionPrompt() {
         </div>
         <div className="min-w-0">
           <p className="text-[13px] font-semibold text-[#1c1c1e] dark:text-white leading-snug">
-            检测到您可能位于{countryName(detectedCountry)}
+            {fmt(promptT.region.detectedAt, { country: countryName(detectedCountry, promptLang) })}
           </p>
           <p className="mt-0.5 text-[11px] text-[#1c1c1e]/40 dark:text-white/40 leading-snug">
-            是否切换到当地失踪数据？
+            {promptT.region.switchData}
           </p>
           <div className="mt-2.5 flex items-center gap-2">
             <button
@@ -42,13 +43,13 @@ export function RegionPrompt() {
               disabled={leaving}
               className="flex-1 rounded-lg bg-[#e60012] py-1.5 text-[12px] font-medium text-white transition hover:bg-[#c1000f] active:scale-[0.98]"
             >
-              切换
+              {promptT.region.switch}
             </button>
             <button
               onClick={() => keepChina()}
               className="flex-1 rounded-lg border border-black/10 py-1.5 text-[12px] font-medium text-[#1c1c1e]/60 transition hover:bg-black/5 dark:border-white/15 dark:text-white/60 dark:hover:bg-white/5"
             >
-              保持中国
+              {promptT.region.keepChina}
             </button>
           </div>
         </div>
