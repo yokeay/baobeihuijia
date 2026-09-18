@@ -80,6 +80,14 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full">
       <head>
+        {/* 首页要隐藏滚动条、导航栏要透明浮在夜空上，这两件事必须在首屏绘制前
+            就定下来，否则会看到滚动条和白色导航条闪一下再跳掉。 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'if(location.pathname==="/"){var e=document.documentElement;e.classList.add("home-no-scrollbar","home-hero-top")}',
+          }}
+        />
         {/* Baidu-specific meta */}
         <meta name="applicable-device" content="pc,mobile" />
         <meta httpEquiv="Cache-Control" content="no-siteapp" />
