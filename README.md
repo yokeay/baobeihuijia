@@ -8,6 +8,8 @@
 
 ![首页](docs/screenshots/hero-desktop.png)
 
+首屏是一屏夜空 —— 星云辉光、闪烁的星点、周期性划过的流星，底部的黎明地平线把夜空和下面的白色列表页接起来。刷新后**第一次向下滚动**会以 PPT 式的淡出 / 淡入整屏翻到寻人列表；翻完这一次就交还给原生滚动，上下滚动都是连续跟手的。首页整页不显示滚动条（照常可滚）。
+
 ---
 
 ## 界面
@@ -87,6 +89,8 @@ python3 scripts/screenshot.py   # 无头浏览器截图（写入 docs/screenshot
 ```
 
 > 截图脚本注意两点：Playwright 期望的浏览器目录号可能与本机已装的不一致，脚本会自行解析真实二进制路径，不需要跑 `playwright install`；上游图床对 HeadlessChrome 的 UA 返回 429，脚本已设置常规 Chrome UA（真实访客不受影响）。
+>
+> 脚本强制 `reduced_motion="reduce"`，所以首页会截成星空的静态一帧 —— 首次滚动的整屏翻页在减少动效下按设计不启用，截图脚本验证不了它。`SHOT_BASE` 可指定截图目标地址，默认 `http://localhost:3000`。
 
 ## 部署
 
@@ -106,7 +110,7 @@ systemd 单元 `baobeihuijia.service` 直接执行 `node node_modules/next/dist/
 ```
 src/
 ├── app/
-│   ├── page.tsx              首页（Hero + 侧栏筛选 + 瀑布流）
+│   ├── page.tsx              首页（夜空首屏 + 侧栏筛选 + 瀑布流，含首次滚动的整屏翻页）
 │   ├── case/[id]/            案件详情：server 层出元数据，client 层管交互
 │   ├── submit/               信息与线索提交
 │   ├── profile/              个人资料
@@ -115,9 +119,10 @@ src/
 │   ├── api/                  cases / regions / stats / geo / auth / upload …
 │   ├── opengraph-image.tsx   运行时生成分享卡片
 │   ├── sitemap.ts  robots.ts
-│   └── globals.css           设计 token、心跳与卡片动效
+│   └── globals.css           设计 token、首屏夜空与翻页动效、心跳与卡片动效
 ├── components/
 │   ├── case/                 CaseCard / CaseGrid / CaseSidebar
+│   ├── home/                 Starfield（星云 / 星点 / 流星 / 地平线）
 │   ├── layout/               Header / Footer / LegalPage / 地区与语言提示
 │   └── shared/               地区选择器（大陆级联 / 香港总区 / 数据驱动）
 └── lib/

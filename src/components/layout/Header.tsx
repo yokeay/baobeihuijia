@@ -36,13 +36,17 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-black/5">
+    <header
+      className={`site-header sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-black/5${
+        menuOpen || userMenuOpen ? " site-header-solid" : ""
+      }`}
+    >
       <Container>
         <div className="flex items-center justify-between h-12">
           {/* Logo — IMU squircle wordmark + a heart that actually beats */}
           <Link href="/" className="flex items-center gap-2 font-semibold text-[15px] tracking-tight no-underline group">
             <ImuMark className="w-6 h-6 shrink-0" />
-            <span className="hidden sm:inline" style={{ fontFamily: '"Songti SC", "Noto Serif SC", "SimSun", serif', color: '#1c1c1e' }}>
+            <span className="site-header-title hidden sm:inline" style={{ fontFamily: '"Songti SC", "Noto Serif SC", "SimSun", serif' }}>
               我好想你
             </span>
             {/* Same 中国红 as the tile so the lockup reads as one mark */}
@@ -58,8 +62,8 @@ export function Header() {
 
           <div className="flex items-center gap-3">
             <nav className="hidden md:flex items-center gap-5 text-[13px] font-medium">
-              <Link href="/" className="text-[#1c1c1e]/70 hover:text-[#1c1c1e] transition-colors">{t.nav.home}</Link>
-              <Link href="/submit" className="text-[#1c1c1e]/70 hover:text-[#1c1c1e] transition-colors">{t.nav.submit}</Link>
+              <Link href="/" className="site-header-link text-[#1c1c1e]/70 hover:text-[#1c1c1e] transition-colors">{t.nav.home}</Link>
+              <Link href="/submit" className="site-header-link text-[#1c1c1e]/70 hover:text-[#1c1c1e] transition-colors">{t.nav.submit}</Link>
             </nav>
 
             {/* User / Guest area */}
@@ -76,16 +80,16 @@ export function Header() {
                     >
                       {user.username.charAt(0)}
                     </div>
-                    <span className="text-[13px] text-[#1c1c1e] hidden sm:inline">{user.username}</span>
+                    <span className="site-header-userlabel text-[13px] text-[#1c1c1e] hidden sm:inline">{user.username}</span>
                   </>
                 ) : (
                   <>
-                    <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                    <div className="site-header-guest-icon w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
                       <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
-                    <span className="text-[13px] text-[#6B6860]">游客</span>
+                    <span className="site-header-guest text-[13px] text-[#6B6860]">游客</span>
                   </>
                 )}
               </button>
@@ -112,7 +116,7 @@ export function Header() {
             </div>
 
             <button
-              className="md:hidden p-2 text-[#1c1c1e]/50"
+              className="site-header-iconbtn md:hidden p-2 text-[#1c1c1e]/50"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
