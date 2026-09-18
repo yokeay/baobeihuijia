@@ -15,6 +15,13 @@ const HEADER_H = 48;
 const PPT_OUT_MS = 340;
 const PPT_IN_MS = 460;
 
+// 06:00–18:00 算白天，其余算夜间。判定要按访客本地时间（浏览器时区），
+// 而且得在首帧之前就定下来 —— layout.tsx 里有一份同样的判断，两边改要一起改。
+function isDaytime(): boolean {
+  const hour = new Date().getHours();
+  return hour >= 6 && hour < 18;
+}
+
 interface CaseItem {
   id: string;
   name: string;
@@ -180,10 +187,13 @@ export default function HomePage() {
     return detach;
   }, []);
 
-  // 首页整页不画滚动条（照样能滚），停在首屏时导航栏透明浮在夜空上。
+  // 首页整页不画滚动条（照样能滚），停在首屏时导航栏透明浮在天空上。
+  // 昼/夜按访客本地时间：首帧之前 layout.tsx 里的内联脚本已经先判过一次
+  // （不然会先黑一帧再变白），这里负责客户端路由回到首页时补上。
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add("home-no-scrollbar");
+    root.classList.toggle("home-day", isDaytime());
 
     function syncHeader() {
       const heroHeight = heroRef.current?.offsetHeight ?? window.innerHeight;
@@ -195,7 +205,7 @@ export default function HomePage() {
     return () => {
       window.removeEventListener("scroll", syncHeader);
       window.removeEventListener("resize", syncHeader);
-      root.classList.remove("home-no-scrollbar", "home-hero-top");
+      root.classList.remove("home-no-scrollbar", "home-hero-top", "home-day");
     };
   }, []);
 
@@ -213,33 +223,33 @@ export default function HomePage() {
           <Starfield />
 
           <Container className="relative z-10">
-            <h1 className="text-[28px] md:text-[44px] font-bold tracking-tight text-white leading-relaxed [text-shadow:0_2px_28px_rgba(4,8,22,0.8)]">
+            <h1 className="hero-title text-[28px] md:text-[44px] font-bold tracking-tight leading-relaxed">
               {t.hero.line1}<br />{t.hero.line2}
             </h1>
-            <p className="mt-4 text-[15px] text-white/55 max-w-md mx-auto leading-relaxed [text-shadow:0_1px_18px_rgba(4,8,22,0.75)]">
+            <p className="hero-subtitle mt-4 text-[15px] max-w-md mx-auto leading-relaxed">
               {t.hero.subtitle}
             </p>
             <div className="flex items-center justify-center gap-8 mt-10">
               <div>
-                <div className="text-[32px] font-semibold tracking-tight text-[#ff4a55] [text-shadow:0_0_28px_rgba(255,74,85,0.45)]">
+                <div className="hero-metric text-[32px] font-semibold tracking-tight">
                   <LiveTotal initialTotal={globalTotal} />
                 </div>
-                <div className="text-[12px] text-white/40 mt-0.5">{t.hero.totalLabel}</div>
+                <div className="hero-metric-label text-[12px] mt-0.5">{t.hero.totalLabel}</div>
               </div>
-              <div className="w-px h-10 bg-white/15" />
+              <div className="hero-rule w-px h-10" />
               <div>
-                <div className="text-[32px] font-semibold tracking-tight text-[#ff4a55] [text-shadow:0_0_28px_rgba(255,74,85,0.45)]">
+                <div className="hero-metric text-[32px] font-semibold tracking-tight">
                   {t.hero.freeLabel}
                 </div>
-                <div className="text-[12px] text-white/40 mt-0.5">{t.hero.freeSubLabel}</div>
+                <div className="hero-metric-label text-[12px] mt-0.5">{t.hero.freeSubLabel}</div>
               </div>
             </div>
           </Container>
 
-          {/* 提示压在夜空上、不压在地平线那层白上，否则白字白底看不见 */}
+          {/* 第一页整页都是天空，提示随便压在哪都看得见 */}
           <div className="absolute bottom-32 flex flex-col items-center gap-1 animate-breathe">
-            <span className="text-[11px] text-white/55">向下滑动查看寻人信息</span>
-            <svg className="h-4 w-4 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <span className="hero-hint text-[11px]">向下滑动查看寻人信息</span>
+            <svg className="hero-hint-icon h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 5v14M5 12l7 7 7-7" />
             </svg>
           </div>

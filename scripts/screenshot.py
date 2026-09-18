@@ -1,5 +1,7 @@
 import glob
 import os
+from datetime import datetime
+
 from playwright.sync_api import sync_playwright
 
 # The installed browser build number often does not match what this playwright
@@ -25,11 +27,14 @@ print("chromium:", exe)
 BASE = os.environ.get("SHOT_BASE", "http://localhost:3000")
 OUT_DIR = "docs/screenshots"
 
-# name, width, height, is_mobile, scroll_to_feed
+# name, width, height, is_mobile, scroll_to_feed, fake_hour
+#
+# 首页天色跟访客本地时间走（06:00-18:00 是白天），而截图会进 README ——
+# 一张会随「什么时候跑脚本」变色的封面没有意义，所以把时钟钉死在夜里。
 SHOTS = [
-    ("hero-desktop.png", 1440, 900, False, False),
-    ("feed-desktop.png", 1440, 900, False, True),
-    ("feed-mobile.png", 414, 896, True, True),
+    ("hero-desktop.png", 1440, 900, False, False, 22),
+    ("feed-desktop.png", 1440, 900, False, True, None),
+    ("feed-mobile.png", 414, 896, True, True, None),
 ]
 
 # Case photos are hot-linked from upstream sources and lazy-loaded, so the page
@@ -51,7 +56,7 @@ SETTLE_JS = """
 """
 
 
-def capture(browser, name, w, h, mobile, scroll_to_feed):
+def capture(browser, name, w, h, mobile, scroll_to_feed, fake_hour):
     ctx = browser.new_context(
         viewport={"width": w, "height": h},
         device_scale_factor=2,
@@ -62,6 +67,8 @@ def capture(browser, name, w, h, mobile, scroll_to_feed):
         user_agent=REAL_UA,
     )
     page = ctx.new_page()
+    if fake_hour is not None:
+        page.clock.install(time=datetime(2026, 1, 1, fake_hour, 0))
     page.goto(BASE + "/", wait_until="load", timeout=90000)
 
     if scroll_to_feed:
