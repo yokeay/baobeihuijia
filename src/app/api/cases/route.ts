@@ -10,6 +10,7 @@ import {
   isValidCountryCode,
 } from "@/lib/db/country-helpers";
 import { getPool } from "@/lib/db/adapter-local-pg";
+import { apiError } from "@/lib/i18n/api-messages";
 
 const DEFAULT_COUNTRY = "CN";
 
@@ -101,10 +102,10 @@ export async function POST(request: Request) {
   const { name, lostDate, photoUrls } = body;
 
   if (!name || !lostDate) {
-    return Response.json({ error: "姓名和走失日期为必填项" }, { status: 400 });
+    return apiError(request, "nameAndDateRequired", 400);
   }
   if (!photoUrls) {
-    return Response.json({ error: "请上传至少一张照片" }, { status: 400 });
+    return apiError(request, "photoRequired", 400);
   }
 
   const rawPostCode = String(body.countryCode || DEFAULT_COUNTRY);

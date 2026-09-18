@@ -6,6 +6,7 @@ import { RegionCascader } from "@/components/shared/RegionCascader";
 import { HkRegionSelect } from "@/components/shared/HkRegionSelect";
 import { CountryRegionSelect, useCountryRegions } from "@/components/shared/CountryRegionSelect";
 import { COUNTRY_MAP } from "@/lib/countries";
+import { genderLabel } from "@/lib/i18n/public/format";
 import { usePublicLang } from "@/lib/i18n/public-context";
 
 interface CaseSidebarProps {
@@ -125,7 +126,7 @@ export function CaseSidebar(props: CaseSidebarProps) {
             >
               {GENDERS.map((g) => (
                 <option key={g.value} value={g.value}>
-                  {g.label}
+                  {g.value ? genderLabel(g.value, t) : t.filter.selectGender}
                 </option>
       ))}
       </select>

@@ -10,6 +10,7 @@ import { Input, Textarea } from "@/components/ui/Input";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
 import { GENDERS } from "@/lib/constants";
+import { genderLabel } from "@/lib/i18n/public/format";
 import { RegionCascader } from "@/components/shared/RegionCascader";
 import { usePublicLang } from "@/lib/i18n/public-context";
 
@@ -96,10 +97,10 @@ export default function SubmitPage() {
         router.push("/");
       } else {
         const err = await res.json();
-        showToast(err.error || "提交失败", "error");
+        showToast(err.error || t.submit.submitFailed, "error");
       }
     } catch {
-      showToast("提交失败，请重试", "error");
+      showToast(t.submit.submitFailedRetry, "error");
     } finally {
       setSubmitting(false);
     }
@@ -119,10 +120,10 @@ export default function SubmitPage() {
       if (data.items?.length > 0) {
         setClueStep("select");
       } else {
-        showToast("未找到匹配案例", "error");
+        showToast(t.submit.noMatch, "error");
       }
     } catch {
-      showToast("搜索失败，请重试", "error");
+      showToast(t.submit.searchFailed, "error");
     } finally {
       setSearching(false);
     }
@@ -159,7 +160,7 @@ export default function SubmitPage() {
       return;
     }
     if (!clueContent.trim()) {
-      showToast("请填写线索内容", "error");
+      showToast(t.submit.clueContentRequired, "error");
       return;
     }
     setClueSubmitting(true);
@@ -190,10 +191,10 @@ export default function SubmitPage() {
         setClueSubmitterContact("");
       } else {
         const err = await res.json();
-        showToast(err.error || "提交失败", "error");
+        showToast(err.error || t.submit.submitFailed, "error");
       }
     } catch {
-      showToast("提交失败，请重试", "error");
+      showToast(t.submit.submitFailedRetry, "error");
     } finally {
       setClueSubmitting(false);
     }
@@ -269,7 +270,7 @@ export default function SubmitPage() {
                       <label className="block text-[13px] font-medium text-[#1c1c1e]/60 dark:text-white/50 mb-1.5">{t.submit.genderLabel}</label>
                       <select className={selectClass} value={form.gender} onChange={(e) => updateField("gender", e.target.value)}>
                         <option value="">{t.submit.selectGender}</option>
-                        {GENDERS.filter(g => g.value).map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                        {GENDERS.filter(g => g.value).map(g => <option key={g.value} value={g.value}>{genderLabel(g.value, t)}</option>)}
                       </select>
                     </div>
 
@@ -364,7 +365,7 @@ export default function SubmitPage() {
                         />
                     </div>
                     <Button onClick={handleClueSearch} disabled={searching || !searchQuery.trim()} className="w-full">
-                      {searching ? "搜索中..." : t.filter.searchButton}
+                      {searching ? t.submit.searching : t.filter.searchButton}
                     </Button>
                   </div>
                 )}
@@ -421,7 +422,7 @@ export default function SubmitPage() {
                                   {r.name}
                                 </div>
                                 <div className="text-[12px] text-[#1c1c1e]/35 dark:text-white/25">
-                                  {r.gender && <span>{r.gender === "male" ? "男" : "女"} · </span>}
+                                  {r.gender && <span>{genderLabel(r.gender, t)} · </span>}
                                   {r.lostDate && <span>{r.lostDate} · </span>}
                                   {[r.lostProvince, r.lostCity].filter(Boolean).join(" ")}
                                 </div>
@@ -452,7 +453,7 @@ export default function SubmitPage() {
                           {selectedCase.name}
                         </div>
                         <div className="text-[12px] text-[#1c1c1e]/35 dark:text-white/25">
-                          {selectedCase.gender === "male" ? "男" : selectedCase.gender === "female" ? "女" : ""}
+                          {genderLabel(selectedCase.gender, t)}
                           {selectedCase.lostDate && ` · ${selectedCase.lostDate}`}
                           {[selectedCase.lostProvince, selectedCase.lostCity].filter(Boolean).join(" ") && ` · ${[selectedCase.lostProvince, selectedCase.lostCity].filter(Boolean).join(" ")}`}
                         </div>

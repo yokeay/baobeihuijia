@@ -248,7 +248,7 @@ export default function HomePage() {
 
           {/* 第一页整页都是天空，提示随便压在哪都看得见 */}
           <div className="absolute bottom-32 flex flex-col items-center gap-1 animate-breathe">
-            <span className="hero-hint text-[11px]">向下滑动查看寻人信息</span>
+            <span className="hero-hint text-[11px]">{t.hero.scrollHint}</span>
             <svg className="hero-hint-icon h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 5v14M5 12l7 7 7-7" />
             </svg>

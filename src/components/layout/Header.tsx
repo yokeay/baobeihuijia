@@ -89,7 +89,7 @@ export function Header() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
-                    <span className="site-header-guest text-[13px] text-[#6B6860]">游客</span>
+                    <span className="site-header-guest text-[13px] text-[#6B6860]">{t.nav.guest}</span>
                   </>
                 )}
               </button>
@@ -102,14 +102,14 @@ export function Header() {
                     onClick={() => setUserMenuOpen(false)}
                     className="w-full text-left px-4 py-2.5 text-sm text-[#1c1c1e] hover:bg-gray-50 transition-colors block no-underline"
                   >
-                    完善联系方式
+                    {t.nav.completeContact}
                   </Link>
                   <button
                     onClick={() => { setUserMenuOpen(false); logout(); }}
                     className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#ffecee] transition-colors"
                     style={{ color: "var(--danger)" }}
                   >
-                    退出登录
+                    {t.nav.logout}
                   </button>
                 </div>
               )}

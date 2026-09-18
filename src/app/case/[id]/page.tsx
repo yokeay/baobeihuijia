@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { findCaseById, firstPhotoUrl, type CaseRecord } from "@/lib/db/find-case";
+import { caseMetaTemplates } from "@/lib/i18n/public/case-meta";
+import { fmt } from "@/lib/i18n/public/format";
 import { CaseDetailClient } from "./CaseDetailClient";
 
 const BASE_URL = "https://wohaoxiangni.com";
@@ -10,18 +12,21 @@ function placeOf(c: CaseRecord): string {
 
 /** One sentence a search engine can actually show as a snippet. */
 function describe(c: CaseRecord): string {
+  const m = caseMetaTemplates(c.missingCountry);
   const bits: string[] = [];
-  if (c.gender) bits.push(c.gender);
-  if (c.height) bits.push(`身高 ${c.height}cm`);
-  if (c.birthDate) bits.push(`${c.birthDate} 出生`);
-  const who = bits.length ? `（${bits.join("、")}）` : "";
+  if (c.gender) {
+    bits.push(String(c.gender).toLowerCase().startsWith("f") || c.gender === "女" ? m.genderFemale : m.genderMale);
+  }
+  if (c.height) bits.push(fmt(m.height, { n: c.height }));
+  if (c.birthDate) bits.push(fmt(m.born, { d: c.birthDate }));
+  const who = bits.length ? fmt(m.whoWrap, { bits: bits.join(m.bitsJoin) }) : "";
   const place = placeOf(c);
-  const when = c.lostDate ? `于 ${c.lostDate}` : "";
-  const where = place ? `在${place}` : "";
-  const head = `${c.name}${who} ${when}${where}走失`.replace(/\s+/g, " ").trim();
+  const when = c.lostDate ? fmt(m.lostOn, { d: c.lostDate }) : "";
+  const where = place ? fmt(m.lostAt, { p: place }) : "";
+  const head = fmt(m.head, { name: c.name, who, when, where }).replace(/\s+/g, " ").trim();
   const feature = (c.feature || "").replace(/\s+/g, " ").trim();
-  const tail = feature ? `体貌特征：${feature}` : "若您见过他/她，请联系当地公安机关。";
-  return `${head}。${tail}`.slice(0, 155);
+  const tail = feature ? fmt(m.featureTail, { f: feature }) : m.genericTail;
+  return fmt(m.sentence, { head, tail }).slice(0, 155);
 }
 
 export async function generateMetadata({
@@ -33,13 +38,14 @@ export async function generateMetadata({
   const c = await findCaseById(id);
 
   if (!c) {
-    return { title: "案件不存在", robots: { index: false, follow: false } };
+    return { title: caseMetaTemplates(null).caseNotFound, robots: { index: false, follow: false } };
   }
 
+  const m = caseMetaTemplates(c.missingCountry);
   const place = placeOf(c);
   // Unique, human-readable title per case — previously all ~47k detail pages
   // shared the site default, which made them look like duplicates to crawlers.
-  const title = [c.name, place, c.lostDate ? `${c.lostDate}走失` : "寻人"]
+  const title = [c.name, place, c.lostDate ? fmt(m.missingSince, { d: c.lostDate }) : m.missingPerson]
     .filter(Boolean)
     .join(" · ");
   const description = describe(c);

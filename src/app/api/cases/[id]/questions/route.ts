@@ -2,6 +2,7 @@ import { getDb, schema } from "@/lib/db";
 import { eq, and, desc } from "drizzle-orm";
 import { getUserFromRequest } from "@/lib/user-auth";
 import { v4 as uuidv4 } from "uuid";
+import { apiError } from "@/lib/i18n/api-messages";
 
 export async function GET(
   _request: Request,
@@ -22,8 +23,8 @@ export async function POST(
   const { id } = await params;
   const body = await request.json();
   const { content } = body;
-  if (!content?.trim()) return Response.json({ error: "疑问内容不能为空" }, { status: 400 });
-  if (content.length > 500) return Response.json({ error: "疑问内容不能超过500字" }, { status: 400 });
+  if (!content?.trim()) return apiError(request, "questionRequired", 400);
+  if (content.length > 500) return apiError(request, "questionTooLong", 400);
 
   const session = await getUserFromRequest(request);
   const db = await getDb();

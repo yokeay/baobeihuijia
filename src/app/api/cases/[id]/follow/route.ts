@@ -3,6 +3,7 @@ import { eq, and, sql } from "drizzle-orm";
 import { getUserFromRequest } from "@/lib/user-auth";
 import { logActivity } from "@/lib/activity-log";
 import { v4 as uuidv4 } from "uuid";
+import { apiError } from "@/lib/i18n/api-messages";
 
 export async function GET(
   request: Request,
@@ -26,7 +27,7 @@ export async function POST(
 ) {
   const { id } = await params;
   const session = await getUserFromRequest(request);
-  if (!session) return Response.json({ error: "未登录" }, { status: 401 });
+  if (!session) return apiError(request, "notSignedIn", 401);
 
   const db = await getDb();
   const existing = await db.select().from(schema.follows)

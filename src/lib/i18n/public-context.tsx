@@ -35,6 +35,13 @@ interface PublicLangContextValue {
   showRegionPrompt: boolean;
   lang: Lang;
   t: PublicTranslations;
+  /**
+   * The region prompt addresses a visitor still on the Chinese default, so it
+   * can't use `t` — that stays Chinese until they answer. Their browser is the
+   * only signal for what they actually read.
+   */
+  promptLang: Lang;
+  promptT: PublicTranslations;
   switchCountry: (code: string) => void;
   dismissRegionPrompt: () => void;
   keepChina: () => void;
@@ -47,13 +54,23 @@ interface PublicLangContextValue {
 
 const PublicLangContext = createContext<PublicLangContextValue | null>(null);
 
-// Country code -> display name (for the region prompt)
-const COUNTRY_NAMES: Record<string, string> = {
+// Country code -> display name (for the region prompt). English is the second
+// name set because only two packs read Chinese; the rest read English place
+// names fine and ten translated sets would be copy nobody here can review.
+const COUNTRY_NAMES_ZH: Record<string, string> = {
   US: "美国", JP: "日本", KR: "韩国", GB: "英国", CA: "加拿大",
   AU: "澳大利亚", DE: "德国", FR: "法国", SG: "新加坡", MY: "马来西亚",
   TH: "泰国", VN: "越南", ID: "印度尼西亚", PH: "菲律宾", IN: "印度",
   IT: "意大利", ES: "西班牙", NL: "荷兰", NZ: "新西兰", RU: "俄罗斯",
   HK: "中国香港", MO: "中国澳门", TW: "中国台湾",
+};
+
+const COUNTRY_NAMES_EN: Record<string, string> = {
+  US: "the United States", JP: "Japan", KR: "South Korea", GB: "the United Kingdom",
+  CA: "Canada", AU: "Australia", DE: "Germany", FR: "France", SG: "Singapore",
+  MY: "Malaysia", TH: "Thailand", VN: "Vietnam", ID: "Indonesia", PH: "the Philippines",
+  IN: "India", IT: "Italy", ES: "Spain", NL: "the Netherlands", NZ: "New Zealand",
+  RU: "Russia", HK: "Hong Kong", MO: "Macau", TW: "Taiwan",
 };
 
 const TRANSLATIONS: Record<Lang, PublicTranslations> = {
@@ -77,8 +94,19 @@ function getTranslations(lang: Lang): PublicTranslations {
   return TRANSLATIONS[lang] ?? en;
 }
 
-export function countryName(code: string): string {
-  return COUNTRY_NAMES[code] ?? code;
+export function countryName(code: string, lang: Lang = "zh"): string {
+  const names = lang === "zh" || lang === "zh-Hant" ? COUNTRY_NAMES_ZH : COUNTRY_NAMES_EN;
+  return names[code] ?? code;
+}
+
+// The browser's UI language is fixed for the session, so it is read once at
+// mount rather than mirrored into an effect. The only consumer (RegionPrompt)
+// renders null until the geo request resolves, so the server's "zh" and the
+// client's resolved value never disagree in the DOM.
+function detectPromptLang(): Lang {
+  if (typeof navigator === "undefined") return "zh";
+  const nav = (navigator.language || "").toLowerCase();
+  return !nav || nav.startsWith("zh") ? "zh" : "en";
 }
 
 export function PublicLangProvider({ children }: { children: ReactNode }) {
@@ -88,6 +116,7 @@ export function PublicLangProvider({ children }: { children: ReactNode }) {
   const [promptDismissed, setPromptDismissed] = useState(false);
   const [lang, setLang] = useState<Lang>("zh");
   const [t, setT] = useState<PublicTranslations>(zh);
+  const [promptLang] = useState<Lang>(detectPromptLang);
 
   // CN autonomous-region local-language overlay (新疆/内蒙古/西藏). Independent
   // from the country-level `lang` above — only meaningful while countryCode === "CN".
@@ -179,6 +208,8 @@ export function PublicLangProvider({ children }: { children: ReactNode }) {
         showRegionPrompt,
         lang,
         t,
+        promptLang,
+        promptT: getTranslations(promptLang),
         switchCountry,
         dismissRegionPrompt,
         keepChina,
