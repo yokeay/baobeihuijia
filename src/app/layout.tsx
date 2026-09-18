@@ -78,14 +78,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className="h-full">
+    // 上面那段脚本会在水合前就给 <html> 加类，React 会拿服务端那份 className 来对，
+    // 对不上就报 hydration mismatch。这里明确告诉 React 别管这个元素的属性。
+    <html lang="zh-CN" className="h-full" suppressHydrationWarning>
       <head>
-        {/* 首页要隐藏滚动条、导航栏要透明浮在夜空上，这两件事必须在首屏绘制前
-            就定下来，否则会看到滚动条和白色导航条闪一下再跳掉。 */}
+        {/* 首页要隐藏滚动条、导航栏要透明浮在天空上、昼夜两套配色要选一套，
+            这些都得在首屏绘制前定下来，否则会看到滚动条、白导航条、或者
+            先黑一帧再变白。时段判断要和 page.tsx 里的 isDaytime() 一致。 */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              'if(location.pathname==="/"){var e=document.documentElement;e.classList.add("home-no-scrollbar","home-hero-top")}',
+              'if(location.pathname==="/"){var e=document.documentElement,h=new Date().getHours();e.classList.add("home-no-scrollbar","home-hero-top");if(h>=6&&h<18)e.classList.add("home-day")}',
           }}
         />
         {/* Baidu-specific meta */}

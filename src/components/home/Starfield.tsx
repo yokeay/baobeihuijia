@@ -1,12 +1,20 @@
 /**
- * 首页夜空：星点 + 流星 + 星云辉光。
+ * 首页天空：星点 + 流星 + 星云辉光。
  *
  * 纯白太空了 —— 而夜空里每一点光都可能是一个还没回家的人，
- * 地平线那层红光就是天快亮的地方。
+ * 贴着地平线那层红光就是天快亮的地方。
+ *
+ * 同一棵树在白天和夜里是两套画法（见 globals.css 里的 html.home-day）：
+ * 夜里是深蓝夜空 + 满屏星点，白天是浅蓝天 + 零星几颗淡星。
+ * 位置来自同一份固定种子的伪随机，所以昼夜切换不会「重新洗牌」。
  */
 
 const STAR_COUNT = 130;
 const METEOR_COUNT = 3;
+
+// 白天只留这一档里的星（下标整除 DAY_STAR_EVERY），十几颗，够表达「零星」。
+// 位置是按顺序随机生成的，所以抽出来仍然是散在全屏的。
+const DAY_STAR_EVERY = 9;
 
 // 星点位置必须在服务端与客户端算出同一份，否则水合会不一致，
 // 所以用固定种子的伪随机，而不是 Math.random。
@@ -32,6 +40,7 @@ interface Star {
   delay: number;
   color: string;
   glow: boolean;
+  day: boolean;
 }
 
 interface Meteor {
@@ -44,7 +53,7 @@ interface Meteor {
 
 function makeStars(): Star[] {
   const rand = mulberry32(20260918);
-  return Array.from({ length: STAR_COUNT }, () => {
+  return Array.from({ length: STAR_COUNT }, (_, i) => {
     const bright = rand() > 0.86;
     const tint = BRIGHT_TINTS[Math.floor(rand() * BRIGHT_TINTS.length)];
     return {
@@ -56,6 +65,7 @@ function makeStars(): Star[] {
       delay: rand() * 7,
       color: bright ? tint : "#ffffff",
       glow: bright,
+      day: i % DAY_STAR_EVERY === 0,
     };
   });
 }
@@ -87,16 +97,18 @@ export function Starfield() {
         <span
           key={i}
           className={star.glow ? "hero-star hero-star-glow" : "hero-star"}
+          data-day={star.day ? "" : undefined}
           style={
             {
               left: `${star.left}%`,
               top: `${star.top}%`,
               width: `${star.size}px`,
               height: `${star.size}px`,
-              color: star.color,
-              opacity: star.opacity,
               animationDuration: `${star.duration}s`,
               animationDelay: `${star.delay}s`,
+              // 颜色和亮度走 CSS 变量，白天那套（html.home-day）才能盖掉它们 ——
+              // 内联的 color/opacity 是盖不动的
+              "--star-c": star.color,
               "--star-o": star.opacity,
             } as React.CSSProperties
           }
@@ -116,9 +128,6 @@ export function Starfield() {
           }}
         />
       ))}
-
-      {/* 地平线：夜空在底部化进页面底色，也是天快亮的那道白 */}
-      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-[#f5fafc]" />
     </div>
   );
 }

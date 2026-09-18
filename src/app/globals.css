@@ -140,18 +140,25 @@ body {
   .card-enter { animation: none; }
 }
 
-/* ─────────── 首页首屏：夜空 + PPT 式翻页 ─────────── */
+/* ─────────── 首页第一页：天空（昼/夜两套）+ PPT 式翻页 ─────────── */
 
 /* 首屏铺满一屏，并向上顶掉吸顶导航的高度，
-   这样导航栏是浮在夜空上的，而不是压着一条白边。 */
+   这样导航栏是浮在天空上的，而不是压着一条白边。
+   第一页是完整的一整页天空 —— 底下不留任何过渡到列表底色的色带。 */
 .hero-screen {
   margin-top: -3rem;
   min-height: 100vh;
   background: radial-gradient(130% 95% at 50% 0%, #141d3c 0%, #0a1024 45%, #04060e 100%);
 }
-@supports (height: 100svh) {
-  /* 移动端 100vh 会被地址栏算进去，首屏会比看到的高 */
-  .hero-screen { min-height: 100svh; }
+@supports (height: 100dvh) {
+  /* 用 svh 的话，地址栏一收起首屏就比可视区矮，底下会露出一条白；
+     dvh 始终等于当前可视高度，第一页任何时刻都是满的 */
+  .hero-screen { min-height: 100dvh; }
+}
+
+/* 白天：近白的浅蓝天，越往下越白 */
+html.home-day .hero-screen {
+  background: linear-gradient(180deg, #cfe0f7 0%, #e8f1fa 55%, #fbfdff 100%);
 }
 
 .hero-nebula {
@@ -177,6 +184,12 @@ body {
   animation-duration: 32s;
 }
 
+/* 白天那团红、那团深蓝放到浅底上就是两块污渍，
+   换成极淡的暖白和淡蓝云气：只是让白不是纯白，不再有颜色重量 */
+html.home-day .hero-nebula-blue { background: radial-gradient(closest-side, rgba(150, 186, 240, 0.45), transparent); }
+html.home-day .hero-nebula-cyan { background: radial-gradient(closest-side, rgba(146, 208, 224, 0.35), transparent); }
+html.home-day .hero-nebula-red { background: radial-gradient(closest-side, rgba(255, 232, 222, 0.75), transparent); }
+
 @keyframes heroNebula {
   0%, 100% { transform: scale(1) translate3d(0, 0, 0); opacity: 0.55; }
   50%      { transform: scale(1.12) translate3d(0, -2%, 0); opacity: 0.85; }
@@ -185,6 +198,9 @@ body {
 .hero-star {
   position: absolute;
   border-radius: 9999px;
+  /* 颜色和亮度来自内联的 CSS 变量，白天那套才盖得住 */
+  color: var(--star-c, #ffffff);
+  opacity: var(--star-o, 1);
   background: currentColor;
   animation-name: heroTwinkle;
   animation-timing-function: ease-in-out;
@@ -199,6 +215,16 @@ body {
   50%      { opacity: var(--star-o, 1); }
 }
 
+/* 白天：只留十几颗（其余还在 DOM 里，只是不画），压成淡蓝灰、不再闪烁、去掉光晕。
+   白点在浅蓝底上不是星星，是屏幕坏点。 */
+html.home-day .hero-star:not([data-day]) { display: none; }
+html.home-day .hero-star {
+  color: #7f96b4;
+  opacity: calc(0.3 + var(--star-o, 1) * 0.35);
+  animation: none;
+}
+html.home-day .hero-star-glow { box-shadow: none; }
+
 .hero-meteor {
   position: absolute;
   height: 2px;
@@ -211,6 +237,14 @@ body {
   animation-iteration-count: infinite;
 }
 
+/* 白天流星照样划，只是改成白色 —— 白拖尾在浅底上会糊掉，
+   所以尾巴那头垫一层淡蓝灰，让它有边 */
+html.home-day .hero-meteor {
+  background: linear-gradient(90deg, rgba(150, 175, 205, 0), rgba(214, 228, 244, 0.85) 62%, #ffffff);
+  filter: drop-shadow(0 0 4px rgba(146, 170, 200, 0.75));
+}
+
+
 /* 145° 让流星朝左下走，亮的那头（渐变末端）在前面领着 */
 @keyframes heroMeteor {
   0%   { transform: rotate(145deg) translateX(0); opacity: 0; }
@@ -222,6 +256,26 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .hero-star, .hero-nebula, .hero-meteor { animation: none; }
 }
+
+/* 首屏文案的配色也得跟着昼夜走。
+   不能写成 Tailwind 的 text-white/*：那层原子类只能编译出一个值，
+   昼夜切换时要么闪一下、要么白天白字看不见。 */
+.hero-title { color: #ffffff; text-shadow: 0 2px 28px rgba(4, 8, 22, 0.8); }
+.hero-subtitle { color: rgba(255, 255, 255, 0.55); text-shadow: 0 1px 18px rgba(4, 8, 22, 0.75); }
+.hero-metric { color: #ff4a55; text-shadow: 0 0 28px rgba(255, 74, 85, 0.45); }
+.hero-metric-label { color: rgba(255, 255, 255, 0.4); }
+.hero-rule { background: rgba(255, 255, 255, 0.15); }
+.hero-hint { color: rgba(255, 255, 255, 0.55); }
+.hero-hint-icon { color: rgba(255, 255, 255, 0.5); }
+
+html.home-day .hero-title { color: #1a2334; text-shadow: 0 2px 30px rgba(255, 255, 255, 0.9); }
+html.home-day .hero-subtitle { color: rgba(26, 35, 52, 0.66); text-shadow: none; }
+/* 白底上用 #ff4a55 会发飘，换成平台主色那支更沉的中国红 */
+html.home-day .hero-metric { color: #e60012; text-shadow: 0 0 26px rgba(255, 255, 255, 0.95); }
+html.home-day .hero-metric-label { color: rgba(26, 35, 52, 0.5); }
+html.home-day .hero-rule { background: rgba(26, 35, 52, 0.14); }
+html.home-day .hero-hint { color: rgba(26, 35, 52, 0.6); }
+html.home-day .hero-hint-icon { color: rgba(26, 35, 52, 0.5); }
 
 /* 首屏淡出，列表淡入 —— 刷新后的第一次滚动走这套，之后是连续滚动 */
 @keyframes heroPptOut {
@@ -251,9 +305,21 @@ body {
 }
 .home-no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
-/* 停在首屏时导航栏透明浮在夜空上；一旦滚进列表页就恢复毛玻璃。
+/* 停在首屏时导航栏透明浮在天空上；一旦滚进列表页就恢复毛玻璃。
    这些选择器没有包在 @layer 里，所以能盖过 Tailwind 的原子类。 */
 .site-header-title { color: #1c1c1e; }
+
+/* 首屏在白天是浅底，浮在上面的导航栏得转回深色 */
+html.home-day.home-hero-top .site-header:not(.site-header-solid) .site-header-title { color: #1c1c1e; }
+html.home-day.home-hero-top .site-header:not(.site-header-solid) .site-header-link { color: rgba(28, 28, 30, 0.62); }
+html.home-day.home-hero-top .site-header:not(.site-header-solid) .site-header-link:hover { color: #1c1c1e; }
+html.home-day.home-hero-top .site-header:not(.site-header-solid) .site-header-userlabel { color: rgba(28, 28, 30, 0.8); }
+html.home-day.home-hero-top .site-header:not(.site-header-solid) .site-header-guest { color: rgba(28, 28, 30, 0.6); }
+html.home-day.home-hero-top .site-header:not(.site-header-solid) .site-header-guest-icon {
+  background: rgba(28, 28, 30, 0.08);
+  color: rgba(28, 28, 30, 0.5);
+}
+html.home-day.home-hero-top .site-header:not(.site-header-solid) .site-header-iconbtn { color: rgba(28, 28, 30, 0.55); }
 
 html.home-hero-top .site-header:not(.site-header-solid) {
   background: transparent;
