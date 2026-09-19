@@ -45,15 +45,31 @@ function getEstimatedAge(age: number | null | undefined, lostDate: string | null
   return fmt(t.time.ageThenNow, { n: age, m: current });
 }
 
-// Placeholder ratios before the real image reports its dimensions. Keyed off the
-// case id rather than the list index, so the feed never falls into a visible
-// repeating rhythm the way a fixed short cycle does.
-const SEED_RATIOS = [0.75, 0.8, 1, 0.71, 0.67, 1.33, 0.83, 0.6, 0.9, 1.15, 0.7, 1.25];
+// Shape of the thumbnails the sources serve (mainland's are uniformly 240×300).
+const NOMINAL_RATIO = 0.8;
 
-function seedRatio(id: string): number {
+// A card's shape follows its photo, but it must not follow it *exactly*: the
+// mainland source hands out one thumbnail size for every case and photo-less
+// rows all fall back to the same 4:3 placeholder, so inheriting the photo's
+// proportions verbatim flattened those two feeds into a grid of identical
+// cards — while Hong Kong's mixed police photos stayed happily ragged. Every
+// card therefore takes a deterministic squeeze on top of its photo's real
+// proportions: framing is preserved, but no two rows line up.
+const RATIO_SPREAD = [1, 0.88, 1.12, 0.94, 1.06, 0.85, 1.18, 0.91, 1.09, 0.97];
+
+function hashId(id: string): number {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  return SEED_RATIOS[h % SEED_RATIOS.length];
+  return h;
+}
+
+function spreadFor(id: string): number {
+  return RATIO_SPREAD[hashId(id) % RATIO_SPREAD.length];
+}
+
+// Clamp so a freak panorama or sliver can't wreck the column.
+function clampRatio(r: number): number {
+  return Math.min(Math.max(r, 0.55), 1.5);
 }
 
 export function CaseCard({ item, index = 0 }: { item: CaseCardItem; index?: number }) {
@@ -65,11 +81,13 @@ export function CaseCard({ item, index = 0 }: { item: CaseCardItem; index?: numb
     } catch { }
     return [];
   })();
-  const firstPhoto = photos[0] || photoPlaceholder(t.case.noPhoto);
+  const key = String(item.id ?? index);
+  const hasPhoto = photos.length > 0;
+  const firstPhoto = hasPhoto ? photos[0] : photoPlaceholder(t.case.noPhoto);
 
-  // Start from the seeded ratio, then settle on the photo's real proportions —
-  // that is what makes the columns genuinely ragged instead of patterned.
-  const [ratio, setRatio] = useState(() => seedRatio(String(item.id ?? index)));
+  // First paint guesses the nominal thumbnail so the columns barely move when
+  // the real image reports its size.
+  const [ratio, setRatio] = useState(() => clampRatio(NOMINAL_RATIO * spreadFor(key)));
 
   const duration = getLostDuration(item.lostDate, t);
   const ageText = getEstimatedAge(item.age, item.lostDate, t);
@@ -92,11 +110,12 @@ export function CaseCard({ item, index = 0 }: { item: CaseCardItem; index?: numb
             loading="lazy"
             decoding="async"
             onLoad={(e) => {
+              // A card with no photo keeps the seeded shape: the placeholder is
+              // a fixed 4:3, and adopting it would make every empty card equal.
+              if (!hasPhoto) return;
               const el = e.currentTarget;
               if (el.naturalWidth > 0 && el.naturalHeight > 0) {
-                // Clamp so a freak panorama or sliver can't wreck the column.
-                const r = el.naturalWidth / el.naturalHeight;
-                setRatio(Math.min(Math.max(r, 0.55), 1.5));
+                setRatio(clampRatio((el.naturalWidth / el.naturalHeight) * spreadFor(key)));
               }
             }}
           />
