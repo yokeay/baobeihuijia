@@ -103,6 +103,18 @@ export async function initDb() {
       CREATE INDEX IF NOT EXISTS idx_clues_case_id ON clues(case_id);
       CREATE INDEX IF NOT EXISTS idx_clues_status ON clues(status);
 
+      CREATE TABLE IF NOT EXISTS feedback (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        user_id TEXT,
+        user_name TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_feedback_status ON feedback(status);
+      CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at);
+
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
         value TEXT

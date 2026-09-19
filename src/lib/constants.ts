@@ -30,3 +30,7 @@ export const PROVINCES = [
 // Values are the exact strings stored in every country table; labels are
 // resolved per-language at render time.
 export const GENDERS = [{ value: "" }, { value: "男" }, { value: "女" }] as const;
+
+// 反馈与建议表单的字数上限，前后端共用（前端截断输入，后端兜底校验）。
+export const FEEDBACK_TITLE_MAX = 100;
+export const FEEDBACK_CONTENT_MAX = 2000;

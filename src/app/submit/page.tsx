@@ -9,14 +9,14 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
-import { GENDERS } from "@/lib/constants";
+import { GENDERS, FEEDBACK_TITLE_MAX, FEEDBACK_CONTENT_MAX } from "@/lib/constants";
 import { genderLabel } from "@/lib/i18n/public/format";
 import { RegionCascader } from "@/components/shared/RegionCascader";
 import { usePublicLang } from "@/lib/i18n/public-context";
 
 const selectClass = "w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 transition-all duration-200";
 
-type Tab = "missing" | "clue";
+type Tab = "missing" | "clue" | "feedback";
 
 interface SearchResult {
   id: string;
@@ -64,6 +64,11 @@ export default function SubmitPage() {
   const [clueSubmitterContact, setClueSubmitterContact] = useState("");
   const [cluePhotos, setCluePhotos] = useState<string[]>([]);
   const [clueSubmitting, setClueSubmitting] = useState(false);
+
+  // Feedback form — 不强制登录，未登录也能提交
+  const [feedbackTitle, setFeedbackTitle] = useState("");
+  const [feedbackContent, setFeedbackContent] = useState("");
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   function updateField(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -200,6 +205,43 @@ export default function SubmitPage() {
     }
   }
 
+  async function handleFeedbackSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (feedbackSubmitting) return;
+    if (!feedbackTitle.trim()) {
+      showToast(t.submit.feedbackTitleRequired, "error");
+      return;
+    }
+    if (!feedbackContent.trim()) {
+      showToast(t.submit.feedbackContentRequired, "error");
+      return;
+    }
+    // 点击后立刻锁定按钮，避免连点造成重复提交
+    setFeedbackSubmitting(true);
+    try {
+      const res = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: feedbackTitle.trim(),
+          content: feedbackContent.trim(),
+        }),
+      });
+      if (res.ok) {
+        showToast(t.submit.feedbackSuccessToast, "success");
+        setFeedbackTitle("");
+        setFeedbackContent("");
+      } else {
+        const err = await res.json();
+        showToast(err.error || t.submit.submitFailed, "error");
+      }
+    } catch {
+      showToast(t.submit.submitFailedRetry, "error");
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  }
+
   // Parse first photo for thumbnail
   function getFirstPhoto(photoUrls: string): string | null {
     try {
@@ -218,28 +260,24 @@ export default function SubmitPage() {
           <div className="max-w-lg mx-auto">
             {/* Tab switcher */}
             <div className="flex rounded-xl bg-black/[0.03] dark:bg-white/[0.04] p-1 mb-8">
-              <button
-                type="button"
-                onClick={() => setTab("missing")}
-                className={`flex-1 py-2.5 rounded-[10px] text-[14px] font-medium transition-all duration-200 ${
-                  tab === "missing"
-                    ? "bg-white dark:bg-[#1a1a1a] text-[#e60012] shadow-sm"
-                    : "text-[#1c1c1e]/35 dark:text-white/25 hover:text-[#1c1c1e]/60 dark:hover:text-white/50"
-                }`}
-              >
-                {t.submit.tabMissing}
-              </button>
-              <button
-                type="button"
-                onClick={() => setTab("clue")}
-                className={`flex-1 py-2.5 rounded-[10px] text-[14px] font-medium transition-all duration-200 ${
-                  tab === "clue"
-                    ? "bg-white dark:bg-[#1a1a1a] text-[#e60012] shadow-sm"
-                    : "text-[#1c1c1e]/35 dark:text-white/25 hover:text-[#1c1c1e]/60 dark:hover:text-white/50"
-                }`}
-              >
-                {t.submit.tabClue}
-              </button>
+              {([
+                { key: "missing", label: t.submit.tabMissing },
+                { key: "clue", label: t.submit.tabClue },
+                { key: "feedback", label: t.submit.tabFeedback },
+              ] as { key: Tab; label: string }[]).map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setTab(item.key)}
+                  className={`flex-1 py-2.5 px-1 rounded-[10px] text-[13px] font-medium transition-all duration-200 ${
+                    tab === item.key
+                      ? "bg-white dark:bg-[#1a1a1a] text-[#e60012] shadow-sm"
+                      : "text-[#1c1c1e]/35 dark:text-white/25 hover:text-[#1c1c1e]/60 dark:hover:text-white/50"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
 
             {tab === "missing" ? (
@@ -331,7 +369,7 @@ export default function SubmitPage() {
                   </Button>
                 </form>
               </>
-            ) : (
+            ) : tab === "clue" ? (
               <>
                 <h1 className="text-[24px] font-bold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-1">
                   {t.submit.tabClue}
@@ -505,6 +543,55 @@ export default function SubmitPage() {
                     </Button>
                   </div>
                 )}
+              </>
+            ) : (
+              <>
+                <h1 className="text-[24px] font-bold tracking-tight text-[#1c1c1e] dark:text-[#e8e8e8] mb-1">
+                  {t.submit.tabFeedback}
+                </h1>
+                <p className="text-[14px] text-[#1c1c1e]/40 dark:text-white/30 mb-8">
+                  {t.submit.feedbackSubtitle}
+                </p>
+
+                <form onSubmit={handleFeedbackSubmit}>
+                  <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-[#1a1a1a] p-6 space-y-4">
+                    <Input
+                      label={t.submit.feedbackTitleLabel}
+                      name="feedbackTitle"
+                      value={feedbackTitle}
+                      maxLength={FEEDBACK_TITLE_MAX}
+                      onChange={(e) => setFeedbackTitle(e.target.value)}
+                      placeholder={t.submit.feedbackTitlePlaceholder}
+                    />
+
+                    <div className="w-full">
+                      <label
+                        htmlFor="feedbackContent"
+                        className="block text-[13px] font-medium text-[#1c1c1e]/60 dark:text-white/50 mb-1.5"
+                      >
+                        {t.submit.feedbackContentLabel}
+                      </label>
+                      <textarea
+                        id="feedbackContent"
+                        name="feedbackContent"
+                        rows={6}
+                        maxLength={FEEDBACK_CONTENT_MAX}
+                        value={feedbackContent}
+                        onChange={(e) => setFeedbackContent(e.target.value)}
+                        placeholder={t.submit.feedbackContentPlaceholder}
+                        className="w-full px-3.5 py-2.5 border border-black/10 dark:border-white/10 rounded-xl text-[14px] transition-all duration-200 resize-y min-h-[140px] max-h-[420px] overflow-y-auto bg-white dark:bg-[#1a1a1a] text-[#1c1c1e] dark:text-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#e60012]/20 focus:border-[#e60012]/40 placeholder:text-[#1c1c1e]/25 dark:placeholder:text-white/20"
+                      />
+                    </div>
+
+                    <p className="text-[12px] text-[#1c1c1e]/25 dark:text-white/15">
+                      {t.submit.feedbackHint}
+                    </p>
+                  </div>
+
+                  <Button type="submit" disabled={feedbackSubmitting} className="w-full mt-8" size="lg">
+                    {feedbackSubmitting ? t.submit.submitting : t.submit.feedbackSubmitButton}
+                  </Button>
+                </form>
               </>
             )}
           </div>
