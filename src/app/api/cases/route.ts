@@ -14,12 +14,25 @@ import { apiError } from "@/lib/i18n/api-messages";
 
 const DEFAULT_COUNTRY = "CN";
 
+// Seed shapes are whitelisted rather than escaped: the value is a bound
+// parameter, but a free-form one would let a caller fill the sort key with
+// megabytes of text.
+const SEED_PATTERN = /^[a-z0-9]{1,32}$/i;
+
 // Mainland China ("CN") covers every province except the two SARs. Hong Kong,
 // Macau and Taiwan are NOT part of the mainland dataset — each keeps its own
 // table, so selecting them never surfaces mainland cases. HK is synced from
 // HKPF; MO/TW have no source yet and legitimately come back empty.
 function normalizeCountryCode(code: string): string {
   return code.toUpperCase();
+}
+
+// The homepage sends a fresh random seed per page load so the first screen is
+// never the same batch of faces twice. The order must be a pure function of
+// (seed, row) — `ORDER BY RANDOM()` re-rolls on every request, which would make
+// 「加载更多」repeat and skip rows. md5 gives a stable, uniform sort key.
+function shuffledOrder(seed: string) {
+  return sql`md5(${seed} || ${schema.cases.id})`;
 }
 
 export async function GET(request: Request) {
@@ -37,6 +50,8 @@ export async function GET(request: Request) {
   const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
   const limit = Math.min(parseInt(searchParams.get("limit") || "30"), 100);
   const offset = (page - 1) * limit;
+  const rawSeed = searchParams.get("seed");
+  const seed = rawSeed && SEED_PATTERN.test(rawSeed) ? rawSeed : null;
 
   if (countryCode === "CN") {
     const db = await getDb();
@@ -49,6 +64,12 @@ export async function GET(request: Request) {
     if (search) conditions.push(like(schema.cases.name, `%${search}%`));
 
     const where = and(...conditions);
+    // Picking a region means the visitor is after someone specific, so a
+    // filtered list stays chronological; only the "everyone" view is shuffled.
+    const order =
+      seed && !province && !city && !district
+        ? shuffledOrder(seed)
+        : desc(schema.cases.createdAt);
 
     const [countRow] = await db
       .select({ count: sql<number>`count(*)::int` })
@@ -61,7 +82,7 @@ export async function GET(request: Request) {
       .select()
       .from(schema.cases)
       .where(where)
-      .orderBy(desc(schema.cases.createdAt))
+      .orderBy(order)
       .limit(limit)
       .offset(offset);
 
