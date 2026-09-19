@@ -140,20 +140,51 @@ body {
   .card-enter { animation: none; }
 }
 
-/* ─────────── 首页第一页：天空（昼/夜两套）+ PPT 式翻页 ─────────── */
+/* ─────────── 首页两屏：宣传页（天空，昼/夜两套）↔ 列表页 ─────────── */
 
-/* 首屏铺满一屏，并向上顶掉吸顶导航的高度，
-   这样导航栏是浮在天空上的，而不是压着一条白边。
-   第一页是完整的一整页天空 —— 底下不留任何过渡到列表底色的色带。 */
-.hero-screen {
-  margin-top: -3rem;
-  min-height: 100vh;
-  background: radial-gradient(130% 95% at 50% 0%, #141d3c 0%, #0a1024 45%, #04060e 100%);
+/* 首页自己不滚：整页就是一个视口高的盒子，翻屏靠两屏互切。
+   用 dvh 才能让地址栏收起时不露出底下一条白。 */
+.home-viewport {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
 }
 @supports (height: 100dvh) {
-  /* 用 svh 的话，地址栏一收起首屏就比可视区矮，底下会露出一条白；
-     dvh 始终等于当前可视高度，第一页任何时刻都是满的 */
-  .hero-screen { min-height: 100dvh; }
+  .home-viewport { height: 100dvh; }
+}
+
+/* 两屏都铺满整个视口 —— 连吸顶导航那 3rem 一起盖住，导航靠 z-40 浮在上面。
+   z 序上宣传页在上方：翻过去时它往上淡出，露出底下的列表页。
+   visibility 一起参与过渡，所以切完之后那一屏连绘制都停了，星野的动画也跟着停。 */
+.home-slide {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.6, 1), visibility 0.4s;
+}
+.home-slide-hero { z-index: 20; }
+.home-slide-list { z-index: 10; }
+
+.home-slide-hero.home-slide-off {
+  opacity: 0;
+  transform: translateY(-28px) scale(0.985);
+  visibility: hidden;
+  pointer-events: none;
+}
+.home-slide-list.home-slide-off {
+  opacity: 0;
+  transform: translateY(32px);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 只砍掉动画，不砍翻屏本身 —— 翻屏是进列表页的唯一途径 */
+@media (prefers-reduced-motion: reduce) {
+  .home-slide { transition: none; }
+}
+
+/* 第一屏整屏天空，底下不留任何过渡到列表底色的色带（白天那套见 html.home-day）。 */
+.hero-screen {
+  background: radial-gradient(130% 95% at 50% 0%, #141d3c 0%, #0a1024 45%, #04060e 100%);
 }
 
 /* 白天：近白的浅蓝天，越往下越白 */
@@ -277,35 +308,19 @@ html.home-day .hero-rule { background: rgba(26, 35, 52, 0.14); }
 html.home-day .hero-hint { color: rgba(26, 35, 52, 0.6); }
 html.home-day .hero-hint-icon { color: rgba(26, 35, 52, 0.5); }
 
-/* 首屏淡出，列表淡入 —— 刷新后的第一次滚动走这套，之后是连续滚动 */
-@keyframes heroPptOut {
-  to { opacity: 0; transform: translateY(-18px) scale(0.985); }
-}
-.hero-ppt-out {
-  animation: heroPptOut 0.34s cubic-bezier(0.4, 0, 1, 1) forwards;
-}
-
-@keyframes contentPptIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: none; }
-}
-.content-ppt-in {
-  animation: contentPptIn 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-ppt-out, .content-ppt-in { animation: none; }
-}
-
 /* 首页隐藏滚动条：还能滚，只是不画那根条。
-   放在 html 上而不是某个容器上，否则吸顶导航会失效。 */
-.home-no-scrollbar {
+   放在 html 上而不是某个容器上，否则吸顶导航会失效。
+   列表那一列（.no-scrollbar）同样不画条 —— 第二屏的滚动全在它内部。 */
+.home-no-scrollbar,
+.no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.home-no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.home-no-scrollbar::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
-/* 停在首屏时导航栏透明浮在天空上；一旦滚进列表页就恢复毛玻璃。
+/* 停在宣传页时导航栏透明浮在天空上；翻到列表页就恢复毛玻璃。
+   home-hero-top 由 page.tsx 跟着当前那一屏加/去，不再看滚动位置。
    这些选择器没有包在 @layer 里，所以能盖过 Tailwind 的原子类。 */
 .site-header-title { color: #1c1c1e; }
 
