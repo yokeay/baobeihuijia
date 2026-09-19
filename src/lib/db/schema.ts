@@ -124,6 +124,14 @@ export const questions = pgTable("questions", {
   createdAt:     timestamp("created_at").notNull().defaultNow(),
 });
 
+// 全站访问流水：一次页面加载（含刷新）一条。访客 IP 只以加盐哈希形式落库。
+export const siteVisits = pgTable("site_visits", {
+  id:        text("id").primaryKey(),
+  ipHash:    text("ip_hash").notNull(),
+  path:      text("path"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const userActivities = pgTable("user_activities", {
   id:         text("id").primaryKey(),
   userId:     text("user_id").notNull(),

@@ -5,7 +5,7 @@ import { useAdmin } from "../context";
 import { ToastContainer } from "@/components/ui/Toast";
 import { LineChart } from "@/components/ui/LineChart";
 import { IconButton, PageHeader, Panel, Segmented, StatCard, type Tone } from "@/components/ui/admin/kit";
-import { RefreshIcon, FolderIcon, ClockIcon, CheckIcon, CloseIcon } from "@/components/ui/Icon";
+import { RefreshIcon, FolderIcon, ClockIcon, CheckIcon, CloseIcon, EyeIcon, UsersIcon, ActivityIcon, GlobeIcon } from "@/components/ui/Icon";
 
 const RANGE_TABS = [
   { value: "7d", label: "7日" },
@@ -15,12 +15,21 @@ const RANGE_TABS = [
 
 export default function AdminDashboardPage() {
   const { t } = useAdmin();
-  const [stats, setStats] = useState({ total: 0, byStatus: { pending: 0, approved: 0, rejected: 0 }, bySource: { api: 0, user_submit: 0, crawl: 0 }, cluePending: 0 });
+  const [stats, setStats] = useState({
+    total: 0,
+    byStatus: { pending: 0, approved: 0, rejected: 0 },
+    bySource: { api: 0, user_submit: 0, crawl: 0 },
+    cluePending: 0,
+    visits: { total: 0, uniqueIps: 0, today: 0, todayUniqueIps: 0 },
+  });
   const [trends, setTrends] = useState<any>(null);
   const [trendsLoading, setTrendsLoading] = useState(true);
+  const [visitTrends, setVisitTrends] = useState<{ visits?: { date: string; count: number }[] } | null>(null);
+  const [visitLoading, setVisitLoading] = useState(true);
   const [caseRange, setCaseRange] = useState("7d");
   const [clueRange, setClueRange] = useState("7d");
   const [followRange, setFollowRange] = useState("7d");
+  const [visitRange, setVisitRange] = useState("7d");
 
   const fetchStats = useCallback(async () => {
     try {
@@ -45,14 +54,29 @@ export default function AdminDashboardPage() {
     finally { setTrendsLoading(false); }
   }, [caseRange]);
 
+  // 访问趋势有自己的区间选择，单独取一次，避免和上面三个图共用区间
+  const fetchVisitTrends = useCallback(async () => {
+    setVisitLoading(true);
+    try {
+      const res = await fetch(`/api/admin/trends?range=${visitRange}`);
+      if (res.ok) setVisitTrends(await res.json());
+    } catch { /* silent */ }
+    finally { setVisitLoading(false); }
+  }, [visitRange]);
+
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchTrends(); }, [fetchTrends]);
+  useEffect(() => { fetchVisitTrends(); }, [fetchVisitTrends]);
 
-  const statCards: { label: string; value: number; tone: Tone; icon: React.ReactNode }[] = [
+  const statCards: { label: string; value: number; tone: Tone; icon: React.ReactNode; hint?: string }[] = [
     { label: t.dashboard.totalCases, value: stats.total, tone: "brand", icon: <FolderIcon size={15} /> },
     { label: t.dashboard.pendingReview, value: stats.byStatus.pending, tone: "warning", icon: <ClockIcon size={15} /> },
     { label: t.dashboard.approved, value: stats.byStatus.approved, tone: "success", icon: <CheckIcon size={15} /> },
     { label: t.dashboard.rejected, value: stats.byStatus.rejected + (stats.cluePending || 0), tone: "danger", icon: <CloseIcon size={15} /> },
+    { label: t.dashboard.visits, value: stats.visits.total, tone: "info", icon: <EyeIcon size={15} />, hint: t.dashboard.visitHint },
+    { label: t.dashboard.uniqueIps, value: stats.visits.uniqueIps, tone: "info", icon: <UsersIcon size={15} />, hint: t.dashboard.uniqueIpHint },
+    { label: t.dashboard.todayVisits, value: stats.visits.today, tone: "neutral", icon: <ActivityIcon size={15} /> },
+    { label: t.dashboard.todayUniqueIps, value: stats.visits.todayUniqueIps, tone: "neutral", icon: <GlobeIcon size={15} /> },
   ];
 
   return (
@@ -61,7 +85,7 @@ export default function AdminDashboardPage() {
         title={t.dashboard.title}
         description="平台整体数据概览与近期提交趋势"
         actions={
-          <IconButton label="刷新" onClick={() => { fetchStats(); fetchTrends(); }}>
+          <IconButton label="刷新" onClick={() => { fetchStats(); fetchTrends(); fetchVisitTrends(); }}>
             <RefreshIcon size={16} />
           </IconButton>
         }
@@ -76,6 +100,7 @@ export default function AdminDashboardPage() {
             value={s.value.toLocaleString()}
             tone={s.tone}
             icon={s.icon}
+            hint={s.hint}
           />
         ))}
       </div>
@@ -107,6 +132,15 @@ export default function AdminDashboardPage() {
           loading={trendsLoading}
         >
           {trends && <LineChart data={trends.clues || []} color="#3b82f6" height={150} />}
+        </ChartCard>
+
+        <ChartCard
+          title={t.dashboard.visitTrend}
+          range={visitRange}
+          onRangeChange={setVisitRange}
+          loading={visitLoading}
+        >
+          {visitTrends && <LineChart data={visitTrends.visits || []} color="#7c3aed" height={150} />}
         </ChartCard>
       </div>
 

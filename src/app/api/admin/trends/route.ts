@@ -1,7 +1,14 @@
 import { getDb } from "@/lib/db";
 import { sql } from "drizzle-orm";
+import { getAdminFromCookies } from "@/lib/auth";
 
 export async function GET(request: Request) {
+  // 只有后台仪表盘在读它，这里带上访问量序列后不能再匿名可取
+  const admin = await getAdminFromCookies();
+  if (!admin) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const range = searchParams.get("range") || "7d";
 
@@ -44,9 +51,15 @@ export async function GET(request: Request) {
     sql`SELECT DATE(created_at) as date, COUNT(*)::int as count FROM user_activities WHERE action = 'follow' AND created_at >= ${sinceStr}::timestamp GROUP BY DATE(created_at) ORDER BY date`
   );
 
+  // Visits per day（一次页面加载算一次访问）
+  const visitRows = await db.execute(
+    sql`SELECT DATE(created_at) as date, COUNT(*)::int as count FROM site_visits WHERE created_at >= ${sinceStr}::timestamp GROUP BY DATE(created_at) ORDER BY date`
+  );
+
   return Response.json({
     cases: fill(caseRows.rows || caseRows),
     clues: fill(clueRows.rows || clueRows),
     follows: fill(followRows.rows || followRows),
+    visits: fill(visitRows.rows || visitRows),
   });
 }
