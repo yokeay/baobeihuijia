@@ -13,6 +13,7 @@ import {
   MessageIcon,
   HelpIcon,
   LightbulbIcon,
+  InboxIcon,
   ActivityIcon,
   ShieldIcon,
   EyeIcon,
@@ -82,6 +83,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         { href: "/admin/comments", label: "评论管理", icon: MessageIcon },
         { href: "/admin/questions", label: "疑问管理", icon: HelpIcon },
         { href: "/admin/clues", label: "线索管理", icon: LightbulbIcon },
+        { href: "/admin/feedback", label: "反馈管理", icon: InboxIcon },
       ],
     },
     {

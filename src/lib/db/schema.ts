@@ -132,6 +132,18 @@ export const siteVisits = pgTable("site_visits", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// 用户反馈与建议：前台任何人都能提交（不强制登录），后台只读列表 + 标记已处理。
+// 只收标题和正文两段文字，刻意不留图片字段。
+export const feedback = pgTable("feedback", {
+  id:        text("id").primaryKey(),
+  title:     text("title").notNull(),
+  content:   text("content").notNull(),
+  userId:    text("user_id"),
+  userName:  text("user_name"),
+  status:    text("status").default("pending"), // 'pending' | 'handled'
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const userActivities = pgTable("user_activities", {
   id:         text("id").primaryKey(),
   userId:     text("user_id").notNull(),
