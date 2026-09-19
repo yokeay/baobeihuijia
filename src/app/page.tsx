@@ -47,6 +47,10 @@ export default function HomePage() {
   const [gender, setGender] = useState("");
   const [search, setSearch] = useState("");
   const [heroPhase, setHeroPhase] = useState<"idle" | "out" | "in">("idle");
+  // 每次打开 / 刷新首页换一个随机排序种子，服务端据此把「未选地区」的列表打乱，
+  // 不再永远是同一批最新数据。种子必须固定住（而不是每次请求现生成），否则
+  // 「加载更多」会翻到另一套顺序上，导致重复与漏掉记录。
+  const [seed] = useState(() => Math.random().toString(36).slice(2, 10));
 
   const contentRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -71,6 +75,8 @@ export default function HomePage() {
     params.set("page", String(p));
     params.set("limit", "24");
     params.set("countryCode", countryCode);
+    // 由服务端决定要不要打乱：只有没选地区时才用得上，带上也无副作用。
+    params.set("seed", seed);
     if (province) params.set("province", province);
     if (city) params.set("city", city);
     if (district) params.set("district", district);
@@ -92,7 +98,7 @@ export default function HomePage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [province, city, district, gender, search, countryCode]);
+  }, [province, city, district, gender, search, countryCode, seed]);
 
   // Reset when country changes
   useEffect(() => {
