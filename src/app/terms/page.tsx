@@ -26,7 +26,7 @@ const zh = (
     <h2>二、信息来源与准确性</h2>
     <p>本平台展示的失踪人口信息来自两类渠道：</p>
     <ul>
-      <li>各国、各地区公开发布的官方或公益数据源（例如香港警务处失踪人士公告、美国 NamUs 数据库等）；</li>
+      <li>各国、各地区公开发布的官方或公益数据源（例如香港警务处失踪人士公告、美国 NamUs 数据库、韩国警察厅 안전Dream 等）；</li>
       <li>用户主动提交并经本平台审核发布的信息。</li>
     </ul>
     <p>
@@ -102,7 +102,7 @@ const en = (
     <h2>2. Sources and accuracy</h2>
     <p>Records shown here come from two kinds of source:</p>
     <ul>
-      <li>Official or public-interest datasets published by governments and organisations (e.g. the Hong Kong Police Force missing-persons notices, the US NamUs database);</li>
+      <li>Official or public-interest datasets published by governments and organisations (e.g. the Hong Kong Police Force missing-persons notices, the US NamUs database, Korea's 안전Dream);</li>
       <li>Submissions from users, published only after review.</li>
     </ul>
     <p>
