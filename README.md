@@ -51,6 +51,7 @@
 **审核后台**
 - 案件/线索/评论/疑问四类审核队列，操作留审计日志
 - 数据源同步、平台统计图表、用户管理与行为日志
+- 全站访问统计：累计/今日访问次数与独立访客卡片，外加一条访问趋势折线图。埋点在根布局，一次页面加载（含刷新）计一次访问；访客 IP 只以服务端密钥加盐哈希落库（`site_visits.ip_hash`），原始 IP 不存储
 
 ## 技术栈
 
@@ -119,13 +120,14 @@ src/
 │   ├── profile/              个人资料
 │   ├── terms/  privacy/      用户协议 / 隐私政策
 │   ├── admin/                审核后台
-│   ├── api/                  cases / regions / stats / geo / auth / upload …
+│   ├── api/                  cases / regions / stats / geo / auth / upload / track …
 │   ├── opengraph-image.tsx   运行时生成分享卡片
 │   ├── sitemap.ts  robots.ts
 │   └── globals.css           设计 token、昼夜两套天空与翻页动效、心跳与卡片动效
 ├── components/
 │   ├── case/                 CaseCard / CaseGrid / CaseSidebar
 │   ├── home/                 Starfield（星云 / 星点 / 流星，昼夜共用一套 DOM）
+│   ├── analytics/            VisitTracker（根布局里的访问埋点）
 │   ├── layout/               Header / Footer / LegalPage / 地区与语言提示
 │   └── shared/               地区选择器（大陆级联 / 香港总区 / 数据驱动）
 └── lib/

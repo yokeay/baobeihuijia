@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PublicLangProvider } from "@/lib/i18n/public-context";
 import { UserProvider } from "@/lib/UserContext";
 import { PhoneAuthSheet } from "@/components/auth/PhoneAuthSheet";
+import { VisitTracker } from "@/components/analytics/VisitTracker";
 import "./globals.css";
 
 const BASE_URL = "https://wohaoxiangni.com";
@@ -128,7 +129,7 @@ export default function RootLayout({
         <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
       </head>
       <body className="h-full bg-gray-50 text-gray-900 antialiased">
-        <UserProvider><PublicLangProvider>{children}<PhoneAuthSheet /></PublicLangProvider></UserProvider>
+        <UserProvider><PublicLangProvider>{children}<VisitTracker /><PhoneAuthSheet /></PublicLangProvider></UserProvider>
       </body>
     </html>
   );

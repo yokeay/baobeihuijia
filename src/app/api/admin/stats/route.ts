@@ -46,11 +46,29 @@ export async function GET() {
     .from(schema.clues)
     .where(eq(schema.clues.status, "rejected"));
 
+  // 访问统计：一次页面加载算一次访问，独立 IP 按 ip_hash 去重。
+  // CURRENT_DATE 走数据库会话时区（本机为 Asia/Shanghai），和趋势线的 DATE() 分桶一致。
+  const visitResult = (await db.execute(sql`
+    SELECT
+      COUNT(*)::int                                              AS total,
+      COUNT(DISTINCT ip_hash)::int                               AS unique_ips,
+      COUNT(*) FILTER (WHERE created_at >= CURRENT_DATE)::int    AS today,
+      COUNT(DISTINCT ip_hash) FILTER (WHERE created_at >= CURRENT_DATE)::int AS today_unique
+    FROM site_visits
+  `)) as unknown as { rows?: Record<string, unknown>[] };
+  const visitRow = visitResult.rows?.[0] ?? {};
+
   return Response.json({
     total: totalRow?.count ?? 0,
     byStatus,
     bySource,
     cluePending: cluePendingRow?.count ?? 0,
     clueRejected: clueRejectedRow?.count ?? 0,
+    visits: {
+      total: Number(visitRow.total) || 0,
+      uniqueIps: Number(visitRow.unique_ips) || 0,
+      today: Number(visitRow.today) || 0,
+      todayUniqueIps: Number(visitRow.today_unique) || 0,
+    },
   });
 }

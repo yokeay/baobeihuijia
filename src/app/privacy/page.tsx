@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/LegalPage";
 
-const UPDATED = "2026-09-05";
+const UPDATED = "2026-09-19";
 
 export const metadata: Metadata = {
   title: "隐私政策",
@@ -29,6 +29,7 @@ const zh = (
     <p><strong>2. 自动产生的信息</strong></p>
     <ul>
       <li><strong>浏览量统计</strong>：为避免重复计数，我们会记录一个不可逆的浏览指纹，不用于跨站跟踪。</li>
+      <li><strong>访问统计</strong>：每次页面加载（含刷新）我们会记录一条访问流水，其中您的 IP 会先经服务端密钥加盐哈希，只有这段<strong>不可逆的哈希值</strong>入库，原始 IP 既不存储也不外传。它仅用于后台统计访问次数、独立访客数与浏览趋势，不用于识别个人身份。</li>
       <li><strong>地区判断</strong>：为决定默认展示哪个地区的数据与界面语言，我们会将您的 IP 提交给第三方地理位置服务查询国家代码。我们<strong>不存储</strong>您的 IP，也不会自动切换地区——切换需要您点击确认。</li>
       <li><strong>操作日志</strong>：登录、关注、提交等行为会记录用于安全审计与滥用防范。</li>
     </ul>
@@ -114,6 +115,7 @@ const en = (
     <p><strong>Information generated automatically</strong></p>
     <ul>
       <li><strong>View counts</strong>: an irreversible fingerprint is stored to avoid double counting. It is not used for cross-site tracking.</li>
+      <li><strong>Traffic statistics</strong>: every page load (including reloads) is logged. Your IP is first salted and hashed server-side with a secret key, and only that <strong>irreversible hash</strong> is stored — the raw IP is never stored or shared. It is used solely to count total visits, unique visitors and traffic trends in the admin panel, never to identify an individual.</li>
       <li><strong>Region detection</strong>: to choose which country&apos;s data and which UI language to show first, your IP is sent to a third-party geolocation service to obtain a country code. We <strong>do not store your IP</strong>, and we never switch region automatically — that needs your click.</li>
       <li><strong>Activity log</strong>: sign-ins, follows and submissions are logged for security and abuse prevention.</li>
     </ul>
