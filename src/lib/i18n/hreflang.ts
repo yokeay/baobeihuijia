@@ -1,11 +1,12 @@
 import type { Lang } from "./public-context";
 
 /**
- * The ten UI languages the site ships, as hreflang variants. The site keeps a
- * single URL per page (language is client-side state), so every language
- * other than the default maps to the same URL with ?lang=<code>, which the
- * client applies on load (see public-context.tsx). zh-CN is the default and
- * keeps the plain URL; x-default points at it as well.
+ * The UI languages the site ships, as hreflang variants (es joined with
+ * REQ-202610-0449). The site keeps a single URL per page (language is
+ * client-side state), so every language other than the default maps to the
+ * same URL with ?lang=<code>, which the client applies on load (see
+ * public-context.tsx). zh-CN is the default and keeps the plain URL;
+ * x-default points at it as well.
  */
 export const HREFLANG_VARIANTS: { code: string; lang: Lang }[] = [
   { code: "zh-CN", lang: "zh" },
@@ -15,6 +16,7 @@ export const HREFLANG_VARIANTS: { code: string; lang: Lang }[] = [
   { code: "ko", lang: "ko" },
   { code: "fr", lang: "fr" },
   { code: "de", lang: "de" },
+  { code: "es", lang: "es" },
   { code: "ug", lang: "ug" },
   { code: "mn", lang: "mn" },
   { code: "bo", lang: "bo" },
@@ -27,7 +29,7 @@ export function variantUrl(url: string, code: string): string {
 
 /**
  * `alternates.languages` for Next metadata (homepage + every case page):
- * all ten languages plus x-default.
+ * every language above plus x-default.
  */
 export function languageAlternates(url: string): Record<string, string> {
   const languages: Record<string, string> = {};

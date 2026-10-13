@@ -22,7 +22,7 @@ export const COUNTRIES: Country[] = [
   { code: "CA", name: "Canada", nameZh: "加拿大", hasRegions: false, lang: "en", regionType: "data-cascade" },
   { code: "AU", name: "Australia", nameZh: "澳大利亚", hasRegions: false, lang: "en", regionType: "data-cascade" },
   { code: "IT", name: "Italy", nameZh: "意大利", hasRegions: false, lang: "en", regionType: "data-cascade" },
-  { code: "ES", name: "Spain", nameZh: "西班牙", hasRegions: false, lang: "en", regionType: "data-cascade" },
+  { code: "ES", name: "Spain", nameZh: "西班牙", hasRegions: false, lang: "es", regionType: "data-cascade" },
   { code: "RU", name: "Russia", nameZh: "俄罗斯", hasRegions: false, lang: "en", regionType: "data-cascade" },
   { code: "BR", name: "Brazil", nameZh: "巴西", hasRegions: false, lang: "en", regionType: "data-cascade" },
   { code: "IN", name: "India", nameZh: "印度", hasRegions: false, lang: "en", regionType: "data-cascade" },

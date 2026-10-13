@@ -40,8 +40,8 @@
 - 案件详情页含体貌特征、走失时间地点、原始来源链接、线索时间线、评论与疑问
 
 **多语言 / 多地区**
-- 10 种界面语言：简体中文、繁体中文、English、日本語、한국어、Français、Deutsch，以及维吾尔文、蒙古文、藏文
-- 语言随所选国家/地区自动切换：中国大陆简体，香港/澳门/台湾繁体，日本日文，韩国韩文，法国法文，德国德文，其余英文兜底
+- 11 种界面语言：简体中文、繁体中文、English、日本語、한국어、Français、Deutsch、Español，以及维吾尔文、蒙古文、藏文
+- 语言随所选国家/地区自动切换：中国大陆简体，香港/澳门/台湾繁体，日本日文，韩国韩文，法国法文，德国德文，西班牙语，其余英文兜底
 - 新疆、内蒙古、西藏三个自治区可在民族文字与中文之间自主选择
 - 海外 IP 访问时右上角提示是否切换到当地数据，**不自动切换**
 - 切换提示出现在界面仍是中文默认值的时候，因此它按**浏览器语言**取中文或英文文案，不受当前界面语言影响
@@ -66,7 +66,7 @@
 | 样式 | Tailwind CSS 4 |
 | 数据库 | PostgreSQL + Drizzle ORM |
 | 鉴权 | JWT（jose / jsonwebtoken）+ bcrypt |
-| 图片 | 热链上游来源；韩国照片因上游图片节点不稳定，经应用内 `/api/image/safe182/[id]` 中转；西班牙 CNDES 照片为 base64 内联、无按 id 取图端点，同步时转存到 `public/uploads/cndes/` |
+| 图片 | 热链上游来源；韩国照片因上游图片节点不稳定，经应用内 `/api/image/safe182/[id]` 中转；西班牙 CNDES 照片为 base64 内联、无按 id 取图端点，同步时转存到 `public/uploads/cndes/`，再由 `/api/image/cndes/[file]` 读盘直出。分享卡（OG 图）对有绝对照片的案件仍热链原图，无有效照片的改由 `/api/og/case/[id]` 运行时生成品牌兜底图（见 `docs/REQ-202610-0443-plan.md`） |
 | 部署 | 自有服务器 + systemd，Cloudflare 前置 |
 
 ## 数据来源
@@ -105,16 +105,27 @@ python3 scripts/screenshot.py   # 无头浏览器截图（写入 docs/screenshot
 
 ## 部署
 
-生产部署分支是 **`local-server`**，不是 `main`。仓库没有 CI，部署由服务器本地完成：
+生产部署分支是 **`local-server`**，不是 `main`。仓库没有 CI，部署由服务器本地完成。推荐用一键脚本（同步代码 → `npm ci`（按需）→ 构建 → 重启 → 健康检查，失败给出回滚提示）：
+
+```bash
+./scripts/deploy.sh                 # 完整部署
+./scripts/deploy.sh --no-pull       # 不拉代码，用当前工作区构建部署（回滚后重发用）
+./scripts/deploy.sh --health-only   # 只做健康检查，不部署
+```
+
+健康检查打本机回环 `http://127.0.0.1:3000`（首页 200 + `/api/stats` + `/api/cases` 抽查）；**不要用公网域名做命令行验证**——经 Cloudflare，会被 bot 挑战拦成 403。脚本在部署前会校验：当前在 `local-server` 分支、已跟踪文件无未提交改动、服务运行目录与仓库一致，并用文件锁防止并发部署。
+
+手工回退步骤（与脚本内部流程等价）：
 
 ```bash
 git pull origin local-server
 npm ci                    # 依赖缺失时 systemd 启动会失败
 npm run build
 systemctl restart baobeihuijia
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/   # 期望 200
 ```
 
-systemd 单元 `baobeihuijia.service` 直接执行 `node node_modules/next/dist/bin/next start -p 3000`，并设有内存上限与崩溃自愈。线上验证走 `http://localhost:3000`——公网域名经 Cloudflare，命令行访问会被 bot 挑战拦成 403。
+systemd 单元 `baobeihuijia.service` 直接执行 `node node_modules/next/dist/bin/next start -p 3000`，并设有内存上限与崩溃自愈。方案与验收细节见 `docs/REQ-202610-0450-plan.md`。
 
 ## 目录结构
 
@@ -127,8 +138,9 @@ src/
 │   ├── profile/              个人资料
 │   ├── terms/  privacy/      用户协议 / 隐私政策
 │   ├── admin/                审核后台
-│   ├── api/                  cases / regions / stats / geo / auth / upload / track …
-│   ├── opengraph-image.tsx   运行时生成分享卡片
+│   ├── api/                  cases / regions / stats / geo / auth / upload / track / og …
+│   ├── api/og/case/[id]/     案件无有效照片时运行时生成的分享兜底卡（有绝对照片的仍热链原图）
+│   ├── opengraph-image.tsx   站点级分享卡片
 │   ├── sitemap.ts  robots.ts
 │   └── globals.css           设计 token、昼夜两套天空、首页两屏的叠化翻页、心跳与卡片动效
 ├── components/
@@ -138,9 +150,10 @@ src/
 │   ├── layout/               Header / Footer / LegalPage / 地区与语言提示
 │   └── shared/               地区选择器（大陆级联 / 香港总区 / 数据驱动）
 └── lib/
-    ├── i18n/public/          10 个语言包，类型由 zh.ts 推导
+    ├── i18n/public/          11 个语言包，类型由 zh.ts 推导
     ├── db/                   schema、多国表工具、案件查询
     ├── sync/                 香港、NamUs、韩国、西班牙 CNDES 数据同步
+    ├── case-share-image.ts   分享卡图片分流：有绝对照片热链原图，否则指向生成卡路由
     └── countries.ts          国家 → 语言 + 地区筛选类型映射
 ```
 
@@ -159,7 +172,7 @@ src/
 
 - `ug` / `mn` / `bo` 三个民族语言包目前是机器翻译占位，**上线给真实用户前需母语译者校对**
 - 澳门、台湾及日法德等地区尚无数据源接入
-- 照片取自上游（韩国经应用中转、西班牙 CNDES 转存本地，见技术栈），未做失效检测与定期清理
+- 照片取自上游（韩国经应用中转、西班牙 CNDES 转存本地后走 `/api/image/cndes/[file]` 直出，见技术栈），未做失效检测与定期清理。分享卡已在「无有效照片」时兜底为品牌生成图（见技术栈），但**页面内裂图的全量巡检与占位**（卡 05）仍未做
 - 韩国照片虽然入库时有 789 条带图，但上游只对最近几十条记录稳定提供图片，更早的返回占位图（中转路由据此判 404），因此韩国卡片多为无图状态。已确认不是中转路由的问题，见 `docs/REQ-202609-0095-global-data-source-research.md` 第 7.1 节
 
 ---

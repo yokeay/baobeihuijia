@@ -8,13 +8,14 @@ import ja from "./public/ja";
 import ko from "./public/ko";
 import fr from "./public/fr";
 import de from "./public/de";
+import es from "./public/es";
 import ug from "./public/ug";
 import mn from "./public/mn";
 import bo from "./public/bo";
 import { COUNTRY_MAP } from "@/lib/countries";
 import { langFromQuery } from "./hreflang";
 
-export type Lang = "zh" | "zh-Hant" | "en" | "ja" | "ko" | "fr" | "de" | "ug" | "mn" | "bo";
+export type Lang = "zh" | "zh-Hant" | "en" | "ja" | "ko" | "fr" | "de" | "es" | "ug" | "mn" | "bo";
 
 // Provinces where the user may opt into a local-language UI on top of the
 // CN default. Not a country switch — this is an overlay on the CN language.
@@ -82,6 +83,7 @@ const TRANSLATIONS: Record<Lang, PublicTranslations> = {
   ko,
   fr,
   de,
+  es,
   ug,
   mn,
   bo,
