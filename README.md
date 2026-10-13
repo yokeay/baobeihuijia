@@ -127,6 +127,24 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/   # 期望 200
 
 systemd 单元 `baobeihuijia.service` 直接执行 `node node_modules/next/dist/bin/next start -p 3000`，并设有内存上限与崩溃自愈。方案与验收细节见 `docs/REQ-202610-0450-plan.md`。
 
+### 运维巡检与告警
+
+`scripts/inspect.ts` 每 30 分钟巡检一次（systemd timer `baobeihuijia-inspect.timer`），三类检查，异常时通过 ClodHost 邮件 API 告警到维护者（收件人默认 `scx@polofox.com`，可用 `INSPECT_ALERT_EMAILS` 调整），问题恢复后发恢复通知：
+
+1. **站点**：首页 / `/api/stats` / `/api/cases` 三项本机回环探测（与 `deploy.sh` 健康检查同口径）
+2. **同步任务**：`sync_runs` 表记录每次同步（大陆/香港/美国/韩国/西班牙）的心跳与结果；最近一次失败、卡死（running 超 3 小时）或定时来源超 26 小时未运行即告警
+3. **数据量**：各案件表行数对比上次快照，骤降（≥10 条且 ≥2%）或暴涨（≥100 条且 ≥20%）即告警
+
+每周一 09:23（北京时间）发巡检周报（`baobeihuijia-inspect-report.timer`）；`--report --days 30` 可发月报。手动运行：
+
+```bash
+node_modules/.bin/tsx scripts/inspect.ts --dry-run          # 只检查、不发邮件、不写状态
+node_modules/.bin/tsx scripts/inspect.ts --self-test        # 内置自测，不访问网络
+node_modules/.bin/tsx scripts/inspect.ts --simulate=site-down   # 模拟故障，测试告警通道
+```
+
+状态文件在 `/var/lib/baobeihuijia-inspect/state.json`；systemd 单元在 `deploy/systemd/`；方案与验收细节见 `docs/REQ-202610-0437-plan.md`。
+
 ## 目录结构
 
 ```

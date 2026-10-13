@@ -1,0 +1,10 @@
+[Unit]
+Description=每周一发送巡检周报（01:23 UTC = 09:23 北京时间）
+
+[Timer]
+OnCalendar=Mon *-*-* 01:23:00
+AccuracySec=1min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

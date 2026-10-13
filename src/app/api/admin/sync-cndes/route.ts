@@ -1,4 +1,5 @@
 import { syncCndes } from "@/lib/sync/cndes";
+import { beginSyncRun, completeSyncRun, abortSyncRun } from "@/lib/sync/runs";
 import { getAdminFromCookies } from "@/lib/auth";
 
 // A full run pulls ~90 year slices, some of them tens of MB of inline base64, and
@@ -13,9 +14,21 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const { dryRun } = body;
 
-  const stats = await syncCndes({ dryRun: dryRun ?? false });
+  if (dryRun) {
+    const stats = await syncCndes({ dryRun: true });
+    return Response.json(stats);
+  }
 
-  return Response.json(stats);
+  // 真实同步：记录 sync_runs 供巡检做心跳与结果检查（dryRun 不记录）
+  const runId = await beginSyncRun("cndes");
+  try {
+    const stats = await syncCndes({ dryRun: false });
+    await completeSyncRun(runId, stats, { photosSaved: stats.photosSaved });
+    return Response.json(stats);
+  } catch (err) {
+    await abortSyncRun(runId, err);
+    throw err;
+  }
 }
 
 export async function GET() {
