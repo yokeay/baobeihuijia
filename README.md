@@ -66,7 +66,7 @@
 | 样式 | Tailwind CSS 4 |
 | 数据库 | PostgreSQL + Drizzle ORM |
 | 鉴权 | JWT（jose / jsonwebtoken）+ bcrypt |
-| 图片 | 热链上游来源；韩国照片因上游图片节点不稳定，经应用内 `/api/image/safe182/[id]` 中转；西班牙 CNDES 照片为 base64 内联、无按 id 取图端点，同步时转存到 `public/uploads/cndes/` |
+| 图片 | 热链上游来源；韩国照片因上游图片节点不稳定，经应用内 `/api/image/safe182/[id]` 中转；西班牙 CNDES 照片为 base64 内联、无按 id 取图端点，同步时转存到 `public/uploads/cndes/`，再由 `/api/image/cndes/[file]` 读盘直出 |
 | 部署 | 自有服务器 + systemd，Cloudflare 前置 |
 
 ## 数据来源
@@ -159,7 +159,7 @@ src/
 
 - `ug` / `mn` / `bo` 三个民族语言包目前是机器翻译占位，**上线给真实用户前需母语译者校对**
 - 澳门、台湾及日法德等地区尚无数据源接入
-- 照片取自上游（韩国经应用中转、西班牙 CNDES 转存本地，见技术栈），未做失效检测与定期清理
+- 照片取自上游（韩国经应用中转、西班牙 CNDES 转存本地后走 `/api/image/cndes/[file]` 直出，见技术栈），未做失效检测与定期清理
 - 韩国照片虽然入库时有 789 条带图，但上游只对最近几十条记录稳定提供图片，更早的返回占位图（中转路由据此判 404），因此韩国卡片多为无图状态。已确认不是中转路由的问题，见 `docs/REQ-202609-0095-global-data-source-research.md` 第 7.1 节
 
 ---
