@@ -38,6 +38,7 @@
 - **大陆首页每次刷新都是一批新面孔**：没有选定地区时，列表按「本次页面加载随机生成的种子 + 案件 id」的 md5 全序返回，让从没曝光过的记录也有机会被认出来；一旦选了省/市/区，就回到按时间倒序，方便顺着近期线索排查。同一份列表内「加载更多」复用同一个种子，翻页不重复也不遗漏（详见 `docs/REQ-202609-0143-plan.md`）
 - 按地区、性别、姓名多维筛选；地区选项由该国实际数据聚合而来，每个选项都筛得出结果
 - 案件详情页含体貌特征、走失时间地点、原始来源链接、线索时间线、评论与疑问
+- SEO：案件页补全 11 语言 hreflang（与 canonical 同页的 `?lang=` 变体）；sitemap 按区表分片，覆盖大陆、美国、香港、韩国、西班牙全部已审核案件，不再截断（见 `docs/REQ-202610-0442-plan.md`）
 
 **多语言 / 多地区**
 - 11 种界面语言：简体中文、繁体中文、English、日本語、한국어、Français、Deutsch、Español，以及维吾尔文、蒙古文、藏文
@@ -159,7 +160,9 @@ src/
 │   ├── api/                  cases / regions / stats / geo / auth / upload / track / og …
 │   ├── api/og/case/[id]/     案件无有效照片时运行时生成的分享兜底卡（有绝对照片的仍热链原图）
 │   ├── opengraph-image.tsx   站点级分享卡片
-│   ├── sitemap.ts  robots.ts
+│   ├── sitemap.ts            sitemap 分片（generateSitemaps，按区表 2 万条/片）
+│   ├── sitemap-index.xml/    sitemap 索引（next.config 把 /sitemap.xml 映射到这里）
+│   ├── robots.ts
 │   └── globals.css           设计 token、昼夜两套天空、首页两屏的叠化翻页、心跳与卡片动效
 ├── components/
 │   ├── case/                 CaseCard / CaseGrid / CaseSidebar
@@ -169,9 +172,11 @@ src/
 │   └── shared/               地区选择器（大陆级联 / 香港总区 / 数据驱动）
 └── lib/
     ├── i18n/public/          11 个语言包，类型由 zh.ts 推导
+    ├── i18n/hreflang.ts      hreflang 变体（11 语言 + x-default，同 URL ?lang= 方案）
     ├── db/                   schema、多国表工具、案件查询
     ├── sync/                 香港、NamUs、韩国、西班牙 CNDES 数据同步
     ├── case-share-image.ts   分享卡图片分流：有绝对照片热链原图，否则指向生成卡路由
+    ├── sitemap-shards.ts     sitemap 分片规划（区表枚举 + 2 万条切片）
     └── countries.ts          国家 → 语言 + 地区筛选类型映射
 ```
 
