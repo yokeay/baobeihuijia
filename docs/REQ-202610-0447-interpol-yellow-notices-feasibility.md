@@ -103,6 +103,12 @@
 - 0095 §6.5 的合规基线（每源须有许可依据）——本源**当前无许可依据**，属决定性阻塞。
 - **立项前置条件：INTERPOL 书面许可**（申请入口：<https://www.interpol.int/en/Contacts/Contact-INTERPOL>）。
 
+**申请渠道复核补记（2026-10-13，证据：`evidence/contact.jsonl`）**：
+
+- 联系页**完整路径**实测可用（200）；其**根路径 `/en/Contacts` 与旧路径 `/en/Contact-us` 当前均返回 503**「THIS WEBSITE IS CURRENTLY NOT AVAILABLE. PLEASE TRY AGAIN LATER.」（多语言维护页）——访问必须使用完整路径；法语 `/fr/Contacts/Contacter-INTERPOL`、西语 `/es/Contactos/Contactar-con-INTERPOL` 同样可用（均实测 200）。
+- 官方渠道（联系页原文）：邮件 **`CCCPublicMail@interpol.int`**（原文 "You can contact INTERPOL General Secretariat: CCCPublicMail@interpol.int"，来信会转交对口部门；官方注明无法回复所有来信）；正式书面许可建议**函件 + 邮件双轨**，函件寄：INTERPOL General Secretariat, 200, quai Charles de Gaulle, 69006 Lyon, France。
+- 联系页**无通用在线表单**（仅站内搜索）；媒体事务邮箱 `mediaquery@interpol.int` 与许可申请勿混用。
+
 ## 五、失效风险清单
 
 | 风险 | 说明 | 缓解 |
@@ -124,7 +130,7 @@
 
 ## 七、原始证据
 
-- 探测脚本：`interpol_explore.py`、`interpol_stability_qps.py`、`interpol_qps2.py`、`interpol_micro.py`、`interpol_micro2.py`、`interpol_micro3.py`、`interpol_micro4.py`
-- 日志：`evidence/qps2.jsonl`、`qps2.csv`、`explore.jsonl`、`stability_qps.jsonl`
+- 探测脚本：`interpol_explore.py`、`interpol_stability_qps.py`、`interpol_qps2.py`、`interpol_micro.py`、`interpol_micro2.py`、`interpol_micro3.py`、`interpol_micro4.py`、`interpol_contact.py`、`interpol_contact2.py`、`interpol_contact3.py`
+- 日志：`evidence/qps2.jsonl`、`qps2.csv`、`explore.jsonl`、`stability_qps.jsonl`、`contact.jsonl`
 - 页面留档：`list_page.html`、`list_page.png`、`robots.txt`、`terms-of-use.txt`
 - 全部为 2026-10-13 UTC 实测；留档于 `/root/.bhj-0447/evidence/`。
