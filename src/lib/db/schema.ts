@@ -171,3 +171,13 @@ export const syncRuns = pgTable("sync_runs", {
   lastError:  text("last_error"),
   detail:     jsonb("detail"),
 });
+
+// 系统日志：备份脚本（scripts/db-backup.sh）失败时写入；由脚本维护，应用侧只读。
+export const systemLogs = pgTable("system_logs", {
+  id:        text("id").primaryKey(),
+  level:     text("level").notNull().default("error"),
+  source:    text("source").notNull().default("db-backup"),
+  message:   text("message").notNull(),
+  detail:    text("detail"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
