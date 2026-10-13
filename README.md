@@ -155,6 +155,7 @@ node_modules/.bin/tsx scripts/inspect.ts --simulate=site-down   # 模拟故障�
 - **保留策略**：默认**保留全部**（需求 5(a)：每日增量后不再按周删除；如需滑动窗口可设 `RETENTION_DAYS`，需配合定期 `--rebuild-base`，见方案文档）。
 - **失败处理**：失败时保留日志、写失败标记 `/root/baobeihuijia-backups/.last-backup-failed`，并写入系统库 `system_logs` 表（脚本维护、应用侧只读）。
 - **恢复**：clone 备份仓库 → 恢复最新 `base-` 文件夹 → 按文件名顺序应用 `increments/`（完整步骤见备份仓库 README）。
+- **恢复演练**：2026-10-13 完成首次恢复演练（fresh clone → base 恢复 48s → 增量 1s → 28/28 表一致）。
 
 手动运行（`--no-push` 只本地生成、不推送，测试用）：
 
