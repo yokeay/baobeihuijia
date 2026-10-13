@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PublicLangProvider } from "@/lib/i18n/public-context";
+import { languageAlternates } from "@/lib/i18n/hreflang";
 import { UserProvider } from "@/lib/UserContext";
 import { PhoneAuthSheet } from "@/components/auth/PhoneAuthSheet";
 import { VisitTracker } from "@/components/analytics/VisitTracker";
@@ -35,10 +36,7 @@ export const metadata: Metadata = {
   // cache when the mark changes — a fixed /favicon.svg does not.
   alternates: {
     canonical: BASE_URL,
-    languages: {
-      "zh-CN": `${BASE_URL}`,
-      "en": `${BASE_URL}?lang=en`,
-    },
+    languages: languageAlternates(BASE_URL),
   },
   openGraph: {
     type: "website",
@@ -106,7 +104,7 @@ export default function RootLayout({
               name: "我好想你",
               alternateName: ["我好想你公益平台", "Wohaoxiangni", "IMU", "I Miss You", "imu 寻人"],
               url: BASE_URL,
-              inLanguage: ["zh-CN", "zh-Hant", "en", "ja", "ko", "fr", "de"],
+              inLanguage: ["zh-CN", "zh-Hant", "en", "ja", "ko", "fr", "de", "ug", "mn", "bo"],
               description: "全球失踪人口信息聚合公益平台，助力每一个家庭团圆",
               publisher: {
                 "@type": "Organization",

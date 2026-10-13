@@ -12,6 +12,7 @@ import ug from "./public/ug";
 import mn from "./public/mn";
 import bo from "./public/bo";
 import { COUNTRY_MAP } from "@/lib/countries";
+import { langFromQuery } from "./hreflang";
 
 export type Lang = "zh" | "zh-Hant" | "en" | "ja" | "ko" | "fr" | "de" | "ug" | "mn" | "bo";
 
@@ -142,6 +143,21 @@ export function PublicLangProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         // keep China default
       });
+  }, []);
+
+  // hreflang links land on ?lang=<code>; apply it once on mount. Reading
+  // window.location directly (not useSearchParams) keeps this a pure client
+  // concern and avoids a CSR bailout for every page under the provider.
+  // Post-hydration by design: applying it during render would mismatch the
+  // server-rendered default language, so this one-shot setState is suppressed
+  // rather than derived — react-hooks/set-state-in-effect targets loops.
+  useEffect(() => {
+    const fromQuery = langFromQuery(new URLSearchParams(window.location.search).get("lang"));
+    if (!fromQuery) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- deliberate post-hydration ?lang= application
+    setLang(fromQuery);
+    setT(getTranslations(fromQuery));
+    document.documentElement.lang = fromQuery === "zh" ? "zh-CN" : fromQuery;
   }, []);
 
   const switchCountry = useCallback((code: string) => {
