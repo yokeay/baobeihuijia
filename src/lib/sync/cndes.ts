@@ -148,10 +148,10 @@ function normalizeDate(raw: string | null | undefined): string | null {
   return `${y}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}`;
 }
 
-// Photos arrive as inline base64 (JPEG or PNG depending on the case) with no
-// per-id upstream URL to hotlink, so they are transferred to local disk and
-// served from /uploads/cndes/ by `next start`. Magic bytes decide the extension
-// because the servlet does not say which format it embedded.
+// Photos arrive as inline base64 with no per-id upstream URL to hotlink, so
+// they are transferred to local disk and served by /api/image/cndes/[file].
+// The servlet does not say which format it embedded and the set is mixed —
+// JPEG, PNG and BMP all occur — so magic bytes decide the extension.
 function decodePhoto(id: string, b64: string | null | undefined): { url: string; bytes: number } | null {
   if (!b64) return null;
   let buf: Buffer;
@@ -165,11 +165,12 @@ function decodePhoto(id: string, b64: string | null | undefined): { url: string;
   let ext: string | null = null;
   if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) ext = "jpg";
   else if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) ext = "png";
+  else if (buf[0] === 0x42 && buf[1] === 0x4d) ext = "bmp";
   if (!ext) return null;
 
   const filename = `${id.toLowerCase()}.${ext}`;
   fs.writeFileSync(path.join(PHOTO_DIR, filename), buf);
-  return { url: `/uploads/cndes/${filename}`, bytes: buf.length };
+  return { url: `/api/image/cndes/${filename}`, bytes: buf.length };
 }
 
 function buildFeature(r: CndesRecord): string | null {
