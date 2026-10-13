@@ -106,7 +106,7 @@ export default function RootLayout({
               name: "我好想你",
               alternateName: ["我好想你公益平台", "Wohaoxiangni", "IMU", "I Miss You", "imu 寻人"],
               url: BASE_URL,
-              inLanguage: ["zh-CN", "zh-Hant", "en", "ja", "ko", "fr", "de"],
+              inLanguage: ["zh-CN", "zh-Hant", "en", "ja", "ko", "fr", "de", "es"],
               description: "全球失踪人口信息聚合公益平台，助力每一个家庭团圆",
               publisher: {
                 "@type": "Organization",
