@@ -66,7 +66,7 @@
 | 样式 | Tailwind CSS 4 |
 | 数据库 | PostgreSQL + Drizzle ORM |
 | 鉴权 | JWT（jose / jsonwebtoken）+ bcrypt |
-| 图片 | 热链上游来源；韩国照片因上游图片节点不稳定，经应用内 `/api/image/safe182/[id]` 中转；西班牙 CNDES 照片为 base64 内联、无按 id 取图端点，同步时转存到 `public/uploads/cndes/`，再由 `/api/image/cndes/[file]` 读盘直出 |
+| 图片 | 热链上游来源；韩国照片因上游图片节点不稳定，经应用内 `/api/image/safe182/[id]` 中转；西班牙 CNDES 照片为 base64 内联、无按 id 取图端点，同步时转存到 `public/uploads/cndes/`，再由 `/api/image/cndes/[file]` 读盘直出。分享卡（OG 图）对有绝对照片的案件仍热链原图，无有效照片的改由 `/api/og/case/[id]` 运行时生成品牌兜底图（见 `docs/REQ-202610-0443-plan.md`） |
 | 部署 | 自有服务器 + systemd，Cloudflare 前置 |
 
 ## 数据来源
@@ -138,8 +138,9 @@ src/
 │   ├── profile/              个人资料
 │   ├── terms/  privacy/      用户协议 / 隐私政策
 │   ├── admin/                审核后台
-│   ├── api/                  cases / regions / stats / geo / auth / upload / track …
-│   ├── opengraph-image.tsx   运行时生成分享卡片
+│   ├── api/                  cases / regions / stats / geo / auth / upload / track / og …
+│   ├── api/og/case/[id]/     案件无有效照片时运行时生成的分享兜底卡（有绝对照片的仍热链原图）
+│   ├── opengraph-image.tsx   站点级分享卡片
 │   ├── sitemap.ts  robots.ts
 │   └── globals.css           设计 token、昼夜两套天空、首页两屏的叠化翻页、心跳与卡片动效
 ├── components/
@@ -152,6 +153,7 @@ src/
     ├── i18n/public/          11 个语言包，类型由 zh.ts 推导
     ├── db/                   schema、多国表工具、案件查询
     ├── sync/                 香港、NamUs、韩国、西班牙 CNDES 数据同步
+    ├── case-share-image.ts   分享卡图片分流：有绝对照片热链原图，否则指向生成卡路由
     └── countries.ts          国家 → 语言 + 地区筛选类型映射
 ```
 
@@ -170,7 +172,7 @@ src/
 
 - `ug` / `mn` / `bo` 三个民族语言包目前是机器翻译占位，**上线给真实用户前需母语译者校对**
 - 澳门、台湾及日法德等地区尚无数据源接入
-- 照片取自上游（韩国经应用中转、西班牙 CNDES 转存本地后走 `/api/image/cndes/[file]` 直出，见技术栈），未做失效检测与定期清理
+- 照片取自上游（韩国经应用中转、西班牙 CNDES 转存本地后走 `/api/image/cndes/[file]` 直出，见技术栈），未做失效检测与定期清理。分享卡已在「无有效照片」时兜底为品牌生成图（见技术栈），但**页面内裂图的全量巡检与占位**（卡 05）仍未做
 - 韩国照片虽然入库时有 789 条带图，但上游只对最近几十条记录稳定提供图片，更早的返回占位图（中转路由据此判 404），因此韩国卡片多为无图状态。已确认不是中转路由的问题，见 `docs/REQ-202609-0095-global-data-source-research.md` 第 7.1 节
 
 ---
