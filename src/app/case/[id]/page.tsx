@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { findCaseById, firstPhotoUrl, type CaseRecord } from "@/lib/db/find-case";
 import { caseShareImageUrl } from "@/lib/case-share-image";
 import { caseMetaTemplates } from "@/lib/i18n/public/case-meta";
+import { languageAlternates } from "@/lib/i18n/hreflang";
 import { fmt } from "@/lib/i18n/public/format";
 import { CaseDetailClient } from "./CaseDetailClient";
 
@@ -58,7 +59,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: { canonical: url, languages: languageAlternates(url) },
     openGraph: {
       type: "article",
       url,
