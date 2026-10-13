@@ -146,6 +146,26 @@ node_modules/.bin/tsx scripts/inspect.ts --simulate=site-down   # 模拟故障�
 
 状态文件在 `/var/lib/baobeihuijia-inspect/state.json`；systemd 单元在 `deploy/systemd/`；方案与验收细节见 `docs/REQ-202610-0437-plan.md`。
 
+### 数据库备份（每日）
+
+`scripts/db-backup.sh` 每日 04:13（UTC）由 cron 触发：把生产库（容器 `infra-postgres`，库 `baobeihuijia`）以 **plain SQL（建表语句 + 插入语句）** 备份并推送到**私有**异地仓库 `yokeay/baobeihuijia-db-backup`。备份含敏感个人信息：**不进主仓库、不公开**；脚本每次推送前会断言备份仓库仍是 private，不是就拒绝推送。
+
+- **基础备份（一次性）**：首次运行全量 `pg_dump`，存入 `base/base-YYYYMMDD/` 文件夹（文件夹名记录在 `MANIFEST.json` 与 `STATUS.json`）；单文件超过 GitHub 限制（95 MiB 阈值）自动分片为 `*.part-NN`，带重组校验。
+- **每日增量**：之后每天只导出「有变化」的数据（按时间戳过滤、回退 10 分钟重叠防漏），生成幂等 upsert 语句（`INSERT … ON CONFLICT DO UPDATE`），存入 `increments/`；未变化的数据不重复备份。用户/管理员/评论/线索/关注等小表每次全量随增量携带。
+- **保留策略**：默认**保留全部**（需求 5(a)：每日增量后不再按周删除；如需滑动窗口可设 `RETENTION_DAYS`，需配合定期 `--rebuild-base`，见方案文档）。
+- **失败处理**：失败时保留日志、写失败标记 `/root/baobeihuijia-backups/.last-backup-failed`，并写入系统库 `system_logs` 表（脚本维护、应用侧只读）。
+- **恢复**：clone 备份仓库 → 恢复最新 `base-` 文件夹 → 按文件名顺序应用 `increments/`（完整步骤见备份仓库 README）。
+
+手动运行（`--no-push` 只本地生成、不推送，测试用）：
+
+```bash
+./scripts/db-backup.sh --no-push        # 本地生成，不推送（测试）
+./scripts/db-backup.sh                  # 正常每日备份（缺基础备份时自动先做）
+./scripts/db-backup.sh --rebuild-base   # 强制重做基础备份
+```
+
+方案与验收细节见 `docs/REQ-202610-0436-plan.md`。
+
 ## 目录结构
 
 ```
