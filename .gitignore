@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 *.log
+
+# CNDES photos are transferred to local disk at sync time, not committed
+/public/uploads/cndes/

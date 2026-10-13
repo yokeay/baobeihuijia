@@ -26,7 +26,7 @@ export function getCasesTableName(countryCode: string): string {
 }
 
 // Country tables that actually have synced data (kept in sync with src/lib/sync/*.ts).
-export const SYNCED_COUNTRIES = ["US", "HK", "KR"];
+export const SYNCED_COUNTRIES = ["US", "HK", "KR", "ES"];
 
 export async function ensureCountryTable(countryCode: string) {
   if (countryCode === "CN") return; // cases table created in initDb
