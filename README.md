@@ -105,16 +105,27 @@ python3 scripts/screenshot.py   # 无头浏览器截图（写入 docs/screenshot
 
 ## 部署
 
-生产部署分支是 **`local-server`**，不是 `main`。仓库没有 CI，部署由服务器本地完成：
+生产部署分支是 **`local-server`**，不是 `main`。仓库没有 CI，部署由服务器本地完成。推荐用一键脚本（同步代码 → `npm ci`（按需）→ 构建 → 重启 → 健康检查，失败给出回滚提示）：
+
+```bash
+./scripts/deploy.sh                 # 完整部署
+./scripts/deploy.sh --no-pull       # 不拉代码，用当前工作区构建部署（回滚后重发用）
+./scripts/deploy.sh --health-only   # 只做健康检查，不部署
+```
+
+健康检查打本机回环 `http://127.0.0.1:3000`（首页 200 + `/api/stats` + `/api/cases` 抽查）；**不要用公网域名做命令行验证**——经 Cloudflare，会被 bot 挑战拦成 403。脚本在部署前会校验：当前在 `local-server` 分支、已跟踪文件无未提交改动、服务运行目录与仓库一致，并用文件锁防止并发部署。
+
+手工回退步骤（与脚本内部流程等价）：
 
 ```bash
 git pull origin local-server
 npm ci                    # 依赖缺失时 systemd 启动会失败
 npm run build
 systemctl restart baobeihuijia
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/   # 期望 200
 ```
 
-systemd 单元 `baobeihuijia.service` 直接执行 `node node_modules/next/dist/bin/next start -p 3000`，并设有内存上限与崩溃自愈。线上验证走 `http://localhost:3000`——公网域名经 Cloudflare，命令行访问会被 bot 挑战拦成 403。
+systemd 单元 `baobeihuijia.service` 直接执行 `node node_modules/next/dist/bin/next start -p 3000`，并设有内存上限与崩溃自愈。方案与验收细节见 `docs/REQ-202610-0450-plan.md`。
 
 ## 目录结构
 
