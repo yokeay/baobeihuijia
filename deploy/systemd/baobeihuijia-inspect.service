@@ -1,0 +1,12 @@
+[Unit]
+Description=我好想你 · 站点与同步任务巡检（REQ-202610-0437）
+Documentation=file:///root/baobeihuijia/docs/REQ-202610-0437-plan.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/baobeihuijia
+# 数据库连接串在 /root/baobeihuijia/.env；邮件密钥在 /etc/clodhost/api-keys.env（脚本自行读取，不回显）
+ExecStart=/root/baobeihuijia/node_modules/.bin/tsx /root/baobeihuijia/scripts/inspect.ts
+TimeoutStartSec=180

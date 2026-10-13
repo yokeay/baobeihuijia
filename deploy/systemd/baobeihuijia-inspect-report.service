@@ -1,0 +1,11 @@
+[Unit]
+Description=我好想你 · 巡检周报（REQ-202610-0437）
+Documentation=file:///root/baobeihuijia/docs/REQ-202610-0437-plan.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/baobeihuijia
+ExecStart=/root/baobeihuijia/node_modules/.bin/tsx /root/baobeihuijia/scripts/inspect.ts --report
+TimeoutStartSec=180

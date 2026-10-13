@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
 
 export const cases = pgTable("cases", {
   id: text("id").primaryKey(),
@@ -153,4 +153,21 @@ export const userActivities = pgTable("user_activities", {
   targetId:   text("target_id"),
   detail:     text("detail"),
   createdAt:  timestamp("created_at").notNull().defaultNow(),
+});
+
+// 同步任务运行记录：每次同步（香港/美国/韩国/西班牙）一行，巡检脚本与周报的数据源。
+// status: running | ok | error | failed（见 drizzle/0005_sync_runs.sql）
+export const syncRuns = pgTable("sync_runs", {
+  id:         text("id").primaryKey(),
+  source:     text("source").notNull(), // hongkong | namus | korea | cndes
+  status:     text("status").notNull().default("running"),
+  startedAt:  timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
+  totalInApi: integer("total_in_api"),
+  added:      integer("added"),
+  skipped:    integer("skipped"),
+  errors:     integer("errors"),
+  durationMs: integer("duration_ms"),
+  lastError:  text("last_error"),
+  detail:     jsonb("detail"),
 });

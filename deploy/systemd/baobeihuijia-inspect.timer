@@ -1,0 +1,12 @@
+[Unit]
+Description=每 30 分钟运行一次站点与同步任务巡检
+
+[Timer]
+OnBootSec=10min
+# 每小时的 :07 与 :37 各一次
+OnCalendar=*-*-* *:07/30:00
+AccuracySec=1min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
